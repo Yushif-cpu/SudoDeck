@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sudodeck — SIEM Utilities & Parsers</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              950: '#060911',
+              900: '#0a0e17',
+              850: '#0d1322',
+              800: '#0f1629',
+              750: '#131b31',
+              700: '#151d33',
+              600: '#1e293b',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+
+<body class="bg-surface-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-indigo-500/30 selection:text-white">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  HEADER / NAVIGATION                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  HEADER / NAVIGATION                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <header class="sticky top-0 z-40 bg-surface-950/90 backdrop-blur-xl border-b border-slate-800/80">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Left: Logo & Brand -->
+        <div class="flex items-center gap-6">
+          <a href="/siem" class="flex items-center gap-3 group">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                <i data-lucide="layers" class="w-5 h-5 text-white"></i>
+              </div>
+              <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-indigo-400 rounded-full animate-pulse-slow border-2 border-surface-900"></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h1 class="text-base font-bold tracking-tight text-white group-hover:text-indigo-400 transition-colors">sudo<span class="text-indigo-400">deck</span></h1>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">SIEM</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Categorized Desktop Navigation -->
+          <nav class="hidden lg:flex items-center gap-2">
+
+            <!-- Category 1: Threat & Recon Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-intel"
+                class="nav-pill"
+              >
+                <i data-lucide="radar" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Threat & Recon</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-intel"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP Reputation Check</div>
+                    <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
+                  </div>
+                </a>
+                <a href="/mac" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
+                  </div>
+                </a>
+                <a href="/cve" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                    <i data-lucide="flame" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">CVE Scanner</div>
+                    <div class="text-[11px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category 2: SOC & SIEM Direct Link (Active on SIEM page) -->
+            <a
+              href="/siem"
+              class="nav-pill active active-indigo"
+            >
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>SIEM Utilities</span>
+              <span class="nav-pill-badge bg-indigo-500/25 text-indigo-200 border border-indigo-500/40">Active</span>
+            </a>
+
+            <!-- Category 3: Security Tools Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-tools"
+                class="nav-pill"
+              >
+                <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Security Tools</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-tools"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/crypto" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Crypto & Hash Suite</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
+                  </div>
+                </a>
+                <a href="/gtfobins" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">GTFOBins Explorer</div>
+                    <div class="text-[11px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </nav>
+        </div>
+
+        <!-- Right: Direct Links, Command Palette Launcher & System Status -->
+        <div class="flex items-center gap-3 shrink-0 ml-6 xl:ml-8">
+          <a
+            href="/#about"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>About</span>
+          </a>
+          <a
+            href="/#contact"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Contact</span>
+          </a>
+
+          <!-- Command Palette Trigger Button -->
+          <button
+            type="button"
+            data-action="open-command-palette"
+            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-indigo-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
+            title="Open Command Launcher (Ctrl + K)"
+          >
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-400 transition-colors shrink-0"></i>
+            <span class="text-slate-400 group-hover:text-slate-200 whitespace-nowrap">Search intel...</span>
+            <kbd class="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-900 border border-slate-750 text-[10px] font-mono text-slate-400 shrink-0">
+              <span>Ctrl</span><span>K</span>
+            </kbd>
+          </button>
+
+          <!-- System Status Badge -->
+          <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 whitespace-nowrap shrink-0">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-400"></span>
+            </span>
+            <span class="text-[11px] font-mono font-medium tracking-wide">Parsers Online</span>
+          </div>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button
+            id="mobile-menu-toggle"
+            type="button"
+            class="lg:hidden h-9 w-9 flex items-center justify-center rounded-xl bg-surface-800 border border-slate-700/60 text-slate-300 hover:text-white transition-colors shrink-0"
+          >
+            <i data-lucide="menu" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-menu-drawer" class="hidden lg:hidden border-t border-slate-800/80 py-3 space-y-1 animate-fade-in">
+        <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="radar" class="w-4 h-4 text-emerald-400"></i>
+          <span>IP Reputation Check</span>
+        </a>
+        <a href="/mac" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
+          <span>MAC & OUI Lookup</span>
+        </a>
+        <a href="/cve" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
+          <span>CVE Vulnerability Scanner</span>
+        </a>
+        <a href="/siem" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-indigo-400 bg-indigo-500/10">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+          <span>SIEM Utilities</span>
+        </a>
+        <a href="/crypto" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="key-round" class="w-4 h-4 text-purple-400"></i>
+          <span>Crypto & Hash Suite</span>
+        </a>
+        <a href="/gtfobins" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
+          <span>GTFOBins Explorer</span>
+        </a>
+        <a href="/#about" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+          <span>About sudodeck</span>
+        </a>
+        <a href="/#contact" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="mail" class="w-4 h-4 text-cyan-400"></i>
+          <span>Contact CIRT</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  MAIN CONTENT                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
+
+    <!-- ── Hero Banner & Tabs Bar ──────────────────────────────── -->
+    <div class="border-b border-slate-800/80 pb-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">SIEM Utilities & Parsers</h2>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+              SOC WORKBENCH
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">
+            Normalize heterogeneous security event logs, extract SIEM fields, and engineer high-fidelity detection regex rules.
+          </p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Sleek Single-Row Tabs) -->
+      <div class="flex items-center gap-1.5 p-1.5 rounded-xl bg-surface-900 border border-slate-800/90 w-full sm:w-fit overflow-x-auto shadow-inner">
+        <button
+          type="button"
+          class="siem-nav-tab active text-white whitespace-nowrap"
+          data-tab="formatter"
+        >
+          <i data-lucide="file-code" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+          <span>Log & Alert Formatter</span>
+        </button>
+
+        <button
+          type="button"
+          class="siem-nav-tab text-slate-400 whitespace-nowrap"
+          data-tab="regex"
+        >
+          <i data-lucide="search-code" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+          <span>Regex Tester & Detection</span>
+        </button>
+
+        <button
+          type="button"
+          class="siem-nav-tab text-slate-400 whitespace-nowrap"
+          data-tab="headers"
+        >
+          <i data-lucide="scan-face" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+          <span>User-Agent & HTTP Headers</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  SECTION 1: LOG & ALERT FORMATTER                          -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section id="section-formatter" class="space-y-6 animate-fade-in">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- ── Left Column: Input Card (5 Cols) ── -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-4">
+
+            <!-- Card Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="terminal" class="w-4 h-4 text-indigo-400"></i>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Raw Security Log / Alert</h3>
+              </div>
+              <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                <span id="raw-log-lines">0 lines</span>
+                <span>•</span>
+                <span id="raw-log-length">0 chars</span>
+              </div>
+            </div>
+
+            <!-- Preset Selector -->
+            <div>
+              <label for="select-sample-log" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                Load Preset Sample Log:
+              </label>
+              <select
+                id="select-sample-log"
+                class="w-full bg-surface-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
+              >
+                <option value="json_alert">Suricata EVE-JSON Alert (EternalBlue SMB)</option>
+                <option value="syslog_rfc5424">Syslog RFC 5424 (Linux sshd Failed Password)</option>
+                <option value="windows_event">Windows Security Event XML (EventID 4625 Failed Logon)</option>
+                <option value="cef_log">Palo Alto Networks CEF Threat Log</option>
+                <option value="key_value">Fortinet FortiGate Key-Value Traffic Log</option>
+              </select>
+            </div>
+
+            <!-- Textarea -->
+            <div>
+              <textarea
+                id="raw-log-input"
+                rows="15"
+                placeholder="Paste raw JSON alert, Syslog message, Windows Security Event XML, CEF string, or Key-Value pairs here..."
+                class="w-full bg-surface-950/90 border border-slate-800 rounded-xl p-3.5 font-mono text-xs text-indigo-100 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/80 transition-colors leading-relaxed shadow-inner resize-y"
+              ></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2.5 pt-1">
+              <button
+                type="button"
+                id="btn-format-log"
+                class="flex-1 btn-primary !py-2.5 !text-xs flex items-center justify-center gap-2 font-bold shadow-lg shadow-indigo-500/10"
+              >
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>Format & Parse Log</span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-minify-log"
+                class="btn-secondary !py-2.5 !text-xs flex items-center gap-1.5"
+                title="Minify JSON"
+              >
+                <i data-lucide="minimize-2" class="w-3.5 h-3.5"></i>
+                <span class="hidden sm:inline">Minify</span>
+              </button>
+
+              <button
+                type="button"
+                id="btn-clear-log"
+                class="btn-secondary !py-2.5 !text-xs flex items-center gap-1.5 text-slate-400 hover:text-rose-400"
+                title="Clear input"
+              >
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Right Column: Formatted Output & Extracted Fields (7 Cols) ── -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- Output Card -->
+          <div id="formatted-output-card" class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-4">
+
+            <!-- Card Header & Badges -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                  <i data-lucide="check-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-white uppercase tracking-wider">Normalized Structure</h3>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span id="badge-detected-format" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                      JSON Alert
+                    </span>
+                    <span id="badge-fields-count" class="text-[11px] font-mono text-slate-400">
+                      12 fields
+                    </span>
+                    <span class="text-slate-600">•</span>
+                    <span id="badge-parse-time" class="text-[11px] font-mono text-indigo-400">
+                      0.8 ms
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Copy Formatted Button -->
+              <button
+                type="button"
+                id="btn-copy-formatted"
+                class="btn-secondary !text-xs !py-1.5 !px-3 flex items-center gap-1.5 hover:!border-indigo-500/50"
+              >
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy Formatted</span>
+              </button>
+            </div>
+
+            <!-- Extracted SIEM Attributes Grid -->
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-2">
+                Extracted SIEM Key Entities:
+              </span>
+              <div id="parsed-fields-container">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+
+            <!-- Syntax-Highlighted Code Area -->
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-2">
+                Formatted JSON Representation:
+              </span>
+              <div class="relative group">
+                <pre class="bg-surface-950 p-4 rounded-xl font-mono text-xs text-indigo-100 border border-slate-800/90 overflow-x-auto select-all leading-relaxed max-h-[500px] shadow-inner"><code id="formatted-code-output"></code></pre>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  SECTION 2: REGEX TESTER & DETECTION HELPER                -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section id="section-regex" class="space-y-6 hidden animate-fade-in">
+
+      <!-- ── Pattern Builder Card ── -->
+      <div class="card p-6 border-slate-800/80 bg-surface-850 shadow-xl space-y-4">
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div>
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <i data-lucide="binary" class="w-4 h-4"></i>
+              </div>
+              <h3 class="text-base font-bold text-white tracking-tight">Regular Expression Detection Builder</h3>
+            </div>
+            <p id="regex-preset-desc" class="text-xs text-slate-400 mt-1">
+              Test detection signatures, extract capture groups, and generate SIEM queries for SOC investigations.
+            </p>
+          </div>
+
+          <!-- Generate SIEM Rules Modal Trigger -->
+          <button
+            type="button"
+            id="btn-generate-siem-rules"
+            class="btn-primary !text-xs !py-2 !px-3.5 flex items-center gap-1.5 shadow-lg shadow-indigo-500/10 self-start sm:self-auto"
+          >
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-indigo-200"></i>
+            <span>Export SIEM Query (Splunk / Sigma)</span>
+          </button>
+        </div>
+
+        <!-- Pattern Input & Flags Row -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+
+          <!-- Regex Pattern Input -->
+          <div class="md:col-span-8 flex items-center bg-surface-950 border border-slate-800 rounded-xl px-3 py-1 shadow-inner focus-within:border-indigo-500 transition-colors">
+            <span class="text-slate-500 font-mono text-sm select-none font-bold pr-1">/</span>
+            <input
+              type="text"
+              id="regex-pattern-input"
+              placeholder="e.g. \bCVE-\d{4}-\d{4,7}\b"
+              class="w-full bg-transparent border-none py-2 text-xs font-mono text-indigo-300 placeholder:text-slate-600 focus:outline-none"
+            />
+            <span class="text-slate-500 font-mono text-sm select-none font-bold pl-1">/</span>
+          </div>
+
+          <!-- Flags Checkboxes -->
+          <div class="md:col-span-4 flex items-center justify-between sm:justify-start gap-4 bg-surface-900/60 p-2.5 rounded-xl border border-slate-800">
+            <label class="flex items-center gap-1.5 text-xs font-mono text-slate-300 cursor-pointer">
+              <input type="checkbox" value="g" checked class="regex-flag-cb rounded text-indigo-500 focus:ring-0 bg-surface-950 border-slate-700">
+              <span>g (global)</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-xs font-mono text-slate-300 cursor-pointer">
+              <input type="checkbox" value="i" checked class="regex-flag-cb rounded text-indigo-500 focus:ring-0 bg-surface-950 border-slate-700">
+              <span>i (case)</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-xs font-mono text-slate-300 cursor-pointer">
+              <input type="checkbox" value="m" class="regex-flag-cb rounded text-indigo-500 focus:ring-0 bg-surface-950 border-slate-700">
+              <span>m (multi)</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-xs font-mono text-slate-300 cursor-pointer">
+              <input type="checkbox" value="s" class="regex-flag-cb rounded text-indigo-500 focus:ring-0 bg-surface-950 border-slate-700">
+              <span>s (dotall)</span>
+            </label>
+          </div>
+
+        </div>
+
+        <!-- Quick Presets Buttons -->
+        <div class="flex flex-wrap items-center gap-1.5 pt-1">
+          <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider mr-1">SOC Presets:</span>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="ipv4">IPv4 Address</button>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="cve">CVE ID</button>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="hashes">MD5 / SHA-256</button>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="email">Email</button>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="domain">Domain / FQDN</button>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="url">URL</button>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="winevent">Windows EventID</button>
+          <button type="button" class="btn-quick-regex quick-crypto-sample" data-preset="base64">Base64</button>
+        </div>
+
+        <!-- Regex Error Alert (Hidden by default) -->
+        <div id="regex-error-alert" class="hidden p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-mono"></div>
+
+      </div>
+
+      <!-- ── Interactive Matches & Test Area Grid ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left: Test String Input (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div class="flex items-center gap-2">
+                <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
+                <h4 class="text-xs font-bold text-white uppercase tracking-wider">Test Log String / Sample</h4>
+              </div>
+              <span class="text-[10px] font-mono text-slate-500">Live Evaluation</span>
+            </div>
+
+            <textarea
+              id="regex-test-text"
+              rows="10"
+              placeholder="Paste security log, auth message, or command line arguments to evaluate..."
+              class="w-full bg-surface-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs text-indigo-100 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors leading-relaxed shadow-inner resize-y"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- Right: Live Match Visual Highlight (7 Cols) -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-3">
+
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+              <div class="flex items-center gap-2">
+                <i data-lucide="eye" class="w-4 h-4 text-indigo-400"></i>
+                <h4 class="text-xs font-bold text-white uppercase tracking-wider">Live Match Highlighter</h4>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="badge-match-count" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                  0 matches
+                </span>
+                <span id="badge-match-time" class="text-[10px] font-mono text-slate-500">
+                  0.0 ms
+                </span>
+              </div>
+            </div>
+
+            <!-- Highlighted Display Box -->
+            <div
+              id="regex-highlight-preview"
+              class="w-full min-h-[190px] max-h-[280px] overflow-y-auto bg-surface-950 border border-slate-800 rounded-xl p-3.5 font-mono text-xs text-slate-300 leading-relaxed break-all whitespace-pre-wrap select-text shadow-inner"
+            >
+              <!-- Highlighted HTML dynamically rendered -->
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Match Details Table Card ── -->
+      <div class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2">
+            <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i>
+            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Extracted Regex Matches & Capture Groups</h4>
+          </div>
+          <span class="text-[10px] font-mono text-slate-500">Offset & Token Breakdown</span>
+        </div>
+
+        <div id="regex-matches-table-container">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  SECTION 3: USER-AGENT & HTTP HEADER ANALYZER               -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section id="section-headers" class="space-y-6 animate-fade-in hidden">
+
+      <!-- ───────────────────────────────────────────────────────── -->
+      <!--  PART 1: USER-AGENT PARSER & THREAT FINGERPRINTER         -->
+      <!-- ───────────────────────────────────────────────────────── -->
+      <div class="card p-5 sm:p-6 border-slate-800/80 bg-surface-850 shadow-xl space-y-5">
+        
+        <!-- Card Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+              <i data-lucide="scan-face" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                User-Agent Deep Parser & Threat Fingerprinter
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">CLIENT-SIDE</span>
+              </h3>
+              <p class="text-xs text-slate-400">Extract browser family, OS architecture, device factor, and detect automated pentest scanners & bots</p>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <button
+              type="button"
+              id="btn-my-ua"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 transition-all shadow-sm"
+              title="Use current browser User-Agent"
+            >
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>My Browser UA</span>
+            </button>
+            <button
+              type="button"
+              id="btn-clear-ua"
+              class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-surface-800 hover:bg-surface-700 text-slate-400 hover:text-white border border-slate-700/60 transition-all"
+            >
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>Clear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sample Presets Chips -->
+        <div class="space-y-1.5">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Sample User-Agents / Scanners:</span>
+          <div class="flex items-center gap-1.5 flex-wrap" id="ua-preset-chips">
+            <button type="button" data-ua="win-chrome" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-surface-800 hover:bg-surface-700 text-slate-300 border border-slate-700/50 hover:border-indigo-500/40 transition-all">
+              💻 Windows 11 Chrome
+            </button>
+            <button type="button" data-ua="mac-safari" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-surface-800 hover:bg-surface-700 text-slate-300 border border-slate-700/50 hover:border-indigo-500/40 transition-all">
+              🍏 macOS Safari
+            </button>
+            <button type="button" data-ua="iphone-safari" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-surface-800 hover:bg-surface-700 text-slate-300 border border-slate-700/50 hover:border-indigo-500/40 transition-all">
+              📱 iPhone Safari (iOS 17)
+            </button>
+            <button type="button" data-ua="android-chrome" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-surface-800 hover:bg-surface-700 text-slate-300 border border-slate-700/50 hover:border-indigo-500/40 transition-all">
+              🤖 Android Chrome
+            </button>
+            <button type="button" data-ua="sqlmap" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition-all">
+              ⚠️ sqlmap Scanner
+            </button>
+            <button type="button" data-ua="nikto" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 transition-all">
+              🛡️ Nikto Vuln Scanner
+            </button>
+            <button type="button" data-ua="googlebot" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 transition-all">
+              🕷️ Googlebot Crawler
+            </button>
+            <button type="button" data-ua="curl" class="ua-chip px-2.5 py-1 rounded-lg text-[11px] font-medium bg-surface-800 hover:bg-surface-700 text-slate-300 border border-slate-700/50 hover:border-indigo-500/40 transition-all">
+              ⌨️ curl CLI
+            </button>
+          </div>
+        </div>
+
+        <!-- Input Box -->
+        <div class="space-y-2">
+          <div class="relative">
+            <textarea
+              id="ua-input"
+              rows="2"
+              class="w-full bg-surface-900 border border-slate-700/80 rounded-xl p-3.5 text-xs font-mono text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
+              placeholder="Enter User-Agent string (e.g., Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...)"
+            ></textarea>
+          </div>
+          <div class="flex items-center justify-between gap-2">
+            <span id="ua-length-counter" class="text-[11px] font-mono text-slate-500">0 characters</span>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="btn-analyze-ua"
+                class="btn-primary !text-xs !py-1.5 !px-4"
+              >
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                <span>Analyze User-Agent</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Threat / Bot Alert Banner (Dynamically injected if threat or bot detected) -->
+        <div id="ua-threat-alert" class="hidden p-3.5 rounded-xl border transition-all animate-fade-in">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- 4 Specification Output Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- Card 1: Browser -->
+          <div class="p-4 rounded-xl bg-surface-900 border border-slate-800 space-y-2 relative overflow-hidden group hover:border-indigo-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Browser / Client</span>
+              <div id="ua-browser-icon" class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                <i data-lucide="globe" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div id="ua-browser-name" class="text-base font-bold text-white tracking-tight truncate">Awaiting Input...</div>
+              <div id="ua-browser-version" class="text-xs font-mono text-indigo-400 mt-0.5">Version: —</div>
+            </div>
+            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Family:</span>
+              <span id="ua-browser-family" class="font-medium text-slate-300">—</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Operating System -->
+          <div class="p-4 rounded-xl bg-surface-900 border border-slate-800 space-y-2 relative overflow-hidden group hover:border-cyan-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Operating System (OS)</span>
+              <div id="ua-os-icon" class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+                <i data-lucide="terminal" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div id="ua-os-name" class="text-base font-bold text-white tracking-tight truncate">Awaiting Input...</div>
+              <div id="ua-os-version" class="text-xs font-mono text-cyan-400 mt-0.5">Version: —</div>
+            </div>
+            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Architecture:</span>
+              <span id="ua-os-arch" class="font-medium text-slate-300">—</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Device Class -->
+          <div class="p-4 rounded-xl bg-surface-900 border border-slate-800 space-y-2 relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Device Category</span>
+              <div id="ua-device-icon" class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                <i data-lucide="monitor" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div id="ua-device-type" class="text-base font-bold text-white tracking-tight truncate">Awaiting Input...</div>
+              <div id="ua-device-form" class="text-xs font-mono text-emerald-400 mt-0.5">Type: —</div>
+            </div>
+            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Model / Brand:</span>
+              <span id="ua-device-brand" class="font-medium text-slate-300">—</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Rendering Engine -->
+          <div class="p-4 rounded-xl bg-surface-900 border border-slate-800 space-y-2 relative overflow-hidden group hover:border-purple-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Rendering Engine</span>
+              <div id="ua-engine-icon" class="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                <i data-lucide="cpu" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div>
+              <div id="ua-engine-name" class="text-base font-bold text-white tracking-tight truncate">Awaiting Input...</div>
+              <div id="ua-engine-version" class="text-xs font-mono text-purple-400 mt-0.5">Version: —</div>
+            </div>
+            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Security Status:</span>
+              <span id="ua-security-status" class="font-medium text-slate-300">—</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Detailed Breakdown & Tokens -->
+        <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 space-y-3">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+              <h4 class="text-xs font-bold text-white uppercase tracking-wider">User-Agent Token Breakdown & Compatibility</h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="btn-copy-ua-json"
+                class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-surface-800 hover:bg-surface-700 text-slate-300 hover:text-white border border-slate-700/60 transition-all"
+              >
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy JSON</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="ua-tokens-list" class="flex flex-wrap gap-1.5">
+            <span class="text-xs text-slate-500 font-mono">No User-Agent string provided.</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ───────────────────────────────────────────────────────── -->
+      <!--  PART 2: HTTP HEADER INSPECTOR & SECURITY COMPLIANCE      -->
+      <!-- ───────────────────────────────────────────────────────── -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- ── Left Column: Raw Headers Input (5 cols) ── -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-4">
+            
+            <!-- Card Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="file-code" class="w-4 h-4 text-indigo-400"></i>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Raw HTTP Headers Input</h3>
+              </div>
+              <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400">
+                <span id="headers-stat-lines">0 lines</span>
+                <span>•</span>
+                <span id="headers-stat-count">0 headers</span>
+              </div>
+            </div>
+
+            <!-- Preset Selector -->
+            <div>
+              <label for="select-headers-preset" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                Load Preset Headers:
+              </label>
+              <div class="relative">
+                <select
+                  id="select-headers-preset"
+                  class="w-full bg-surface-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-200 focus:outline-none focus:border-indigo-500 transition-all appearance-none cursor-pointer pr-9"
+                >
+                  <option value="hardened">🔒 Hardened Production API (OWASP Recommended - Grade A+)</option>
+                  <option value="vulnerable">⚠️ Vulnerable / Legacy Web Server (Missing CSP, HSTS, PHP Leak)</option>
+                  <option value="cloudflare">☁️ Cloudflare / Modern Nginx Proxy Response</option>
+                  <option value="request">🌐 Incoming Web Client Request (Cookie, UA, Accept)</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-400">
+                  <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Textarea -->
+            <div class="space-y-1.5">
+              <label for="raw-headers-input" class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                Paste Raw HTTP Headers:
+              </label>
+              <textarea
+                id="raw-headers-input"
+                rows="14"
+                class="w-full bg-surface-900 border border-slate-700/80 rounded-xl p-3.5 text-xs font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-y"
+                placeholder="Content-Type: application/json&#10;Strict-Transport-Security: max-age=31536000; includeSubDomains&#10;Content-Security-Policy: default-src 'self'&#10;X-Frame-Options: DENY&#10;Server: nginx..."
+              ></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800">
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  id="btn-analyze-headers"
+                  class="btn-primary !text-xs !py-1.5 !px-4"
+                >
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                  <span>Analyze Headers</span>
+                </button>
+                <button
+                  type="button"
+                  id="btn-clear-headers"
+                  class="btn-secondary !text-xs !py-1.5 !px-3"
+                >
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  <span>Clear</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                id="btn-copy-headers-json"
+                class="btn-secondary !text-xs !py-1.5 !px-3"
+                title="Copy parsed headers as JSON object"
+              >
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                <span>Copy JSON</span>
+              </button>
+            </div>
+
+            <!-- Live Indicators -->
+            <div class="grid grid-cols-3 gap-2 pt-2 text-center text-xs">
+              <div class="p-2 rounded-lg bg-surface-900 border border-slate-800">
+                <span class="text-[10px] text-slate-400 block uppercase">Total Headers</span>
+                <span id="badge-total-headers" class="font-bold text-white font-mono text-sm">0</span>
+              </div>
+              <div class="p-2 rounded-lg bg-surface-900 border border-slate-800">
+                <span class="text-[10px] text-slate-400 block uppercase">Security</span>
+                <span id="badge-sec-headers" class="font-bold text-emerald-400 font-mono text-sm">0</span>
+              </div>
+              <div class="p-2 rounded-lg bg-surface-900 border border-slate-800">
+                <span class="text-[10px] text-slate-400 block uppercase">Info Leaks</span>
+                <span id="badge-leak-headers" class="font-bold text-rose-400 font-mono text-sm">0</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Right Column: Security Compliance Audit (7 cols) ── -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-4">
+            
+            <!-- Audit Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="shield-alert" class="w-4 h-4 text-emerald-400"></i>
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Security Headers Compliance & Posture</h3>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700">OWASP BEST PRACTICE</span>
+            </div>
+
+            <!-- Security Grade Card -->
+            <div class="p-4 rounded-xl bg-surface-900 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <!-- Circular Grade Badge -->
+                <div id="sec-grade-circle" class="w-16 h-16 rounded-2xl flex flex-col items-center justify-center font-extrabold text-2xl border-2 transition-all bg-emerald-500/10 border-emerald-500/40 text-emerald-400 shadow-lg shadow-emerald-500/10">
+                  <span id="sec-grade-letter">A+</span>
+                  <span class="text-[9px] font-mono font-medium -mt-1 uppercase text-slate-400">GRADE</span>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h4 class="text-base font-bold text-white" id="sec-posture-title">Strong Security Posture</h4>
+                    <span id="sec-posture-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      85 / 100
+                    </span>
+                  </div>
+                  <p id="sec-posture-desc" class="text-xs text-slate-400 mt-0.5">
+                    Crucial HTTP security headers are configured, mitigating XSS, Clickjacking, and MIME sniffing attacks.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Pass/Fail Counters -->
+              <div class="flex items-center gap-3 sm:border-l sm:border-slate-800 sm:pl-4 text-xs font-mono">
+                <div class="text-center">
+                  <span class="text-[10px] text-emerald-400 block font-bold">PASSED</span>
+                  <span id="sec-count-passed" class="text-lg font-bold text-white">0</span>
+                </div>
+                <div class="text-center">
+                  <span class="text-[10px] text-amber-400 block font-bold">WARNINGS</span>
+                  <span id="sec-count-warnings" class="text-lg font-bold text-white">0</span>
+                </div>
+                <div class="text-center">
+                  <span class="text-[10px] text-rose-400 block font-bold">MISSING</span>
+                  <span id="sec-count-missing" class="text-lg font-bold text-white">0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Score Progress Bar -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[11px]">
+                <span class="text-slate-400 font-medium">Security Index:</span>
+                <span id="sec-score-text" class="font-mono font-bold text-emerald-400">0%</span>
+              </div>
+              <div class="w-full bg-surface-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                <div id="sec-score-bar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- Detailed Security Headers Checklist -->
+            <div class="space-y-2 max-h-[340px] overflow-y-auto pr-1" id="sec-headers-checklist">
+              <!-- Dynamically populated via JS -->
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ───────────────────────────────────────────────────────── -->
+      <!--  PART 3: STRUCTURED HEADERS EXPLORER TABLE                -->
+      <!-- ───────────────────────────────────────────────────────── -->
+      <div class="card p-5 border-slate-800/80 bg-surface-850 shadow-xl space-y-4">
+        
+        <!-- Table Control Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2">
+            <i data-lucide="table" class="w-4 h-4 text-indigo-400"></i>
+            <h4 class="text-xs font-bold text-white uppercase tracking-wider">Parsed HTTP Headers Table & Inspection</h4>
+            <span id="table-headers-count" class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">0 headers</span>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="relative w-48 sm:w-64">
+              <input
+                type="text"
+                id="input-search-headers"
+                class="w-full bg-surface-900 border border-slate-700/80 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all"
+                placeholder="Search header name or value..."
+              />
+              <div class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-slate-500">
+                <i data-lucide="search" class="w-3.5 h-3.5"></i>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              id="btn-copy-table-tsv"
+              class="btn-secondary !text-xs !py-1.5 !px-3"
+              title="Copy headers table as Tab-Separated Values (TSV) for Excel"
+            >
+              <i data-lucide="sheet" class="w-3.5 h-3.5"></i>
+              <span>Copy TSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex items-center gap-1.5 flex-wrap" id="header-category-filters">
+          <button type="button" data-filter="all" class="header-filter-btn active px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 transition-all">
+            All Headers
+          </button>
+          <button type="button" data-filter="security" class="header-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-surface-900 text-slate-400 border border-slate-800 hover:text-white transition-all">
+            🛡️ Security
+          </button>
+          <button type="button" data-filter="cache" class="header-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-surface-900 text-slate-400 border border-slate-800 hover:text-white transition-all">
+            ⚡ Caching
+          </button>
+          <button type="button" data-filter="transport" class="header-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-surface-900 text-slate-400 border border-slate-800 hover:text-white transition-all">
+            🔄 Transport & Network
+          </button>
+          <button type="button" data-filter="auth" class="header-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-surface-900 text-slate-400 border border-slate-800 hover:text-white transition-all">
+            🔑 Auth & Cookies
+          </button>
+          <button type="button" data-filter="leak" class="header-filter-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-surface-900 text-slate-400 border border-slate-800 hover:text-white transition-all">
+            ⚠️ Information Leak
+          </button>
+        </div>
+
+        <!-- Headers Table Container -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-surface-900">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-800 bg-surface-950/60 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                <th class="p-3 w-1/4">Header Directive / Key</th>
+                <th class="p-3 w-32">Category</th>
+                <th class="p-3">Header Value</th>
+                <th class="p-3 w-28 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="headers-table-body" class="divide-y divide-slate-800/60 font-mono">
+              <!-- Injected via JavaScript -->
+              <tr>
+                <td colspan="4" class="p-6 text-center text-slate-500 font-sans">
+                  No HTTP headers loaded yet. Paste raw HTTP headers above or select a preset.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  SIEM DETECTION RULES MODAL                                -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="siem-rules-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden animate-fade-in">
+    <div class="card max-w-3xl w-full p-6 border-indigo-500/40 bg-surface-900 shadow-2xl space-y-4 max-h-[88vh] flex flex-col">
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+            <i data-lucide="file-code-2" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white tracking-tight">Export SIEM Detection Rules</h3>
+            <p class="text-xs text-slate-400">Generated queries for Splunk, Sigma, Elasticsearch, and YARA</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          id="btn-close-siem-modal"
+          class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-surface-800 transition-colors"
+        >
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div id="siem-rules-modal-content" class="overflow-y-auto flex-1 space-y-4 pr-1">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="border-t border-slate-800 pt-3 flex items-center justify-end">
+        <button
+          type="button"
+          onclick="document.getElementById('siem-rules-modal').classList.add('hidden')"
+          class="btn-secondary !text-xs !py-1.5 !px-4"
+        >
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOAST CONTAINER                                           -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-slate-800/80 mt-16 py-6 bg-surface-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i>
+        <span>sudodeck SIEM Suite • Client-Side SOC Log Parsing & Detection Workbench</span>
+      </div>
+      <div class="flex items-center gap-4 font-medium flex-wrap">
+        <a href="/#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
+        <span>•</span>
+        <a href="/#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
+        <span>•</span>
+        <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Platform</a>
+        <span>•</span>
+        <a href="/cve" class="text-slate-400 hover:text-white transition-colors">CVE Scanner</a>
+        <span>•</span>
+        <a href="/crypto" class="text-slate-400 hover:text-white transition-colors">Crypto Suite</a>
+        <span>•</span>
+        <a href="/mac" class="text-slate-400 hover:text-white transition-colors">MAC Lookup</a>
+        <span>•</span>
+        <a href="/gtfobins" class="text-slate-400 hover:text-white transition-colors">GTFOBins</a>
+        <span>•</span>
+        <a href="/siem" class="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">SIEM Utilities</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared Navigation & Command Palette -->
+  <script src="/js/shared-nav.js"></script>
+
+  <!-- Application Script -->
+  <script src="/js/siem.js"></script>
+</body>
+</html>

@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="sudodeck — OSINT Threat Intelligence & Indicator Analysis Platform — Enterprise-grade cybersecurity dashboard for IP reputation, file hash analysis, and domain intelligence." />
+  <title>sudodeck — OSINT Threat Intelligence Platform</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          },
+          colors: {
+            surface: {
+              900: '#0a0e17',
+              850: '#0d1322',
+              800: '#0f1629',
+              750: '#151e36',
+              700: '#151d33',
+              600: '#1a2440',
+              500: '#212d4a',
+            },
+            neon: {
+              emerald: '#34d399',
+              cyan: '#22d3ee',
+              amber: '#fbbf24',
+              rose: '#fb7185',
+              violet: '#a78bfa',
+              blue: '#60a5fa',
+            },
+          },
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'slide-in-right': 'slideInRight 0.4s ease-out',
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'glow': 'glow 2s ease-in-out infinite alternate',
+            'scan-line': 'scanLine 3s linear infinite',
+          },
+          keyframes: {
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            slideInRight: {
+              '0%': { transform: 'translateX(100%)', opacity: '0' },
+              '100%': { transform: 'translateX(0)', opacity: '1' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            glow: {
+              '0%': { boxShadow: '0 0 5px rgba(52, 211, 153, 0.2)' },
+              '100%': { boxShadow: '0 0 20px rgba(52, 211, 153, 0.4)' },
+            },
+            scanLine: {
+              '0%': { transform: 'translateY(-100%)' },
+              '100%': { transform: 'translateY(100%)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- App Styles -->
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+
+<body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOP NAV BAR                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-surface-900/90 backdrop-blur-xl">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Left: Logo & Brand -->
+        <div class="flex items-center gap-6">
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+              </div>
+              <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse-slow border-2 border-surface-900"></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h1 class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">sudo<span class="text-emerald-400">deck</span></h1>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">PRO</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Categorized Desktop Navigation -->
+          <nav class="hidden lg:flex items-center gap-2">
+
+            <!-- Category 1: Threat & Recon Dropdown (Active on Index) -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-intel"
+                class="nav-pill active active-emerald"
+              >
+                <i data-lucide="radar" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Threat & Recon</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-emerald-400/80"></i>
+              </button>
+              <div
+                id="menu-intel"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/" class="dropdown-card-item active">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white flex items-center justify-between">
+                      <span>IP Reputation Check</span>
+                      <span class="nav-pill-badge bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Active</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
+                  </div>
+                </a>
+                <a href="/mac" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
+                  </div>
+                </a>
+                <a href="/cve" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                    <i data-lucide="flame" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">CVE Scanner</div>
+                    <div class="text-[11px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category 2: SOC & SIEM Direct Link -->
+            <a
+              href="/siem"
+              class="nav-pill"
+            >
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>SIEM Utilities</span>
+              <span class="nav-pill-badge bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PARSER</span>
+            </a>
+
+            <!-- Category 3: Security Tools Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-tools"
+                class="nav-pill"
+              >
+                <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Security Tools</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-tools"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/crypto" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Crypto & Hash Suite</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
+                  </div>
+                </a>
+                <a href="/gtfobins" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">GTFOBins Explorer</div>
+                    <div class="text-[11px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </nav>
+        </div>
+
+        <!-- Right: Direct Links, Command Palette Launcher & System Status -->
+        <div class="flex items-center gap-3 shrink-0 ml-6 xl:ml-8">
+          <a
+            href="#about"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>About</span>
+          </a>
+          <a
+            href="#contact"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Contact</span>
+          </a>
+
+          <!-- Command Palette Trigger Button -->
+          <button
+            type="button"
+            data-action="open-command-palette"
+            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-emerald-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
+            title="Open Command Launcher (Ctrl + K)"
+          >
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0"></i>
+            <span class="text-slate-400 group-hover:text-slate-200 whitespace-nowrap">Search intel...</span>
+            <kbd class="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-900 border border-slate-750 text-[10px] font-mono text-slate-400 shrink-0">
+              <span>Ctrl</span><span>K</span>
+            </kbd>
+          </button>
+
+          <!-- System Status Badge -->
+          <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 whitespace-nowrap shrink-0">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
+            <span class="text-[11px] font-mono font-medium tracking-wide">Platform Active</span>
+          </div>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button
+            id="mobile-menu-toggle"
+            type="button"
+            class="lg:hidden h-9 w-9 flex items-center justify-center rounded-xl bg-surface-800 border border-slate-700/60 text-slate-300 hover:text-white transition-colors shrink-0"
+          >
+            <i data-lucide="menu" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-menu-drawer" class="hidden lg:hidden border-t border-slate-800/80 py-3 space-y-1 animate-fade-in">
+        <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 bg-emerald-500/10">
+          <i data-lucide="radar" class="w-4 h-4 text-emerald-400"></i>
+          <span>IP Reputation Check</span>
+        </a>
+        <a href="/mac" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
+          <span>MAC & OUI Lookup</span>
+        </a>
+        <a href="/cve" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
+          <span>CVE Vulnerability Scanner</span>
+        </a>
+        <a href="/siem" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+          <span>SIEM Utilities</span>
+        </a>
+        <a href="/crypto" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="key-round" class="w-4 h-4 text-purple-400"></i>
+          <span>Crypto & Hash Suite</span>
+        </a>
+        <a href="/gtfobins" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
+          <span>GTFOBins Explorer</span>
+        </a>
+        <a href="#about" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+          <span>About sudodeck</span>
+        </a>
+        <a href="#contact" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="mail" class="w-4 h-4 text-cyan-400"></i>
+          <span>Contact CIRT</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  MAIN CONTENT                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ── Tab Navigation ──────────────────────────────────────── -->
+    <nav class="flex items-center gap-1.5 p-1.5 bg-surface-900/80 rounded-2xl border border-slate-700/60 mb-6 overflow-x-auto shadow-lg" role="tablist" id="main-tabs">
+
+      <button
+        class="tab-btn active"
+        data-tab="ip"
+        role="tab"
+        aria-selected="true"
+      >
+        <i data-lucide="radar" class="w-4 h-4"></i>
+        <span>IP Reputation</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        data-tab="file"
+        role="tab"
+        aria-selected="false"
+      >
+        <i data-lucide="file-search" class="w-4 h-4 text-blue-400"></i>
+        <span>File Hash Analysis</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        data-tab="domain"
+        role="tab"
+        aria-selected="false"
+      >
+        <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
+        <span>Domain Intelligence</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        data-tab="utils"
+        role="tab"
+        aria-selected="false"
+      >
+        <i data-lucide="network" class="w-4 h-4 text-cyan-400"></i>
+        <span>IP Utilities</span>
+        <span class="nav-pill-badge bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">TOOLS</span>
+      </button>
+
+      <button
+        class="tab-btn"
+        data-tab="email"
+        role="tab"
+        aria-selected="false"
+      >
+        <i data-lucide="mail-search" class="w-4 h-4 text-violet-400"></i>
+        <span>Email Header</span>
+        <span class="nav-pill-badge bg-violet-500/15 text-violet-300 border border-violet-500/30">PARSER</span>
+      </button>
+
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  IP REPUTATION PANEL                                   -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="panel-ip" class="tab-panel animate-fade-in" role="tabpanel">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+        <!-- Input Card -->
+        <div class="lg:col-span-1 flex flex-col">
+          <div class="card p-6 h-full min-h-[380px] flex flex-col justify-between">
+            <div class="space-y-4">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                  <i data-lucide="search" class="w-5 h-5 text-cyan-400"></i>
+                </div>
+                <div>
+                  <h2 class="text-sm font-semibold text-white">IP Reputation Check</h2>
+                  <p class="text-xs text-slate-500">AbuseIPDB Intelligence</p>
+                </div>
+              </div>
+
+              <form id="ip-form" class="space-y-4" autocomplete="off">
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="ip-input" class="block text-xs font-medium text-slate-400">Target IP Address</label>
+                    <span class="text-[10px] text-slate-500 font-mono">IPv4 / IPv6</span>
+                  </div>
+                  <div class="relative">
+                    <input
+                      type="text"
+                      id="ip-input"
+                      placeholder="e.g. 8.8.8.8 or 2001:4860:4860::8888"
+                      class="input-field w-full pl-10 pr-9"
+                      required
+                    />
+                    <i data-lucide="monitor" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <button
+                      type="button"
+                      id="btn-clear-ip"
+                      class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded hover:bg-surface-700 transition-colors"
+                      title="Clear IP"
+                    >
+                      <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+                <button type="submit" id="ip-submit" class="btn-primary w-full shadow-lg shadow-emerald-500/10">
+                  <i data-lucide="radar" class="w-4 h-4"></i>
+                  <span>Analyze IP Address</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Quick Presets & Recent Searches -->
+            <div class="mt-5 pt-4 border-t border-slate-800/80 space-y-3">
+              <div>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-2">Quick Presets</span>
+                <div class="flex flex-wrap gap-1.5">
+                  <button type="button" class="preset-chip quick-ip-btn" data-ip="1.1.1.1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                    <span>1.1.1.1</span>
+                    <span class="text-[10px] text-slate-400">Cloudflare</span>
+                  </button>
+                  <button type="button" class="preset-chip quick-ip-btn" data-ip="8.8.8.8">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                    <span>8.8.8.8</span>
+                    <span class="text-[10px] text-slate-400">Google</span>
+                  </button>
+                  <button type="button" class="preset-chip quick-ip-btn" data-ip="185.220.101.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    <span>185.220.101.5</span>
+                    <span class="text-[10px] text-slate-400">Tor Exit</span>
+                  </button>
+                  <button type="button" class="preset-chip quick-ip-btn" data-ip="9.9.9.9">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                    <span>9.9.9.9</span>
+                    <span class="text-[10px] text-slate-400">Quad9</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Recent Searches Container -->
+              <div id="recent-ips-container" class="hidden">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Recent Lookups</span>
+                  <button type="button" id="btn-clear-ip-history" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors">Clear</button>
+                </div>
+                <div id="recent-ips-list" class="flex flex-wrap gap-1.5">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="lg:col-span-2 flex flex-col">
+          <div id="ip-results" class="w-full space-y-4">
+            <div class="card p-10 text-center min-h-[380px] flex flex-col items-center justify-center">
+              <div class="w-16 h-16 rounded-2xl bg-surface-700/60 border border-slate-700/40 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="shield-question" class="w-8 h-8 text-cyan-400"></i>
+              </div>
+              <h3 class="text-base font-semibold text-white mb-1.5">Threat Intelligence & Reputation Analysis</h3>
+              <p class="text-sm text-slate-400 max-w-md mx-auto">Enter an IP address to analyze its reputation and threat indicators.</p>
+              <p class="text-xs text-slate-500 mt-2 font-mono">Supports IPv4 & IPv6 addresses</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  FILE HASH ANALYSIS PANEL                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="panel-file" class="tab-panel hidden" role="tabpanel">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+        <!-- Input Card -->
+        <div class="lg:col-span-1 flex flex-col">
+          <div class="card p-6 h-full flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                  <i data-lucide="file-search" class="w-5 h-5 text-violet-400"></i>
+                </div>
+                <div>
+                  <h2 class="text-sm font-semibold text-white">File Hash Analysis</h2>
+                  <p class="text-xs text-slate-500">VirusTotal Intelligence</p>
+                </div>
+              </div>
+
+              <!-- File Upload -->
+              <form id="file-form" class="space-y-4" autocomplete="off">
+                <div
+                  id="drop-zone"
+                  class="relative border-2 border-dashed border-slate-700/60 rounded-xl p-5 text-center cursor-pointer hover:border-violet-500/40 transition-colors duration-200 group"
+                >
+                  <input type="file" id="file-input" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <div class="space-y-2">
+                    <div class="w-11 h-11 rounded-xl bg-surface-700/60 border border-slate-700/40 flex items-center justify-center mx-auto group-hover:border-violet-500/30 transition-colors">
+                      <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-500 group-hover:text-violet-400 transition-colors"></i>
+                    </div>
+                    <p class="text-sm text-slate-400">Drop a file or <span class="text-violet-400 font-medium">browse</span></p>
+                    <p class="text-xs text-slate-600">Max 32MB • SHA-256 hash computed locally</p>
+                  </div>
+                  <div id="file-info" class="hidden mt-3 p-2 bg-surface-700/60 rounded-lg">
+                    <p id="file-name" class="text-xs font-mono text-violet-300 truncate"></p>
+                    <p id="file-size" class="text-xs text-slate-500 mt-0.5"></p>
+                  </div>
+                </div>
+                <button type="submit" id="file-submit" class="btn-primary w-full" style="--accent: 139, 92, 246;">
+                  <i data-lucide="scan-search" class="w-4 h-4"></i>
+                  <span>Analyze File</span>
+                </button>
+              </form>
+
+              <!-- Divider -->
+              <div class="flex items-center gap-3 my-4">
+                <div class="flex-1 border-t border-slate-700/40"></div>
+                <span class="text-[10px] text-slate-500 font-medium tracking-wider uppercase">Or Enter Hash Directly</span>
+                <div class="flex-1 border-t border-slate-700/40"></div>
+              </div>
+
+              <!-- Direct Hash Form -->
+              <form id="hash-form" class="space-y-3" autocomplete="off">
+                <div>
+                  <label for="hash-input" class="block text-xs font-medium text-slate-400 mb-1.5">SHA-256 Hash</label>
+                  <input
+                    type="text"
+                    id="hash-input"
+                    placeholder="e.g. 275a021bbfb6489e54d471899f7db9d1663fc6..."
+                    class="input-field w-full font-mono text-xs"
+                  />
+                </div>
+                <button type="submit" id="hash-submit" class="btn-secondary w-full">
+                  <i data-lucide="hash" class="w-4 h-4 text-violet-400"></i>
+                  <span>Lookup Hash</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Quick Test Hashes -->
+            <div class="mt-4 pt-3 border-t border-slate-700/40">
+              <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Sample Signatures</p>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" class="quick-hash-btn" data-hash="275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f">EICAR Test</button>
+                <button type="button" class="quick-hash-btn" data-hash="24d004a104d4d54034dbcffc2a4b19a11f39008a575aa614ea04703480b1022c">WannaCry</button>
+                <button type="button" class="quick-hash-btn" data-hash="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855">Clean File</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Results Column -->
+        <div class="lg:col-span-2 flex flex-col">
+          <div id="file-results" class="w-full h-full space-y-4">
+            <div class="card p-6 sm:p-8 h-full min-h-[460px] flex flex-col justify-between">
+              
+              <!-- Header -->
+              <div>
+                <div class="flex items-center gap-3.5 mb-5">
+                  <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/25 flex items-center justify-center shrink-0">
+                    <i data-lucide="shield-alert" class="w-6 h-6 text-violet-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                      <span>Multi-Vendor Malware & Binary Intelligence</span>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-violet-500/15 text-violet-300 border border-violet-500/30">70+ ENGINES</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Upload a suspicious binary or query a cryptographic hash to inspect antivirus verdicts, threat tags, and detection ratios.</p>
+                  </div>
+                </div>
+
+                <!-- 4-Grid Capabilities Showcase -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-rose-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Multi-Engine Scanning</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Aggregated detection coverage across top AV vendors including Microsoft Defender, CrowdStrike, and Kaspersky.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                        <i data-lucide="activity" class="w-3.5 h-3.5 text-amber-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">0-100 Threat Scoring</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Instantly computes a weighted risk score, malicious verdict, and detection ratio percentages.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <i data-lucide="lock" class="w-3.5 h-3.5 text-cyan-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Client-Side Privacy</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">SHA-256 cryptographic fingerprints are calculated locally in your browser for privacy and speed.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                        <i data-lucide="database" class="w-3.5 h-3.5 text-violet-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Malware Attribution</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Correlate hashes with known threat actors, ransomware strains, trojans, and IOC feeds.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Test Samples Footer -->
+              <div class="pt-4 border-t border-slate-800/80 mt-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <span class="text-xs font-semibold text-slate-400">Click a sample signature to test live lookup:</span>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" class="quick-hash-btn" data-hash="275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f">
+                      EICAR Test Virus
+                    </button>
+                    <button type="button" class="quick-hash-btn" data-hash="24d004a104d4d54034dbcffc2a4b19a11f39008a575aa614ea04703480b1022c">
+                      WannaCry Ransomware
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  DOMAIN INTELLIGENCE PANEL                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="panel-domain" class="tab-panel hidden" role="tabpanel">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+        <!-- Input Card -->
+        <div class="lg:col-span-1 flex flex-col">
+          <div class="card p-6 h-full flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                  <i data-lucide="globe" class="w-5 h-5 text-blue-400"></i>
+                </div>
+                <div>
+                  <h2 class="text-sm font-semibold text-white">Domain Intelligence</h2>
+                  <p class="text-xs text-slate-500">VirusTotal & WHOIS Engine</p>
+                </div>
+              </div>
+
+              <form id="domain-form" class="space-y-4" autocomplete="off">
+                <div>
+                  <label for="domain-input" class="block text-xs font-medium text-slate-400 mb-1.5">Target Domain</label>
+                  <div class="relative">
+                    <input
+                      type="text"
+                      id="domain-input"
+                      placeholder="e.g. example.com"
+                      class="input-field w-full pl-10"
+                      required
+                    />
+                    <i data-lucide="link" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                  </div>
+                </div>
+                <button type="submit" id="domain-submit" class="btn-primary w-full" style="--accent: 96, 165, 250;">
+                  <i data-lucide="scan-search" class="w-4 h-4"></i>
+                  <span>Investigate Domain</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Quick Domains -->
+            <div class="mt-5 pt-4 border-t border-slate-700/40">
+              <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Quick Test Domains</p>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" class="quick-domain-btn" data-domain="google.com">google.com</button>
+                <button type="button" class="quick-domain-btn" data-domain="github.com">github.com</button>
+                <button type="button" class="quick-domain-btn" data-domain="malware.wicar.org">malware.wicar.org</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="lg:col-span-2 flex flex-col">
+          <div id="domain-results" class="w-full h-full space-y-4">
+            <div class="card p-6 sm:p-8 h-full min-h-[460px] flex flex-col justify-between">
+              
+              <!-- Header -->
+              <div>
+                <div class="flex items-center gap-3.5 mb-5">
+                  <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/25 flex items-center justify-center shrink-0">
+                    <i data-lucide="globe" class="w-6 h-6 text-blue-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                      <span>Domain Threat Intelligence & Infrastructure</span>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/15 text-blue-300 border border-blue-500/30">WHOIS & DNS</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Query any FQDN to evaluate malware classification, registrar age, DNS routing, and malicious reputation flags.</p>
+                  </div>
+                </div>
+
+                <!-- 4-Grid Capabilities Showcase -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                        <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Multi-Engine Blacklists</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Aggregated malicious and phishing verdicts from top intelligence feeds and security scanners.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5 text-blue-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">WHOIS & Domain Age</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Extract registration dates, registrar ownership, expiration windows, and newly registered domain (NRD) alerts.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                        <i data-lucide="server" class="w-3.5 h-3.5 text-emerald-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Live DNS Mapping</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Instant resolution of authoritative A, AAAA, MX, and NS records with autonomous network context.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                        <i data-lucide="activity" class="w-3.5 h-3.5 text-amber-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Threat Categorization</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Identifies command & control (C2), fast-flux hosting, parked domains, and typosquatting risks.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Test Samples Footer -->
+              <div class="pt-4 border-t border-slate-800/80 mt-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <span class="text-xs font-semibold text-slate-400">Click a sample domain to run automated recon:</span>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" class="quick-domain-btn" data-domain="google.com">
+                      google.com
+                    </button>
+                    <button type="button" class="quick-domain-btn" data-domain="github.com">
+                      github.com
+                    </button>
+                    <button type="button" class="quick-domain-btn" data-domain="malware.wicar.org">
+                      malware.wicar.org
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  IP UTILITIES PANEL (ISOLATED WORKSPACE)               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="panel-utils" class="tab-panel hidden animate-fade-in" role="tabpanel">
+
+      <!-- Module Header Banner -->
+      <div class="card p-5 mb-6 bg-gradient-to-r from-surface-800/90 via-surface-700/60 to-surface-800/90 border border-slate-700/60">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+              <i data-lucide="network" class="w-6 h-6 text-cyan-400"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-bold text-white tracking-tight">Network & IP Utilities Suite</h2>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ISOLATED MODULE</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-0.5">High-precision tools for IP format conversion, CIDR subnetting, live ICMP ping, and DNS interrogation.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-Tabs Navigation -->
+        <div class="flex gap-2 mt-5 p-1 bg-surface-900/80 rounded-xl border border-slate-800 overflow-x-auto" role="tablist" id="utils-subtabs">
+          <button
+            class="util-subtab-btn active flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap text-slate-300"
+            data-subtab="convert"
+            role="tab"
+            aria-selected="true"
+          >
+            <i data-lucide="binary" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>IP Converter</span>
+          </button>
+
+          <button
+            class="util-subtab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap text-slate-400 hover:text-slate-200"
+            data-subtab="subnet"
+            role="tab"
+            aria-selected="false"
+          >
+            <i data-lucide="split" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Subnet Calculator</span>
+          </button>
+
+          <button
+            class="util-subtab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap text-slate-400 hover:text-slate-200"
+            data-subtab="ping"
+            role="tab"
+            aria-selected="false"
+          >
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-rose-400"></i>
+            <span>Live Ping / Latency</span>
+          </button>
+
+          <button
+            class="util-subtab-btn flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all duration-200 whitespace-nowrap text-slate-400 hover:text-slate-200"
+            data-subtab="dns"
+            role="tab"
+            aria-selected="false"
+          >
+            <i data-lucide="server" class="w-3.5 h-3.5 text-violet-400"></i>
+            <span>DNS Records (Dig)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── SUBPANEL 1: IP CONVERTER ──────────────────────────── -->
+      <div id="subpanel-convert" class="util-subpanel">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <!-- Input Form -->
+          <div class="lg:col-span-1 flex flex-col">
+            <div class="card p-6 h-full flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-3 mb-5">
+                  <div class="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                    <i data-lucide="binary" class="w-5 h-5 text-cyan-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">IPv4 Multi-Format Conversion</h3>
+                    <p class="text-xs text-slate-500">Decimal, Hex, Binary & Octal</p>
+                  </div>
+                </div>
+
+                <form id="convert-form" class="space-y-4" autocomplete="off">
+                  <div>
+                    <label for="convert-input" class="block text-xs font-medium text-slate-400 mb-1.5">IPv4 Address or Value</label>
+                    <div class="relative">
+                      <input
+                        type="text"
+                        id="convert-input"
+                        placeholder="e.g. 192.168.1.1, 3232235777, or 0xC0A80101"
+                        class="input-field w-full pl-10 text-xs font-mono"
+                        required
+                      />
+                      <i data-lucide="hash" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    </div>
+                  </div>
+                  <button type="submit" id="convert-submit" class="btn-primary w-full">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>Convert Format</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Quick Values -->
+              <div class="mt-5 pt-4 border-t border-slate-700/40">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Preset Examples</p>
+                <div class="flex flex-wrap gap-1.5" id="convert-quick-pills">
+                  <button type="button" class="quick-pill" data-value="192.168.1.1">192.168.1.1</button>
+                  <button type="button" class="quick-pill" data-value="8.8.8.8">8.8.8.8</button>
+                  <button type="button" class="quick-pill" data-value="10.0.0.1">10.0.0.1</button>
+                  <button type="button" class="quick-pill" data-value="3232235777">3232235777</button>
+                  <button type="button" class="quick-pill" data-value="0xC0A80101">0xC0A80101</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Display -->
+          <div class="lg:col-span-2 flex flex-col">
+            <div id="convert-results" class="w-full h-full space-y-4">
+              <div class="card p-6 sm:p-8 h-full min-h-[460px] flex flex-col justify-between">
+                
+                <!-- Header -->
+                <div>
+                  <div class="flex items-center gap-3.5 mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center shrink-0">
+                      <i data-lucide="binary" class="w-6 h-6 text-cyan-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>IPv4 Bitwise & Notation Converter</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">MATH & ENCODING</span>
+                      </h3>
+                      <p class="text-xs text-slate-400 mt-0.5">Simultaneously translate standard dotted-decimal addresses into integer, hexadecimal, binary, and octal numeric systems.</p>
+                    </div>
+                  </div>
+
+                  <!-- 4-Grid Capabilities Showcase -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                          <i data-lucide="hash" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">32-Bit Unsigned Integer</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Computes raw integer notation (e.g. 3232235777) used in high-speed database indexing and socket lookups.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                          <i data-lucide="code-2" class="w-3.5 h-3.5 text-purple-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Hexadecimal (0x)</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Converts octets into base-16 notation (e.g. 0xC0A80101) for shellcode, packet analysis, and obfuscation audits.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                          <i data-lucide="binary" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">32-Bit Octet Binary</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Displays spaced 8-bit octet binary strings to visualize bitmask boundaries and network/host dividers.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                          <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Octal & IPv6 Mapped</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Generates base-8 octal representation and dual-stack IPv4-mapped IPv6 syntax (::ffff:c0a8:101).</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="pt-4 border-t border-slate-800/80 mt-2">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <span class="text-xs font-semibold text-slate-400">Click a sample to test instant conversion:</span>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="quick-pill" data-value="192.168.1.1">192.168.1.1</button>
+                      <button type="button" class="quick-pill" data-value="8.8.8.8">8.8.8.8</button>
+                      <button type="button" class="quick-pill" data-value="0xC0A80101">0xC0A80101</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUBPANEL 2: SUBNET CALCULATOR ─────────────────────── -->
+      <div id="subpanel-subnet" class="util-subpanel hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <!-- Input Form -->
+          <div class="lg:col-span-1 flex flex-col">
+            <div class="card p-6 h-full flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-3 mb-5">
+                  <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <i data-lucide="split" class="w-5 h-5 text-emerald-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">CIDR Subnet Calculator</h3>
+                    <p class="text-xs text-slate-500">Network, Broadcast & Host Allocation</p>
+                  </div>
+                </div>
+
+                <form id="subnet-form" class="space-y-4" autocomplete="off">
+                  <div>
+                    <label for="subnet-input" class="block text-xs font-medium text-slate-400 mb-1.5">CIDR Network Notation</label>
+                    <div class="relative">
+                      <input
+                        type="text"
+                        id="subnet-input"
+                        placeholder="e.g. 192.168.1.0/24 or 10.0.0.0/16"
+                        class="input-field w-full pl-10 text-xs font-mono"
+                        required
+                      />
+                      <i data-lucide="network" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    </div>
+                  </div>
+                  <button type="submit" id="subnet-submit" class="btn-primary w-full">
+                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                    <span>Calculate Subnet</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Quick Subnets -->
+              <div class="mt-5 pt-4 border-t border-slate-700/40">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Common Subnets</p>
+                <div class="flex flex-wrap gap-1.5" id="subnet-quick-pills">
+                  <button type="button" class="quick-pill" data-value="192.168.1.0/24">192.168.1.0/24</button>
+                  <button type="button" class="quick-pill" data-value="10.0.0.0/8">10.0.0.0/8</button>
+                  <button type="button" class="quick-pill" data-value="172.16.0.0/16">172.16.0.0/16</button>
+                  <button type="button" class="quick-pill" data-value="192.168.10.128/28">192.168.10.128/28</button>
+                  <button type="button" class="quick-pill" data-value="10.10.0.0/20">10.10.0.0/20</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Display -->
+          <div class="lg:col-span-2 flex flex-col">
+            <div id="subnet-results" class="w-full h-full space-y-4">
+              <div class="card p-6 sm:p-8 h-full min-h-[460px] flex flex-col justify-between">
+                
+                <!-- Header -->
+                <div>
+                  <div class="flex items-center gap-3.5 mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center shrink-0">
+                      <i data-lucide="split" class="w-6 h-6 text-emerald-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>Classless Inter-Domain Routing (CIDR) Engine</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">SUBNET TOPOLOGY</span>
+                      </h3>
+                      <p class="text-xs text-slate-400 mt-0.5">Deconstruct CIDR blocks into network addresses, broadcast IDs, usable host ranges, and wildcard masks.</p>
+                    </div>
+                  </div>
+
+                  <!-- 4-Grid Capabilities Showcase -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                          <i data-lucide="network" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Network & Broadcast IDs</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Accurately identifies network wire address and all-ones broadcast boundary across any prefix from /1 to /32.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                          <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Usable Host Allocation</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Computes first/last usable assignable host addresses and total capacity for VLAN and IPAM planning.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                          <i data-lucide="shield" class="w-3.5 h-3.5 text-blue-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Subnet & Wildcard Masks</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Generates dotted-decimal subnet masks and inverse Cisco ACL wildcard masks for firewall and router configuration.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                          <i data-lucide="lock" class="w-3.5 h-3.5 text-amber-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">RFC Scope Classification</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Automatically detects Private (RFC 1918), Carrier-Grade NAT (RFC 6598), Loopback, or Public internet ranges.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="pt-4 border-t border-slate-800/80 mt-2">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <span class="text-xs font-semibold text-slate-400">Click a common subnet to calculate boundaries:</span>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="quick-pill" data-value="192.168.1.0/24">192.168.1.0/24</button>
+                      <button type="button" class="quick-pill" data-value="10.0.0.0/16">10.0.0.0/16</button>
+                      <button type="button" class="quick-pill" data-value="172.16.0.0/16">172.16.0.0/16</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUBPANEL 3: PING / LATENCY ────────────────────────── -->
+      <div id="subpanel-ping" class="util-subpanel hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <!-- Input Form -->
+          <div class="lg:col-span-1 flex flex-col">
+            <div class="card p-6 h-full flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-3 mb-5">
+                  <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                    <i data-lucide="radio" class="w-5 h-5 text-rose-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Live Host Ping & Latency</h3>
+                    <p class="text-xs text-slate-500">ICMP Echo Request Diagnostics</p>
+                  </div>
+                </div>
+
+                <form id="ping-form" class="space-y-4" autocomplete="off">
+                  <div>
+                    <label for="ping-input" class="block text-xs font-medium text-slate-400 mb-1.5">Target IP or Domain</label>
+                    <div class="relative">
+                      <input
+                        type="text"
+                        id="ping-input"
+                        placeholder="e.g. 8.8.8.8 or google.com"
+                        class="input-field w-full pl-10 text-xs font-mono"
+                        required
+                      />
+                      <i data-lucide="crosshair" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label for="ping-count" class="block text-xs font-medium text-slate-400 mb-1.5">Packet Count</label>
+                    <select id="ping-count" class="input-field w-full text-xs">
+                      <option value="2">2 Packets (Fast check)</option>
+                      <option value="4" selected>4 Packets (Standard benchmark)</option>
+                      <option value="6">6 Packets (Thorough analysis)</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" id="ping-submit" class="btn-primary w-full">
+                    <i data-lucide="zap" class="w-4 h-4"></i>
+                    <span>Execute Ping</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Quick Hosts -->
+              <div class="mt-5 pt-4 border-t border-slate-700/40">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Test Targets</p>
+                <div class="flex flex-wrap gap-1.5" id="ping-quick-pills">
+                  <button type="button" class="quick-pill" data-value="8.8.8.8">8.8.8.8 (Google)</button>
+                  <button type="button" class="quick-pill" data-value="1.1.1.1">1.1.1.1 (Cloudflare)</button>
+                  <button type="button" class="quick-pill" data-value="9.9.9.9">9.9.9.9 (Quad9)</button>
+                  <button type="button" class="quick-pill" data-value="github.com">github.com</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Display -->
+          <div class="lg:col-span-2 flex flex-col">
+            <div id="ping-results" class="w-full h-full space-y-4">
+              <div class="card p-6 sm:p-8 h-full min-h-[460px] flex flex-col justify-between">
+                
+                <!-- Header -->
+                <div>
+                  <div class="flex items-center gap-3.5 mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center shrink-0">
+                      <i data-lucide="radio" class="w-6 h-6 text-rose-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>ICMP Network Echo & Latency Diagnostics</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">LIVE TELEMETRY</span>
+                      </h3>
+                      <p class="text-xs text-slate-400 mt-0.5">Transmit low-level ICMP Echo datagrams to evaluate connectivity, packet loss, and millisecond round-trip response time.</p>
+                    </div>
+                  </div>
+
+                  <!-- 4-Grid Capabilities Showcase -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                          <i data-lucide="zap" class="w-3.5 h-3.5 text-rose-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Round-Trip Time (RTT)</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Measures min, max, avg, and standard deviation RTT in milliseconds to quantify latency and network jitter.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                          <i data-lucide="activity" class="w-3.5 h-3.5 text-amber-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Packet Loss Metrics</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Computes transmitted vs received frames, immediately identifying link drops, black holes, and stateful firewall blocks.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                          <i data-lucide="route" class="w-3.5 h-3.5 text-cyan-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">TTL Hop Estimation</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Evaluates returned Time-To-Live (TTL) values to infer operating system profiles (Linux vs Windows) and hop counts.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                          <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">DNS Host Pre-Flight</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Verifies canonical DNS resolution prior to packet transmission, distinguishing DNS lookup failures from host timeouts.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="pt-4 border-t border-slate-800/80 mt-2">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <span class="text-xs font-semibold text-slate-400">Click a target to execute live ping:</span>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="quick-pill" data-value="8.8.8.8">8.8.8.8 (Google)</button>
+                      <button type="button" class="quick-pill" data-value="1.1.1.1">1.1.1.1 (Cloudflare)</button>
+                      <button type="button" class="quick-pill" data-value="github.com">github.com</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUBPANEL 4: DNS RECORDS ───────────────────────────── -->
+      <div id="subpanel-dns" class="util-subpanel hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+          <!-- Input Form -->
+          <div class="lg:col-span-1 flex flex-col">
+            <div class="card p-6 h-full flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-3 mb-5">
+                  <div class="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                    <i data-lucide="server" class="w-5 h-5 text-violet-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-white">Full DNS Record Query</h3>
+                    <p class="text-xs text-slate-500">A, AAAA, MX, TXT, NS & SOA</p>
+                  </div>
+                </div>
+
+                <form id="dns-form" class="space-y-4" autocomplete="off">
+                  <div>
+                    <label for="dns-input" class="block text-xs font-medium text-slate-400 mb-1.5">Domain Name</label>
+                    <div class="relative">
+                      <input
+                        type="text"
+                        id="dns-input"
+                        placeholder="e.g. cloudflare.com or google.com"
+                        class="input-field w-full pl-10 text-xs font-mono"
+                        required
+                      />
+                      <i data-lucide="globe" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    </div>
+                  </div>
+                  <button type="submit" id="dns-submit" class="btn-primary w-full">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <span>Query DNS Records</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Quick Domains -->
+              <div class="mt-5 pt-4 border-t border-slate-700/40">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Preset Domains</p>
+                <div class="flex flex-wrap gap-1.5" id="dns-quick-pills">
+                  <button type="button" class="quick-pill" data-value="cloudflare.com">cloudflare.com</button>
+                  <button type="button" class="quick-pill" data-value="google.com">google.com</button>
+                  <button type="button" class="quick-pill" data-value="github.com">github.com</button>
+                  <button type="button" class="quick-pill" data-value="microsoft.com">microsoft.com</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Display -->
+          <div class="lg:col-span-2 flex flex-col">
+            <div id="dns-results" class="w-full h-full space-y-4">
+              <div class="card p-6 sm:p-8 h-full min-h-[460px] flex flex-col justify-between">
+                
+                <!-- Header -->
+                <div>
+                  <div class="flex items-center gap-3.5 mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/25 flex items-center justify-center shrink-0">
+                      <i data-lucide="server" class="w-6 h-6 text-violet-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>Authoritative DNS Record & Zone Explorer</span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-violet-500/15 text-violet-300 border border-violet-500/30">DIG RESOLVER</span>
+                      </h3>
+                      <p class="text-xs text-slate-400 mt-0.5">Interrogate authoritative nameservers to extract complete IPv4, IPv6, MX, TXT (SPF/DKIM), and SOA zone delegations.</p>
+                    </div>
+                  </div>
+
+                  <!-- 4-Grid Capabilities Showcase -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                          <i data-lucide="monitor" class="w-3.5 h-3.5 text-violet-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Address Mapping (A & AAAA)</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Resolves hostnames to IPv4 (32-bit) and IPv6 (128-bit) routing targets across global anycast networks.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                          <i data-lucide="mail" class="w-3.5 h-3.5 text-blue-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Mail Exchangers (MX)</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Discovers inbound mail servers prioritized by preference weight for email delivery auditing and spoofing analysis.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                          <i data-lucide="file-text" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">TXT Policies & Verification</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Parses SPF security records, DKIM public signing keys, DMARC policies, and third-party domain ownership tokens.</p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                      <div class="flex items-center gap-2.5 mb-1.5">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i>
+                        </div>
+                        <h4 class="text-xs font-bold text-white">Nameservers & SOA Authority</h4>
+                      </div>
+                      <p class="text-[11px] text-slate-400 leading-relaxed">Identifies primary nameserver hostnames, contact email, serial numbers, and zone refresh/retry expiration intervals.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="pt-4 border-t border-slate-800/80 mt-2">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <span class="text-xs font-semibold text-slate-400">Click a sample domain to query zone records:</span>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="quick-pill" data-value="cloudflare.com">cloudflare.com</button>
+                      <button type="button" class="quick-pill" data-value="google.com">google.com</button>
+                      <button type="button" class="quick-pill" data-value="github.com">github.com</button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  EMAIL HEADER ANALYSIS PANEL                           -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="panel-email" class="tab-panel hidden animate-fade-in" role="tabpanel">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+        <!-- Input Card (5 Cols) -->
+        <div class="lg:col-span-5 flex flex-col">
+          <div class="card p-6 h-full flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 mb-5">
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                  <i data-lucide="mail-search" class="w-5 h-5 text-violet-400"></i>
+                </div>
+                <div>
+                  <h2 class="text-sm font-semibold text-white">Email Header Parser</h2>
+                  <p class="text-xs text-slate-500">RFC 822/5322 In-Memory Forensics</p>
+                </div>
+              </div>
+
+              <form id="email-header-form" class="space-y-4" autocomplete="off">
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="email-header-input" class="block text-xs font-medium text-slate-400">
+                      Raw Internet Message Headers
+                    </label>
+                    <button type="button" id="email-header-clear" class="text-[11px] text-slate-500 hover:text-rose-400 transition-colors">
+                      Clear Text
+                    </button>
+                  </div>
+                  <div class="relative">
+                    <textarea
+                      id="email-header-input"
+                      rows="11"
+                      placeholder="Paste the full raw email headers here...&#10;&#10;Received: by 2002:a05...&#10;Authentication-Results: mx.google.com; dkim=pass...&#10;From: Security Team <security@domain.com>&#10;Return-Path: <security@domain.com>&#10;Subject: Account Notification..."
+                      class="input-field w-full text-xs font-mono !p-3 leading-relaxed resize-y"
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+
+                <button type="submit" id="email-header-submit" class="btn-primary w-full !bg-gradient-to-r !from-violet-600 !to-indigo-600 !border-violet-400/30">
+                  <i data-lucide="cpu" class="w-4 h-4"></i>
+                  <span>Parse & Analyze Headers</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Test Presets -->
+            <div class="mt-5 pt-4 border-t border-slate-700/40">
+              <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wider mb-2">Test Presets</p>
+              <div class="flex flex-col gap-2" id="email-preset-buttons">
+                <button
+                  type="button"
+                  class="btn-secondary !text-xs !py-1.5 !px-3 !justify-start w-full hover:border-emerald-500/50"
+                  id="preset-legit-email"
+                >
+                  <span class="w-2 h-2 rounded-full bg-emerald-400 mr-2 flex-shrink-0"></span>
+                  <span class="truncate">Legitimate GitHub Advisory (SPF / DKIM Pass)</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn-secondary !text-xs !py-1.5 !px-3 !justify-start w-full hover:border-rose-500/50"
+                  id="preset-spoofed-email"
+                >
+                  <span class="w-2 h-2 rounded-full bg-rose-400 mr-2 flex-shrink-0"></span>
+                  <span class="truncate">Spoofed PayPal Phishing (SPF Fail / Mismatch)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results Display (7 Cols) -->
+        <div class="lg:col-span-7 flex flex-col">
+          <div id="email-header-results" class="w-full h-full space-y-4">
+            <div class="card p-6 sm:p-8 h-full min-h-[480px] flex flex-col justify-between">
+              
+              <!-- Header -->
+              <div>
+                <div class="flex items-center gap-3.5 mb-5">
+                  <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/25 flex items-center justify-center shrink-0">
+                    <i data-lucide="mail-check" class="w-6 h-6 text-violet-400"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                      <span>RFC 822/5322 Email Security & Relay Forensics</span>
+                      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-violet-500/15 text-violet-300 border border-violet-500/30">ZERO LOGGING</span>
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Deconstruct internet message headers to identify sender authenticity, relay hop latency, SPF/DKIM verification, and spoofing attempts.</p>
+                  </div>
+                </div>
+
+                <!-- 4-Grid Capabilities Showcase -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 my-4">
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">SPF, DKIM & DMARC</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Extracts cryptographic signature status, DNS domain alignment, and sender authentication results.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                        <i data-lucide="route" class="w-3.5 h-3.5 text-cyan-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Relay Hop Timeline</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Sequentially parses each intermediate MTA server, measuring transmission delay and IP routing hops.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Anti-Spoofing Detection</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Flags mismatched Return-Path and From addresses, spoofed domain identities, and high-risk anomalies.</p>
+                  </div>
+
+                  <div class="p-4 rounded-xl bg-surface-900/60 border border-slate-800/80 hover:border-slate-700/80 transition-colors">
+                    <div class="flex items-center gap-2.5 mb-1.5">
+                      <div class="w-7 h-7 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                        <i data-lucide="lock" class="w-3.5 h-3.5 text-violet-400"></i>
+                      </div>
+                      <h4 class="text-xs font-bold text-white">Private & In-Memory</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Processing is completely in-memory client-side; sensitive internal headers are never transmitted or stored.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Action Footer -->
+              <div class="pt-4 border-t border-slate-800/80 mt-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <span class="text-xs font-semibold text-slate-400">Quick load realistic samples:</span>
+                  <div class="flex flex-wrap gap-2">
+                    <button type="button" class="btn-secondary !text-xs !py-1 !px-3 hover:border-emerald-500/50" onclick="document.getElementById('preset-legit-email').click()">
+                      <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5"></span>
+                      Load Legitimate Sample
+                    </button>
+                    <button type="button" class="btn-secondary !text-xs !py-1 !px-3 hover:border-rose-500/50" onclick="document.getElementById('preset-spoofed-email').click()">
+                      <span class="w-2 h-2 rounded-full bg-rose-400 mr-1.5"></span>
+                      Load Phishing Sample
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!--  RECENTLY REPORTED IPs — LIVE THREAT FEED              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section class="mt-8 animate-fade-in" id="reported-ips-section">
+      <div class="card p-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+              <i data-lucide="radio" class="w-5 h-5 text-rose-400"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-semibold text-white flex items-center gap-2">
+                Recently Reported IPs
+                <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse-slow"></span>
+                  <span class="text-[10px] font-medium text-rose-400 uppercase tracking-wider">ThreatFox Live (60s)</span>
+                </span>
+              </h2>
+              <p class="text-xs text-slate-500">ThreatFox (abuse.ch) • Recent malicious IPs, C2 servers & active malware</p>
+            </div>
+          </div>
+          <button id="refresh-reported-ips" class="btn-secondary !py-1.5 !px-3 !text-xs flex items-center gap-1.5" title="Refresh Now">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+
+        <!-- Grid Container -->
+        <div id="reported-ips-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          <!-- Skeleton placeholders (replaced by JS) -->
+          <div class="skeleton h-28 rounded-xl"></div>
+          <div class="skeleton h-28 rounded-xl"></div>
+          <div class="skeleton h-28 rounded-xl"></div>
+          <div class="skeleton h-28 rounded-xl"></div>
+          <div class="skeleton h-28 rounded-xl hidden sm:block"></div>
+          <div class="skeleton h-28 rounded-xl hidden sm:block"></div>
+          <div class="skeleton h-28 rounded-xl hidden lg:block"></div>
+          <div class="skeleton h-28 rounded-xl hidden lg:block"></div>
+        </div>
+
+        <!-- Error state (hidden by default) -->
+        <div id="reported-ips-error" class="hidden text-center py-8">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="alert-triangle" class="w-6 h-6 text-amber-400"></i>
+          </div>
+          <p id="reported-ips-error-msg" class="text-sm text-slate-400"></p>
+          <p class="text-xs text-slate-600 mt-1">Connecting to ThreatFox public IoC intelligence feed...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  ABOUT US SECTION                                          -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section id="about" class="mt-16 pt-12 border-t border-slate-800/80 scroll-mt-20">
+      <!-- Section Header -->
+      <div class="flex flex-col items-center text-center max-w-3xl mx-auto mb-12">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
+          <i data-lucide="info" class="w-3.5 h-3.5"></i>
+          <span>ABOUT SUDODECK</span>
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3">
+          Next-Gen Cyber Reconnaissance & Threat Intelligence
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
+          <strong class="text-emerald-400">sudodeck</strong> is an enterprise-grade, privacy-first cybersecurity operations workbench designed for SOC analysts, threat hunters, incident responders, and security researchers. We unify automated real-time threat feeds, hardware reconnaissance, Unix binary auditing, and advanced cryptographic transformations into a single, high-efficiency dashboard.
+        </p>
+      </div>
+
+      <!-- Core Pillars Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <!-- Pillar 1 -->
+        <div class="card p-5 group hover:border-emerald-500/50 transition-all">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <i data-lucide="radar" class="w-5 h-5"></i>
+          </div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">Threat & Recon</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">LIVE</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Multi-engine telemetry aggregating AbuseIPDB reputation scores, VirusTotal malware analytics, live ThreatFox IoC streams, and NIST NVD CVE databases.
+          </p>
+        </div>
+
+        <!-- Pillar 2 -->
+        <div class="card p-5 group hover:border-cyan-500/50 transition-all">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <i data-lucide="cpu" class="w-5 h-5"></i>
+          </div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">Hardware & OUI</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">IEEE</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Instant hardware vendor resolution, virtualized MAC address flagging, private address randomization checks, and IEEE block classification for forensic network audits.
+          </p>
+        </div>
+
+        <!-- Pillar 3 -->
+        <div class="card p-5 group hover:border-indigo-500/50 transition-all">
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">SOC & SIEM Suite</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">WORKBENCH</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Client-side log formatter for Windows Event, Syslog RFC-5424, and JSON logs. Interactive regex engine with instant YARA and Sigma detection rule synthesis.
+          </p>
+        </div>
+
+        <!-- Pillar 4 -->
+        <div class="card p-5 group hover:border-amber-500/50 transition-all">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <i data-lucide="terminal" class="w-5 h-5"></i>
+          </div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">GTFOBins & Crypto</h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20">PRIVESC</span>
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Curated Unix binaries privilege escalation reference for SUID/sudo bypass auditing paired with native Node.js high-performance hashing and JWT token decoders.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats Bar & Architecture Notice -->
+      <div class="card p-6 bg-gradient-to-r from-surface-850 via-surface-900 to-surface-850 border border-slate-800/80 mb-12">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800/80">
+          <div class="pt-3 md:pt-0">
+            <div class="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">99.9%</div>
+            <div class="text-xs text-slate-400 mt-1">Telemetry Uptime</div>
+          </div>
+          <div class="pt-3 md:pt-0">
+            <div class="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono">0 ms</div>
+            <div class="text-xs text-slate-400 mt-1">Indicator Data Retention</div>
+          </div>
+          <div class="pt-3 md:pt-0">
+            <div class="text-2xl sm:text-3xl font-extrabold text-indigo-400 font-mono">500+</div>
+            <div class="text-xs text-slate-400 mt-1">GTFOBins & Rules Mapped</div>
+          </div>
+          <div class="pt-3 md:pt-0">
+            <div class="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono">100%</div>
+            <div class="text-xs text-slate-400 mt-1">Client Privacy First</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  CONTACT US SECTION                                        -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section id="contact" class="mt-8 pt-12 border-t border-slate-800/80 scroll-mt-20">
+      <!-- Section Header -->
+      <div class="flex flex-col items-center text-center max-w-3xl mx-auto mb-12">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-4">
+          <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+          <span>COMMUNICATIONS & CIRT DISPATCH</span>
+        </span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-3">
+          Contact Security Operations
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
+          Need assistance with threat telemetry, reporting a security vulnerability, or exploring enterprise integrations? Connect with the <strong class="text-white">sudodeck</strong> incident response and security engineering team.
+        </p>
+      </div>
+
+      <!-- Two-Column Layout: Direct Channels & Interactive Form -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Direct Channels & Operational Info (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          
+          <!-- Channel 1: SOC & CIRT Email -->
+          <div class="card p-5 border-slate-800/80 hover:border-slate-700 transition-colors">
+            <div class="flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                <i data-lucide="shield-alert" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Security Operations (SOC)</h4>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">24/7 ON-CALL</span>
+                </div>
+                <a href="mailto:soc@sudodeck.internal" class="text-sm font-mono font-semibold text-white hover:text-emerald-400 transition-colors block mt-1">
+                  soc@sudodeck.internal
+                </a>
+                <p class="text-xs text-slate-500 mt-1">Emergency incident triage, malware reports & malicious IoC feeds.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 2: Responsible Disclosure & Bug Bounty -->
+          <div class="card p-5 border-slate-800/80 hover:border-slate-700 transition-colors">
+            <div class="flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center shrink-0">
+                <i data-lucide="bug" class="w-5 h-5"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Vulnerability Disclosure</h4>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-500/10 text-rose-400 border border-rose-500/20">SLA &lt; 1h</span>
+                </div>
+                <a href="mailto:security@sudodeck.org" class="text-sm font-mono font-semibold text-white hover:text-rose-400 transition-colors block mt-1">
+                  security@sudodeck.org
+                </a>
+                <p class="text-xs text-slate-500 mt-1">PGP encrypted submissions accepted. Responsible disclosure policy enforced.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 3: PGP Public Key Card -->
+          <div class="card p-5 border-slate-800/80">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <i data-lucide="key" class="w-4 h-4 text-cyan-400"></i>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-300">PGP Key Fingerprint</span>
+              </div>
+              <button 
+                type="button" 
+                id="btn-copy-pgp" 
+                class="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer"
+              >
+                <i data-lucide="copy" class="w-3 h-3"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="bg-surface-950 p-3 rounded-lg border border-slate-800 text-[11px] font-mono text-slate-400 overflow-x-auto select-all">9B4E 72F1 A830 DC65 1904 449E F5A1 3302 9D77 B81C</pre>
+            <p class="text-[11px] text-slate-500 mt-2">Use our public PGP key when transmitting sensitive packet captures or zero-day advisories.</p>
+          </div>
+
+          <!-- Channel 4: Social / Code Repository -->
+          <div class="card p-4 border-slate-800/80 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-surface-800 flex items-center justify-center text-slate-400 border border-slate-700">
+                <i data-lucide="github" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">Open Source & Community</div>
+                <div class="text-[11px] text-slate-500">github.com/sudodeck/threat-intel</div>
+              </div>
+            </div>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="btn-secondary !py-1 !px-2.5 !text-xs">
+              <i data-lucide="external-link" class="w-3 h-3"></i>
+              <span>GitHub</span>
+            </a>
+          </div>
+
+        </div>
+
+        <!-- Right: Interactive Dispatch Form (7 cols) -->
+        <div class="lg:col-span-7">
+          <div class="card p-6 border-slate-800/80 bg-surface-850 relative overflow-hidden">
+            <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800/80">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-xs font-mono font-bold text-white">SECURE TRANSMISSION DISPATCH</span>
+              </div>
+              <span class="text-[11px] font-mono text-slate-500">ENCRYPTION: AES-256-GCM</span>
+            </div>
+
+            <form id="contact-form" class="space-y-4">
+              <!-- Name & Email Row -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="contact-name" class="block text-xs font-medium text-slate-300 mb-1.5">
+                    Operator / Name <span class="text-rose-400">*</span>
+                  </label>
+                  <div class="relative">
+                    <input 
+                      type="text" 
+                      id="contact-name" 
+                      required 
+                      placeholder="e.g. Alex Vance" 
+                      class="input-field w-full pl-9"
+                    />
+                    <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
+                  </div>
+                </div>
+                <div>
+                  <label for="contact-email" class="block text-xs font-medium text-slate-300 mb-1.5">
+                    Email Address <span class="text-rose-400">*</span>
+                  </label>
+                  <div class="relative">
+                    <input 
+                      type="email" 
+                      id="contact-email" 
+                      required 
+                      placeholder="analyst@soc.org" 
+                      class="input-field w-full pl-9"
+                    />
+                    <i data-lucide="at-sign" class="w-4 h-4 text-slate-500 absolute left-3 top-3 pointer-events-none"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Inquiry Type & Priority Row -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label for="contact-category" class="block text-xs font-medium text-slate-300 mb-1.5">
+                    Classification / Topic
+                  </label>
+                  <select id="contact-category" class="input-field w-full bg-surface-900 cursor-pointer">
+                    <option value="ioc_report">Threat Intelligence & IoC Telemetry</option>
+                    <option value="vulnerability">Security Vulnerability / Bug Bounty</option>
+                    <option value="enterprise">Enterprise SOC Deployment</option>
+                    <option value="feature">Feature Request / GTFOBins Mapping</option>
+                    <option value="general">General Support & Inquiry</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="contact-priority" class="block text-xs font-medium text-slate-300 mb-1.5">
+                    Operational Priority
+                  </label>
+                  <select id="contact-priority" class="input-field w-full bg-surface-900 cursor-pointer">
+                    <option value="P3">Routine (P3 - General)</option>
+                    <option value="P2">Elevated (P2 - Security Triage)</option>
+                    <option value="P1">Critical (P1 - Active Breach/Zero-Day)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Subject -->
+              <div>
+                <label for="contact-subject" class="block text-xs font-medium text-slate-300 mb-1.5">
+                  Transmission Subject <span class="text-rose-400">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="contact-subject" 
+                  required 
+                  placeholder="Summary of incident or inquiry..." 
+                  class="input-field w-full"
+                />
+              </div>
+
+              <!-- Message -->
+              <div>
+                <label for="contact-message" class="block text-xs font-medium text-slate-300 mb-1.5">
+                  Detailed Payload / Message <span class="text-rose-400">*</span>
+                </label>
+                <textarea 
+                  id="contact-message" 
+                  rows="4" 
+                  required 
+                  placeholder="Provide detailed context, IoC artifacts, CVE links or questions..." 
+                  class="input-field w-full resize-none font-mono text-xs"
+                ></textarea>
+              </div>
+
+              <!-- Submit Button & Feedback -->
+              <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
+                  <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-400"></i>
+                  <span>End-to-end encrypted dispatch</span>
+                </div>
+                <button 
+                  type="submit" 
+                  id="btn-submit-contact" 
+                  class="btn-primary w-full sm:w-auto"
+                >
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                  <span>Transmit Message</span>
+                </button>
+              </div>
+
+              <!-- Success Alert Box (hidden initially) -->
+              <div id="contact-success-alert" class="hidden p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 animate-fade-in space-y-1">
+                <div class="flex items-center gap-2 font-bold text-sm text-emerald-400">
+                  <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                  <span>Transmission Confirmed</span>
+                </div>
+                <p class="text-xs text-slate-300">
+                  Your message has been securely routed to our CIRT triage desk.
+                </p>
+                <div class="text-[11px] font-mono text-emerald-400/80 pt-1 flex items-center gap-2">
+                  <span>Dispatch ID:</span>
+                  <span id="contact-ref-id" class="font-bold underline"></span>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOAST CONTAINER                                          -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-slate-800/60 mt-16 bg-surface-950/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-bold text-slate-300 font-mono">sudo<span class="text-emerald-400">deck</span></span>
+        <span class="text-xs text-slate-600">•</span>
+        <p class="text-xs text-slate-500">
+          &copy; 2024 sudodeck OSINT Platform • Powered by AbuseIPDB, VirusTotal & NVD APIs
+        </p>
+      </div>
+      <div class="flex items-center gap-4 flex-wrap text-xs font-medium">
+        <a href="#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
+        <span class="text-slate-700">•</span>
+        <a href="#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
+        <span class="text-slate-700">•</span>
+        <a href="/api/health" target="_blank" class="text-slate-400 hover:text-white transition-colors">Health</a>
+        <span class="text-slate-700">•</span>
+        <div class="flex items-center gap-1.5">
+          <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span class="text-xs text-slate-400">Operational</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared Navigation & Command Palette -->
+  <script src="/js/shared-nav.js"></script>
+
+  <!-- App Script -->
+  <script src="/js/app.js"></script>
+</body>
+</html>

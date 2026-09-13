@@ -1,0 +1,214 @@
+// ═══════════════════════════════════════════════════════════════
+//  OSINT Threat Intelligence Platform — Server Entry Point
+// ═══════════════════════════════════════════════════════════════
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import config from './config/env.js';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// ── Middleware ───────────────────────────────────────────────────
+import { generalLimiter, apiLimiter } from './middleware/rateLimiter.js';
+import { errorHandler } from './middleware/errorHandler.js';
+
+// ── Routes ──────────────────────────────────────────────────────
+import ipRoutes from './routes/ip.routes.js';
+import fileRoutes from './routes/file.routes.js';
+import domainRoutes from './routes/domain.routes.js';
+import utilsRoutes from './routes/utils.routes.js';
+import cveRoutes from './routes/cve.routes.js';
+import emailHeaderRoutes from './routes/emailHeader.routes.js';
+import macRoutes from './routes/mac.routes.js';
+import cryptoRoutes from './routes/crypto.routes.js';
+import gtfobinsRoutes from './routes/gtfobins.routes.js';
+import { fetchRecentMaliciousIPs } from './services/threatfox.service.js';
+
+// ── Path setup ──────────────────────────────────────────────────
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// ── Express app ─────────────────────────────────────────────────
+const app = express();
+
+// ── Security middleware ─────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://unpkg.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.tailwindcss.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+    },
+  },
+}));
+app.use(cors());
+app.use(generalLimiter);
+app.use(express.json({ limit: '1mb' }));
+
+// ── Static files ────────────────────────────────────────────────
+app.use(express.static(join(__dirname, 'public')));
+
+// ── API routes ──────────────────────────────────────────────────
+app.use('/api', apiLimiter);
+app.use('/api', ipRoutes);
+app.use('/api', fileRoutes);
+app.use('/api', domainRoutes);
+app.use('/api', cveRoutes);
+app.use('/api', emailHeaderRoutes);
+app.use('/api', macRoutes);
+app.use('/api/crypto', cryptoRoutes);
+app.use('/api/gtfobins', gtfobinsRoutes);
+app.use('/api/utils', utilsRoutes);
+
+// ── ThreatFox Live Malicious IPs Feed (Keyless & Free) ──────────
+app.get('/api/recent-malicious-ips', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 24, 100);
+    const ips = await fetchRecentMaliciousIPs(limit);
+    return res.json({
+      success: true,
+      count: ips.length,
+      ips,
+    });
+  } catch (error) {
+    console.error('ThreatFox Feed Error:', error.message);
+    return res.status(502).json({
+      success: false,
+      error: 'Failed to retrieve live ThreatFox malicious IP feed. Please try again later.',
+      details: error.message,
+    });
+  }
+});
+
+// Backward-compatibility alias
+app.get('/api/reported-ips', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 24, 100);
+    const ips = await fetchRecentMaliciousIPs(limit);
+    return res.json({
+      success: true,
+      count: ips.length,
+      ips,
+      data: ips,
+    });
+  } catch (error) {
+    return res.status(502).json({
+      success: false,
+      error: 'Failed to retrieve live ThreatFox feed',
+    });
+  }
+});
+
+// ── Health check ────────────────────────────────────────────────
+app.get('/api/health', (req, res) => {
+  res.json({
+    success: true,
+    status: 'operational',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+// ── Contact / Inquiry submission endpoint ───────────────────────
+app.post('/api/contact', (req, res) => {
+  const { name, email, category, priority, subject, message } = req.body || {};
+  if (!name || !email || !message) {
+    return res.status(400).json({
+      success: false,
+      error: 'Name, email, and message are required fields',
+    });
+  }
+
+  const ticketId = `SD-${Math.random().toString(36).substring(2, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+  console.log(`[CIRT Contact] Received dispatch ${ticketId} from ${email} (${priority || 'P3'}: ${subject || 'No subject'})`);
+
+  return res.json({
+    success: true,
+    message: 'Message dispatched securely to sudodeck CIRT desk',
+    ticketId,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// ── Dedicated CVE page route ────────────────────────────────────
+app.get('/cve', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'cve.html'));
+});
+
+// ── Dedicated MAC Lookup page route ─────────────────────────────
+app.get('/mac', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'mac.html'));
+});
+
+// ── Dedicated Crypto Suite page route ───────────────────────────
+app.get('/crypto', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'crypto.html'));
+});
+
+// ── Dedicated GTFOBins Explorer page route ──────────────────────
+app.get('/gtfobins', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'gtfobins.html'));
+});
+
+// ── Dedicated SIEM Utilities page route ─────────────────────────
+app.get('/siem', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'siem.html'));
+});
+
+// ── SPA fallback ────────────────────────────────────────────────
+app.get('{*path}', (req, res) => {
+  res.sendFile(join(__dirname, 'public', 'index.html'));
+});
+
+// ── Global error handler (must be last) ─────────────────────────
+app.use(errorHandler);
+
+// ── Start server ────────────────────────────────────────────────
+const server = app.listen(config.PORT, () => {
+  console.log('');
+  console.log('╔══════════════════════════════════════════════════════════╗');
+  console.log('║  🛡️  OSINT Threat Intelligence Platform                  ║');
+  console.log('╠══════════════════════════════════════════════════════════╣');
+  console.log(`║  Status:  ONLINE                                        ║`);
+  console.log(`║  URL:     http://localhost:${String(config.PORT).padEnd(29)}║`);
+  console.log(`║  Mode:    ${config.IS_DEV ? 'Development' : 'Production '}                                 ║`);
+  console.log('╠══════════════════════════════════════════════════════════╣');
+  console.log('║  Endpoints:                                              ║');
+  console.log('║    GET  /api/recent-malicious-ips ThreatFox Live Feed   ║');
+  console.log('║    POST /api/check-ip            IP Reputation          ║');
+  console.log('║    POST /api/check-file          File Hash (VirusTotal) ║');
+  console.log('║    POST /api/check-hash          Direct Hash (VT)       ║');
+  console.log('║    POST /api/check-domain        Domain Intel (VT)      ║');
+  console.log('║    POST /api/crypto/analyze      Smart Analyzer & Detect║');
+  console.log('║    POST /api/crypto/process      Crypto Transformations ║');
+  console.log('║    GET  /api/gtfobins            GTFOBins Catalog API   ║');
+  console.log('║    GET  /api/gtfobins/:binary    Binary Functions Spec  ║');
+  console.log('║    GET  /gtfobins                GTFOBins Explorer Page ║');
+  console.log('║    GET  /crypto                  Dedicated Crypto Suite ║');
+  console.log('║    GET  /api/health              Health Check           ║');
+  console.log('╚══════════════════════════════════════════════════════════╝');
+  console.log('');
+});
+
+// ── Graceful shutdown ───────────────────────────────────────────
+function gracefulShutdown(signal) {
+  console.log(`\n[${signal}] Shutting down gracefully...`);
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    console.error('Forced shutdown after timeout.');
+    process.exit(1);
+  }, 10_000);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sudodeck — NVD CVE Vulnerability Scanner</title>
+  <meta name="description" content="Dedicated National Vulnerability Database (NVD) CVE scanner with CVSS v3.1 metrics, attack vector analysis, and security advisories." />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              900: '#0a0e17',
+              850: '#0d1322',
+              800: '#0f1629',
+              750: '#151e36',
+              700: '#151d33',
+              600: '#1a2440',
+              500: '#212d4a',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+
+<body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased flex flex-col">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOP NAV BAR                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-surface-900/90 backdrop-blur-xl">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Left: Logo & Brand -->
+        <div class="flex items-center gap-6">
+          <a href="/" class="flex items-center gap-3 group">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-500/20 group-hover:scale-105 transition-transform">
+                <i data-lucide="flame" class="w-5 h-5 text-white"></i>
+              </div>
+              <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-400 rounded-full animate-pulse-slow border-2 border-surface-900"></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h1 class="text-base font-bold tracking-tight text-white group-hover:text-rose-400 transition-colors">sudo<span class="text-rose-400">deck</span></h1>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">CVE</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Categorized Desktop Navigation -->
+          <nav class="hidden lg:flex items-center gap-2">
+
+            <!-- Category 1: Threat & Recon Dropdown (Active on CVE page) -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-intel"
+                class="nav-pill active active-rose"
+              >
+                <i data-lucide="radar" class="w-3.5 h-3.5 text-rose-400"></i>
+                <span>Threat & Recon</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-rose-400/80"></i>
+              </button>
+              <div
+                id="menu-intel"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP Reputation Check</div>
+                    <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
+                  </div>
+                </a>
+                <a href="/mac" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
+                  </div>
+                </a>
+                <a href="/cve" class="dropdown-card-item active">
+                  <div class="dropdown-card-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                    <i data-lucide="flame" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white flex items-center justify-between">
+                      <span>CVE Scanner</span>
+                      <span class="nav-pill-badge bg-rose-500/20 text-rose-300 border border-rose-500/30">Active</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category 2: SOC & SIEM Direct Link -->
+            <a
+              href="/siem"
+              class="nav-pill"
+            >
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>SIEM Utilities</span>
+              <span class="nav-pill-badge bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PARSER</span>
+            </a>
+
+            <!-- Category 3: Security Tools Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-tools"
+                class="nav-pill"
+              >
+                <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Security Tools</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-tools"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/crypto" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Crypto & Hash Suite</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
+                  </div>
+                </a>
+                <a href="/gtfobins" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">GTFOBins Explorer</div>
+                    <div class="text-[11px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </nav>
+        </div>
+
+        <!-- Right: Direct Links, Command Palette Launcher & System Status -->
+        <div class="flex items-center gap-3 shrink-0 ml-6 xl:ml-8">
+          <a
+            href="/#about"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>About</span>
+          </a>
+          <a
+            href="/#contact"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Contact</span>
+          </a>
+
+          <!-- Command Palette Trigger Button -->
+          <button
+            type="button"
+            data-action="open-command-palette"
+            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-rose-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
+            title="Open Command Launcher (Ctrl + K)"
+          >
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-400 transition-colors shrink-0"></i>
+            <span class="text-slate-400 group-hover:text-slate-200 whitespace-nowrap">Search intel...</span>
+            <kbd class="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-900 border border-slate-750 text-[10px] font-mono text-slate-400 shrink-0">
+              <span>Ctrl</span><span>K</span>
+            </kbd>
+          </button>
+
+          <!-- System Status Badge -->
+          <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/25 text-rose-300 whitespace-nowrap shrink-0">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-60"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-400"></span>
+            </span>
+            <span class="text-[11px] font-mono font-medium tracking-wide">NVD v2.0 Live</span>
+          </div>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button
+            id="mobile-menu-toggle"
+            type="button"
+            class="lg:hidden h-9 w-9 flex items-center justify-center rounded-xl bg-surface-800 border border-slate-700/60 text-slate-300 hover:text-white transition-colors shrink-0"
+          >
+            <i data-lucide="menu" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-menu-drawer" class="hidden lg:hidden border-t border-slate-800/80 py-3 space-y-1 animate-fade-in">
+        <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="radar" class="w-4 h-4 text-emerald-400"></i>
+          <span>IP Reputation Check</span>
+        </a>
+        <a href="/mac" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
+          <span>MAC & OUI Lookup</span>
+        </a>
+        <a href="/cve" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-rose-400 bg-rose-500/10">
+          <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
+          <span>CVE Vulnerability Scanner</span>
+        </a>
+        <a href="/siem" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+          <span>SIEM Utilities</span>
+        </a>
+        <a href="/crypto" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="key-round" class="w-4 h-4 text-purple-400"></i>
+          <span>Crypto & Hash Suite</span>
+        </a>
+        <a href="/gtfobins" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
+          <span>GTFOBins Explorer</span>
+        </a>
+        <a href="/#about" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+          <span>About sudodeck</span>
+        </a>
+        <a href="/#contact" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="mail" class="w-4 h-4 text-cyan-400"></i>
+          <span>Contact CIRT</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  MAIN CONTENT                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+    <!-- ── Hero Banner ─────────────────────────────────────────── -->
+    <div class="text-center max-w-3xl mx-auto mb-8 animate-fade-in">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold mb-3">
+        <i data-lucide="flame" class="w-3.5 h-3.5 text-rose-400"></i>
+        <span>NIST National Vulnerability Database v2.0</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        CVE Vulnerability & Exploit Scanner
+      </h2>
+      <p class="text-sm text-slate-400 mt-2">
+        Direct intelligence interrogation from the official NIST NVD repository. Real-time CVSS v3.1 severity metrics, attack vectors, and vendor mitigation advisories.
+      </p>
+    </div>
+
+    <!-- ── Search Form Card ────────────────────────────────────── -->
+    <div class="max-w-3xl mx-auto mb-8 animate-fade-in">
+      <div class="card p-5 sm:p-6 border-slate-700/60 bg-gradient-to-b from-surface-800/90 to-surface-900/90 shadow-2xl">
+        <form id="cve-search-form" class="space-y-3" autocomplete="off">
+          <label for="cve-input" class="block text-xs font-bold uppercase tracking-wider text-slate-400">
+            Target Vulnerability Identifier (CVE)
+          </label>
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <div class="relative flex-1">
+              <input
+                type="text"
+                id="cve-input"
+                name="cveId"
+                placeholder="e.g. CVE-2021-44228 or CVE-2024-3094"
+                class="input-field w-full pl-11 pr-9 text-sm font-mono font-semibold tracking-wider uppercase text-white"
+                required
+                autofocus
+              />
+              <i data-lucide="shield-search" class="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <button
+                type="button"
+                id="btn-clear-cve"
+                class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded hover:bg-surface-700 transition-colors"
+                title="Clear CVE input"
+              >
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <button
+              type="submit"
+              id="cve-submit-btn"
+              class="btn-primary !bg-gradient-to-r !from-rose-500 !to-amber-500 !border-rose-400/40 hover:!shadow-rose-500/25 whitespace-nowrap px-6 py-3"
+            >
+              <i data-lucide="radar" class="w-4 h-4"></i>
+              <span>Inspect CVE</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Quick Vulnerabilities Pills -->
+        <div class="mt-4 pt-3.5 border-t border-slate-800 space-y-2.5">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mr-1 flex items-center gap-1">
+              <i data-lucide="zap" class="w-3 h-3 text-amber-400"></i> Notable CVEs:
+            </span>
+            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2021-44228">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+              <span class="font-mono font-bold">CVE-2021-44228</span>
+              <span class="text-[10px] text-rose-300">(Log4Shell)</span>
+            </button>
+            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2024-3094">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+              <span class="font-mono font-bold">CVE-2024-3094</span>
+              <span class="text-[10px] text-rose-300">(XZ Backdoor)</span>
+            </button>
+            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2017-0144">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span class="font-mono font-bold">CVE-2017-0144</span>
+              <span class="text-[10px] text-amber-300">(EternalBlue)</span>
+            </button>
+            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2021-34527">
+              <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+              <span class="font-mono font-bold">CVE-2021-34527</span>
+              <span class="text-[10px] text-orange-300">(PrintNightmare)</span>
+            </button>
+            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2023-38606">
+              <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
+              <span class="font-mono font-bold">CVE-2023-38606</span>
+              <span class="text-[10px] text-orange-300">(iOS Kernel)</span>
+            </button>
+          </div>
+
+          <!-- Recent CVE Lookups -->
+          <div id="recent-cves-container" class="hidden pt-2 border-t border-slate-800/60">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Recent Searches</span>
+              <button type="button" id="btn-clear-cve-history" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors">Clear</button>
+            </div>
+            <div id="recent-cves-list" class="flex flex-wrap gap-1.5">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Result Container ────────────────────────────────────── -->
+    <div id="cve-results" class="max-w-5xl mx-auto space-y-6">
+
+      <!-- Default Placeholder State -->
+      <div class="card p-12 text-center border-slate-800 bg-surface-800/40 animate-fade-in">
+        <div class="w-16 h-16 rounded-2xl bg-surface-700/60 border border-slate-700/40 flex items-center justify-center mx-auto mb-4 text-slate-500 shadow-inner">
+          <i data-lucide="shield-alert" class="w-8 h-8 text-slate-600"></i>
+        </div>
+        <h3 class="text-base font-semibold text-slate-300">Ready for CVE Investigation</h3>
+        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1.5">
+          Enter any standard Common Vulnerabilities and Exposures (CVE) ID above to extract full CVSS scoring, attack metrics, affected software, and mitigation patches.
+        </p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOAST CONTAINER                                          -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-slate-800/60 mt-12 py-5 bg-surface-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-rose-400"></i>
+        <span>sudodeck NVD Scanner • Powered by NIST NVD REST API v2.0</span>
+      </div>
+      <div class="flex items-center gap-4 flex-wrap">
+        <a href="/#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
+        <span>•</span>
+        <a href="/#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
+        <span>•</span>
+        <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Dashboard</a>
+        <span>•</span>
+        <a href="/api/health" target="_blank" class="text-slate-400 hover:text-white transition-colors">API Health</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared Navigation & Command Palette -->
+  <script src="/js/shared-nav.js"></script>
+
+  <!-- CVE Application Script -->
+  <script src="/js/cve.js"></script>
+</body>
+</html>

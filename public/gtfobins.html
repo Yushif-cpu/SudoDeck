@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sudodeck — Custom GTFOBins Security Explorer</title>
+  <meta name="description" content="Local Linux Unix Binaries Security, Privilege Escalation, Sudo/SUID Bypass, File Read/Write and Shell Execution Catalog." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              950: '#060911',
+              900: '#0a0e17',
+              850: '#0d1322',
+              800: '#0f1629',
+              750: '#121a30',
+              700: '#151d33',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/app.css" />
+
+  <style>
+    .binary-item {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .binary-item.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(217, 119, 6, 0.05));
+      border-color: rgba(245, 158, 11, 0.45);
+      box-shadow: 0 4px 20px -4px rgba(245, 158, 11, 0.15);
+    }
+    .binary-item.active .binary-name {
+      color: #fbbf24;
+    }
+    .func-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .func-badge-shell {
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+    .func-badge-sudo {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.3);
+    }
+    .func-badge-suid {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .func-badge-file-read {
+      background: rgba(6, 182, 212, 0.15);
+      color: #22d3ee;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    .func-badge-file-write {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .func-badge-reverse-shell {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+    .category-filter-btn.active {
+      background: #f59e0b;
+      color: #000;
+      font-weight: 700;
+      border-color: #f59e0b;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+    }
+  </style>
+</head>
+
+<body class="bg-surface-900 text-slate-200 min-h-screen flex flex-col font-sans antialiased selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  HEADER & NAVIGATION                                       -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-surface-900/90 backdrop-blur-xl">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Left: Logo & Brand -->
+        <div class="flex items-center gap-6">
+          <a href="/gtfobins" class="flex items-center gap-3 group">
+            <div class="relative">
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-105 transition-transform">
+                <i data-lucide="terminal" class="w-5 h-5 text-white"></i>
+              </div>
+              <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-400 rounded-full animate-pulse-slow border-2 border-surface-900"></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h1 class="text-base font-bold tracking-tight text-white group-hover:text-amber-400 transition-colors">sudo<span class="text-amber-400">deck</span></h1>
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">GTFOBINS</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Categorized Desktop Navigation -->
+          <nav class="hidden lg:flex items-center gap-2">
+
+            <!-- Category 1: Threat & Recon Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-intel"
+                class="nav-pill"
+              >
+                <i data-lucide="radar" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Threat & Recon</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-intel"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP Reputation Check</div>
+                    <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
+                  </div>
+                </a>
+                <a href="/mac" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
+                  </div>
+                </a>
+                <a href="/cve" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                    <i data-lucide="flame" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">CVE Scanner</div>
+                    <div class="text-[11px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category 2: SOC & SIEM Direct Link -->
+            <a
+              href="/siem"
+              class="nav-pill"
+            >
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+              <span>SIEM Utilities</span>
+              <span class="nav-pill-badge bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PARSER</span>
+            </a>
+
+            <!-- Category 3: Security Tools Dropdown (Active on GTFOBins) -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-tools"
+                class="nav-pill active active-amber"
+              >
+                <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Security Tools</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-amber-400/80"></i>
+              </button>
+              <div
+                id="menu-tools"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/crypto" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Crypto & Hash Suite</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
+                  </div>
+                </a>
+                <a href="/gtfobins" class="dropdown-card-item active">
+                  <div class="dropdown-card-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white flex items-center justify-between">
+                      <span>GTFOBins Explorer</span>
+                      <span class="nav-pill-badge bg-amber-500/20 text-amber-300 border border-amber-500/30">Active</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </nav>
+        </div>
+
+        <!-- Right: Direct Links, Command Palette Launcher & System Status -->
+        <div class="flex items-center gap-3 shrink-0 ml-6 xl:ml-8">
+          <a
+            href="/#about"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>About</span>
+          </a>
+          <a
+            href="/#contact"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Contact</span>
+          </a>
+
+          <!-- Command Palette Trigger Button -->
+          <button
+            type="button"
+            data-action="open-command-palette"
+            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-amber-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
+            title="Open Command Launcher (Ctrl + K)"
+          >
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-400 transition-colors shrink-0"></i>
+            <span class="text-slate-400 group-hover:text-slate-200 whitespace-nowrap">Search intel...</span>
+            <kbd class="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-900 border border-slate-750 text-[10px] font-mono text-slate-400 shrink-0">
+              <span>Ctrl</span><span>K</span>
+            </kbd>
+          </button>
+
+          <!-- System Status Badge -->
+          <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 whitespace-nowrap shrink-0">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+            </span>
+            <span class="text-[11px] font-mono font-medium tracking-wide">Offline Catalog</span>
+          </div>
+
+          <!-- Mobile Hamburger Toggle -->
+          <button
+            id="mobile-menu-toggle"
+            type="button"
+            class="lg:hidden h-9 w-9 flex items-center justify-center rounded-xl bg-surface-800 border border-slate-700/60 text-slate-300 hover:text-white transition-colors shrink-0"
+          >
+            <i data-lucide="menu" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-menu-drawer" class="hidden lg:hidden border-t border-slate-800/80 py-3 space-y-1 animate-fade-in">
+        <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="radar" class="w-4 h-4 text-emerald-400"></i>
+          <span>IP Reputation Check</span>
+        </a>
+        <a href="/mac" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
+          <span>MAC & OUI Lookup</span>
+        </a>
+        <a href="/cve" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
+          <span>CVE Vulnerability Scanner</span>
+        </a>
+        <a href="/siem" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+          <span>SIEM Utilities</span>
+        </a>
+        <a href="/crypto" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="key-round" class="w-4 h-4 text-purple-400"></i>
+          <span>Crypto & Hash Suite</span>
+        </a>
+        <a href="/gtfobins" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-amber-400 bg-amber-500/10">
+          <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
+          <span>GTFOBins Explorer</span>
+        </a>
+        <a href="/#about" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
+          <span>About sudodeck</span>
+        </a>
+        <a href="/#contact" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="mail" class="w-4 h-4 text-cyan-400"></i>
+          <span>Contact CIRT</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  MAIN CONTENT                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+    <!-- ── Hero Banner ─────────────────────────────────────────── -->
+    <div class="max-w-3xl mx-auto text-center mb-8 animate-fade-in">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-400 text-xs font-semibold mb-3">
+        <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+        <span>Curated Unix Binaries Security & Privilege Escalation Catalog</span>
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+        Custom GTFOBins Explorer
+      </h2>
+      <p class="text-sm text-slate-400 mt-2 leading-relaxed">
+        Comprehensive offline database of Unix binaries that can be leveraged to bypass local security restrictions, spawn interactive root shells, read/write protected files, or escalate privileges under sudo / SUID configurations.
+      </p>
+
+      <!-- Quick Metrics Bar -->
+      <div class="flex items-center justify-center gap-4 mt-4 text-xs font-mono">
+        <div class="flex items-center gap-1.5 text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span>Database: <strong class="text-white" id="stat-total-binaries">47</strong> Binaries</span>
+        </div>
+        <span class="text-slate-600">•</span>
+        <div class="flex items-center gap-1.5 text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>Fast Local Execution</span>
+        </div>
+        <span class="text-slate-600">•</span>
+        <div class="flex items-center gap-1.5 text-slate-400">
+          <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+          <span>Zero External Dependencies</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Two-Column Layout ────────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- ── Left Column: Binaries Search & Catalog (4 Cols) ───── -->
+      <div class="lg:col-span-4 space-y-4">
+
+        <!-- Search & Filter Card -->
+        <div class="card p-4 border-slate-700/60 bg-surface-850/90 shadow-xl space-y-3.5">
+          <!-- Search Input -->
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <input
+              type="text"
+              id="gtfo-search-input"
+              placeholder="Search binaries (e.g. find, bash, vim)..."
+              class="input-field w-full pl-9 pr-9 text-xs font-mono text-white bg-surface-900 border-slate-700/80 placeholder:font-sans placeholder:text-slate-500"
+              autocomplete="off"
+            />
+            <button
+              type="button"
+              id="gtfo-search-clear"
+              class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1 rounded transition-colors"
+              title="Clear search"
+            >
+              <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+
+          <!-- Quick Binary Presets -->
+          <div class="flex flex-wrap items-center gap-1 text-xs pt-0.5">
+            <span class="text-[10px] uppercase font-bold tracking-wider text-slate-500 mr-1 flex items-center gap-1">
+              <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i> Quick:
+            </span>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="find">find</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="vim">vim</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="bash">bash</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="python3">python3</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="nmap">nmap</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="sudo">sudo</button>
+          </div>
+
+          <!-- Function Filter Chips -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Filter by Capability</span>
+              <button
+                type="button"
+                id="reset-filter-btn"
+                class="text-[10px] text-amber-400 hover:text-amber-300 font-semibold"
+              >
+                Reset
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-1.5 text-[11px]" id="category-filters-container">
+              <button type="button" class="category-filter-btn active px-2.5 py-1 rounded-lg border border-slate-700 text-slate-300 transition-all font-medium" data-category="all">
+                All
+              </button>
+              <button type="button" class="category-filter-btn px-2.5 py-1 rounded-lg border border-slate-700 text-purple-300 hover:border-purple-500/40 transition-all font-medium" data-category="shell">
+                Shell
+              </button>
+              <button type="button" class="category-filter-btn px-2.5 py-1 rounded-lg border border-slate-700 text-rose-300 hover:border-rose-500/40 transition-all font-medium" data-category="sudo">
+                Sudo
+              </button>
+              <button type="button" class="category-filter-btn px-2.5 py-1 rounded-lg border border-slate-700 text-amber-300 hover:border-amber-500/40 transition-all font-medium" data-category="suid">
+                SUID
+              </button>
+              <button type="button" class="category-filter-btn px-2.5 py-1 rounded-lg border border-slate-700 text-cyan-300 hover:border-cyan-500/40 transition-all font-medium" data-category="file-read">
+                Read
+              </button>
+              <button type="button" class="category-filter-btn px-2.5 py-1 rounded-lg border border-slate-700 text-emerald-300 hover:border-emerald-500/40 transition-all font-medium" data-category="file-write">
+                Write
+              </button>
+              <button type="button" class="category-filter-btn px-2.5 py-1 rounded-lg border border-slate-700 text-pink-300 hover:border-pink-500/40 transition-all font-medium" data-category="reverse-shell">
+                Rev Shell
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Binaries List Card -->
+        <div class="card p-3 border-slate-700/60 bg-surface-850/90 shadow-xl">
+          <div class="flex items-center justify-between px-2 pb-2.5 border-b border-slate-800 text-[11px] font-mono text-slate-400">
+            <span id="binary-count-label">Loading catalog...</span>
+            <span class="text-[10px] text-slate-500">Sorted A-Z</span>
+          </div>
+
+          <!-- Scrollable Binaries List -->
+          <div id="binaries-list-container" class="mt-2 space-y-1.5 max-h-[620px] overflow-y-auto pr-1">
+            <!-- Populated dynamically via JS -->
+            <div class="p-6 text-center text-xs text-slate-500">
+              <div class="spinner mx-auto mb-2"></div>
+              <span>Fetching GTFOBins catalog...</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Right Column: Selected Binary Details (8 Cols) ─────── -->
+      <div class="lg:col-span-8 space-y-6" id="binary-detail-container">
+
+        <!-- Default Placeholder State -->
+        <div id="detail-placeholder" class="card p-12 text-center border-slate-800 bg-surface-850/60 shadow-xl animate-fade-in">
+          <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4 text-amber-400 shadow-inner">
+            <i data-lucide="terminal" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white">Select a Unix Binary to Inspect</h3>
+          <p class="text-xs text-slate-400 max-w-md mx-auto mt-2 leading-relaxed">
+            Choose any binary from the list on the left or use the search bar to inspect its available capabilities (Shell escape, Sudo bypass, SUID escalation, Arbitrary File Read/Write, and Reverse Shells).
+          </p>
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span class="text-slate-500">Suggested:</span>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="find">find</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="bash">bash</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="python3">python3</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="nmap">nmap</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="vim">vim</button>
+            <button type="button" class="preset-chip quick-select-btn" data-binary="tar">tar</button>
+          </div>
+        </div>
+
+        <!-- Populated Details View (Hidden by default) -->
+        <div id="detail-content" class="hidden space-y-6">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOAST CONTAINER                                          -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-slate-800/80 mt-16 py-6 bg-surface-950">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+      <div class="flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-amber-400"></i>
+        <span>sudodeck GTFOBins Explorer • Local Security Audit & Privilege Escalation Reference</span>
+      </div>
+      <div class="flex items-center gap-4 font-medium flex-wrap">
+        <a href="/#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
+        <span>•</span>
+        <a href="/#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
+        <span>•</span>
+        <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Platform</a>
+        <span>•</span>
+        <a href="/cve" class="text-slate-400 hover:text-white transition-colors">CVE Scanner</a>
+        <span>•</span>
+        <a href="/crypto" class="text-slate-400 hover:text-white transition-colors">Crypto Suite</a>
+        <span>•</span>
+        <a href="/mac" class="text-slate-400 hover:text-white transition-colors">MAC Lookup</a>
+        <span>•</span>
+        <a href="/api/gtfobins" target="_blank" class="text-slate-400 hover:text-white transition-colors">API Catalog</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared Navigation & Command Palette -->
+  <script src="/js/shared-nav.js"></script>
+
+  <!-- Application Script -->
+  <script src="/js/gtfobins.js?v=2"></script>
+</body>
+</html>

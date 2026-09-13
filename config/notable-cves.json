@@ -1,0 +1,684 @@
+{
+  "CVE-2021-44228": {
+    "cveId": "CVE-2021-44228",
+    "sourceIdentifier": "security@apache.org",
+    "vulnStatus": "Analyzed",
+    "published": "2021-12-10T10:15:09.143",
+    "lastModified": "2026-08-11T19:33:44.513",
+    "description": "Apache Log4j2 2.0-beta9 through 2.15.0 (excluding security releases 2.12.2, 2.12.3, and 2.3.1) JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints. An attacker who can control log messages or log message parameters can execute arbitrary code loaded from LDAP servers when message lookup substitution is enabled. From log4j 2.15.0, this behavior has been disabled by default. From version 2.16.0 (along with 2.12.2, 2.12.3, and 2.3.1), this functionality has been completely removed. Note that this vulnerability is specific to log4j-core and does not affect log4net, log4cxx, or other Apache Logging Services projects.",
+    "hasCvss": true,
+    "cvssVersion": "3.1",
+    "cvss": {
+      "baseScore": 10,
+      "severity": "CRITICAL",
+      "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "attackVector": "NETWORK",
+      "attackComplexity": "LOW",
+      "privilegesRequired": "NONE",
+      "userInteraction": "NONE",
+      "scope": "CHANGED",
+      "confidentialityImpact": "HIGH",
+      "integrityImpact": "HIGH",
+      "availabilityImpact": "HIGH",
+      "exploitabilityScore": 3.9,
+      "impactScore": 6
+    },
+    "severity": {
+      "level": "CRITICAL",
+      "color": "#fb7185",
+      "bg": "rgba(251, 113, 133, 0.15)",
+      "border": "rgba(251, 113, 133, 0.35)"
+    },
+    "weaknesses": [
+      "CWE-20",
+      "CWE-400",
+      "CWE-502",
+      "CWE-917"
+    ],
+    "references": [
+      {
+        "url": "http://packetstormsecurity.com/files/165225/Apache-Log4j2-2.14.1-Remote-Code-Execution.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165260/VMware-Security-Advisory-2021-0028.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165261/Apache-Log4j2-2.14.1-Information-Disclosure.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165270/Apache-Log4j2-2.14.1-Remote-Code-Execution.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165281/Log4j2-Log4Shell-Regexes.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165282/Log4j-Payload-Generator.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165306/L4sh-Log4j-Remote-Code-Execution.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165307/Log4j-Remote-Code-Execution-Word-Bypassing.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165311/log4j-scan-Extensive-Scanner.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Broken Link",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165371/VMware-Security-Advisory-2021-0028.4.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165532/Log4Shell-HTTP-Header-Injection.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165642/VMware-vCenter-Server-Unauthenticated-Log4Shell-JNDI-Injection-Remote-Code-Execution.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/165673/UniFi-Network-Application-Unauthenticated-Log4Shell-Remote-Code-Execution.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/167794/Open-Xchange-App-Suite-7.10.x-Cross-Site-Scripting-Command-Injection.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/167917/MobileIron-Log4Shell-Remote-Command-Execution.html",
+        "source": "security@apache.org",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      }
+    ]
+  },
+  "CVE-2024-3094": {
+    "cveId": "CVE-2024-3094",
+    "sourceIdentifier": "secalert@redhat.com",
+    "vulnStatus": "Modified",
+    "published": "2024-03-29T17:15:21.150",
+    "lastModified": "2026-06-17T07:43:17.830",
+    "description": "Malicious code was discovered in the upstream tarballs of xz, starting with version 5.6.0. \r\nThrough a series of complex obfuscations, the liblzma build process extracts a prebuilt object file from a disguised test file existing in the source code, which is then used to modify specific functions in the liblzma code. This results in a modified liblzma library that can be used by any software linked against this library, intercepting and modifying the data interaction with this library.",
+    "hasCvss": true,
+    "cvssVersion": "3.1",
+    "cvss": {
+      "baseScore": 10,
+      "severity": "CRITICAL",
+      "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "attackVector": "NETWORK",
+      "attackComplexity": "LOW",
+      "privilegesRequired": "NONE",
+      "userInteraction": "NONE",
+      "scope": "CHANGED",
+      "confidentialityImpact": "HIGH",
+      "integrityImpact": "HIGH",
+      "availabilityImpact": "HIGH",
+      "exploitabilityScore": 3.9,
+      "impactScore": 6
+    },
+    "severity": {
+      "level": "CRITICAL",
+      "color": "#fb7185",
+      "bg": "rgba(251, 113, 133, 0.15)",
+      "border": "rgba(251, 113, 133, 0.35)"
+    },
+    "weaknesses": [
+      "CWE-506"
+    ],
+    "references": [
+      {
+        "url": "https://access.redhat.com/security/cve/CVE-2024-3094",
+        "source": "secalert@redhat.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://bugzilla.redhat.com/show_bug.cgi?id=2272210",
+        "source": "secalert@redhat.com",
+        "tags": [
+          "Issue Tracking",
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://www.openwall.com/lists/oss-security/2024/03/29/4",
+        "source": "secalert@redhat.com",
+        "tags": [
+          "Mailing List"
+        ]
+      },
+      {
+        "url": "https://www.redhat.com/en/blog/urgent-security-alert-fedora-41-and-rawhide-users",
+        "source": "secalert@redhat.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/29/10",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/29/12",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/29/4",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/29/5",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/29/8",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/30/12",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/30/27",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/30/36",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/03/30/5",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "http://www.openwall.com/lists/oss-security/2024/04/16/5",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": []
+      },
+      {
+        "url": "https://access.redhat.com/security/cve/CVE-2024-3094",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      }
+    ]
+  },
+  "CVE-2017-0144": {
+    "cveId": "CVE-2017-0144",
+    "sourceIdentifier": "secure@microsoft.com",
+    "vulnStatus": "Analyzed",
+    "published": "2017-03-17T00:59:04.010",
+    "lastModified": "2026-08-14T05:16:53.770",
+    "description": "The SMBv1 server in Microsoft Windows Vista SP2; Windows Server 2008 SP2 and R2 SP1; Windows 7 SP1; Windows 8.1; Windows Server 2012 Gold and R2; Windows RT 8.1; and Windows 10 Gold, 1511, and 1607; and Windows Server 2016 allows remote attackers to execute arbitrary code via crafted packets, aka \"Windows SMB Remote Code Execution Vulnerability.\" This vulnerability is different from those described in CVE-2017-0143, CVE-2017-0145, CVE-2017-0146, and CVE-2017-0148.",
+    "hasCvss": true,
+    "cvssVersion": "3.1",
+    "cvss": {
+      "baseScore": 8.8,
+      "severity": "HIGH",
+      "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "attackVector": "NETWORK",
+      "attackComplexity": "LOW",
+      "privilegesRequired": "LOW",
+      "userInteraction": "NONE",
+      "scope": "UNCHANGED",
+      "confidentialityImpact": "HIGH",
+      "integrityImpact": "HIGH",
+      "availabilityImpact": "HIGH",
+      "exploitabilityScore": 2.8,
+      "impactScore": 5.9
+    },
+    "severity": {
+      "level": "HIGH",
+      "color": "#f97316",
+      "bg": "rgba(249, 115, 22, 0.15)",
+      "border": "rgba(249, 115, 22, 0.35)"
+    },
+    "weaknesses": [],
+    "references": [
+      {
+        "url": "http://packetstormsecurity.com/files/154690/DOUBLEPULSAR-Payload-Execution-Neutralization.html",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/156196/SMB-DOUBLEPULSAR-Remote-Code-Execution.html",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://www.securityfocus.com/bid/96704",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Broken Link",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://www.securitytracker.com/id/1037991",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Broken Link",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "https://cert-portal.siemens.com/productcert/pdf/ssa-701903.pdf",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Third Party Advisory"
+        ]
+      },
+      {
+        "url": "https://cert-portal.siemens.com/productcert/pdf/ssa-966341.pdf",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Third Party Advisory"
+        ]
+      },
+      {
+        "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-058-02",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Third Party Advisory",
+          "US Government Resource"
+        ]
+      },
+      {
+        "url": "https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2017-0144",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Patch",
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://www.exploit-db.com/exploits/41891/",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "https://www.exploit-db.com/exploits/41987/",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "https://www.exploit-db.com/exploits/42030/",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "https://www.exploit-db.com/exploits/42031/",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/154690/DOUBLEPULSAR-Payload-Execution-Neutralization.html",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/156196/SMB-DOUBLEPULSAR-Remote-Code-Execution.html",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "http://www.securityfocus.com/bid/96704",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Broken Link",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      }
+    ]
+  },
+  "CVE-2021-34527": {
+    "cveId": "CVE-2021-34527",
+    "sourceIdentifier": "secure@microsoft.com",
+    "vulnStatus": "Analyzed",
+    "published": "2021-07-02T22:15:08.757",
+    "lastModified": "2026-08-10T20:15:22.807",
+    "description": "A remote code execution vulnerability exists when the Windows Print Spooler service improperly performs privileged file operations. An attacker who successfully exploited this vulnerability could run arbitrary code with SYSTEM privileges. An attacker could then install programs; view, change, or delete data; or create new accounts with full user rights.\nUPDATE July 7, 2021: The security update for Windows Server 2012, Windows Server 2016 and Windows 10, Version 1607 have been released. Please see the Security Updates table for the applicable update for your system. We recommend that you install these updates immediately. If you are unable to install these updates, see the FAQ and Workaround sections in this CVE for information on how to help protect your system from this vulnerability.\nIn addition to installing the updates, in order to secure your system, you must confirm that the following registry settings are set to 0 (zero) or are not defined (Note: These registry keys do not exist by default, and therefore are already at the secure setting.), also that your Group Policy setting are correct (see FAQ):\n\nHKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\Printers\\PointAndPrint\nNoWarningNoElevationOnInstall = 0 (DWORD) or not defined (default setting)\nUpdatePromptSettings = 0 (DWORD) or not defined (default setting)\n\nHaving NoWarningNoElevationOnInstall set to 1 makes your system vulnerable by design.\nUPDATE July 6, 2021: Microsoft has completed the investigation and has released security updates to address this vulnerability. Please see the Security Updates table for the applicable update for your system. We recommend that you install these updates immediately. If you are unable to install these updates, see the FAQ and Workaround sections in this CVE for information on how to help protect your system from this vulnerability. See also KB5005010: Restricting installation of new printer drivers after applying the July 6, 2021 updates.\nNote that the security updates released on and after July 6, 2021 contain protections for CVE-2021-1675 and the additional remote code execution exploit in the Windows Print Spooler service known as “PrintNightmare”, documented in CVE-2021-34527.",
+    "hasCvss": true,
+    "cvssVersion": "3.1",
+    "cvss": {
+      "baseScore": 8.8,
+      "severity": "HIGH",
+      "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "attackVector": "NETWORK",
+      "attackComplexity": "LOW",
+      "privilegesRequired": "LOW",
+      "userInteraction": "NONE",
+      "scope": "UNCHANGED",
+      "confidentialityImpact": "HIGH",
+      "integrityImpact": "HIGH",
+      "availabilityImpact": "HIGH",
+      "exploitabilityScore": 2.8,
+      "impactScore": 5.9
+    },
+    "severity": {
+      "level": "HIGH",
+      "color": "#f97316",
+      "bg": "rgba(249, 115, 22, 0.15)",
+      "border": "rgba(249, 115, 22, 0.35)"
+    },
+    "weaknesses": [],
+    "references": [
+      {
+        "url": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2021-34527",
+        "source": "secure@microsoft.com",
+        "tags": [
+          "Patch",
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "http://packetstormsecurity.com/files/167261/Print-Spooler-Remote-DLL-Injection.html",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory",
+          "VDB Entry"
+        ]
+      },
+      {
+        "url": "https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2021-34527",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Mitigation",
+          "Patch",
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://www.kb.cert.org/vuls/id/383432",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Third Party Advisory",
+          "US Government Resource"
+        ]
+      },
+      {
+        "url": "https://www.vicarius.io/vsociety/posts/cve-2021-34527-printnightmare-detection-script",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory"
+        ]
+      },
+      {
+        "url": "https://www.vicarius.io/vsociety/posts/cve-2021-34527-printnightmare-mitigation-script",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Exploit",
+          "Third Party Advisory"
+        ]
+      },
+      {
+        "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2021-34527",
+        "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+        "tags": [
+          "US Government Resource"
+        ]
+      }
+    ]
+  },
+  "CVE-2023-38606": {
+    "cveId": "CVE-2023-38606",
+    "sourceIdentifier": "product-security@apple.com",
+    "vulnStatus": "Analyzed",
+    "published": "2023-07-27T00:15:16.173",
+    "lastModified": "2026-06-17T06:10:49.160",
+    "description": "This issue was addressed with improved state management. This issue is fixed in macOS Monterey 12.6.8, iOS 15.7.8 and iPadOS 15.7.8, iOS 16.6 and iPadOS 16.6, tvOS 16.6, macOS Big Sur 11.7.9, macOS Ventura 13.5, watchOS 9.6. An app may be able to modify sensitive kernel state. Apple is aware of a report that this issue may have been actively exploited against versions of iOS released before iOS 15.7.1.",
+    "hasCvss": true,
+    "cvssVersion": "3.1",
+    "cvss": {
+      "baseScore": 5.5,
+      "severity": "MEDIUM",
+      "vectorString": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N",
+      "attackVector": "LOCAL",
+      "attackComplexity": "LOW",
+      "privilegesRequired": "NONE",
+      "userInteraction": "REQUIRED",
+      "scope": "UNCHANGED",
+      "confidentialityImpact": "NONE",
+      "integrityImpact": "HIGH",
+      "availabilityImpact": "NONE",
+      "exploitabilityScore": 1.8,
+      "impactScore": 3.6
+    },
+    "severity": {
+      "level": "MEDIUM",
+      "color": "#fbbf24",
+      "bg": "rgba(251, 191, 36, 0.15)",
+      "border": "rgba(251, 191, 36, 0.35)"
+    },
+    "weaknesses": [],
+    "references": [
+      {
+        "url": "https://support.apple.com/en-us/HT213841",
+        "source": "product-security@apple.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213842",
+        "source": "product-security@apple.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213843",
+        "source": "product-security@apple.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213844",
+        "source": "product-security@apple.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213845",
+        "source": "product-security@apple.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213846",
+        "source": "product-security@apple.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213848",
+        "source": "product-security@apple.com",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213841",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213842",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213843",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213844",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213845",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213846",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://support.apple.com/en-us/HT213848",
+        "source": "af854a3a-2127-422b-91ae-364da2661108",
+        "tags": [
+          "Vendor Advisory"
+        ]
+      },
+      {
+        "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2023-38606",
+        "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+        "tags": [
+          "US Government Resource"
+        ]
+      }
+    ]
+  }
+}
