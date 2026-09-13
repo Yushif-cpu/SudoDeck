@@ -9,21 +9,19 @@ const __dirname = dirname(__filename);
 const envPath = resolve(__dirname, '..', '.env');
 dotenv.config({ path: envPath });
 
-// ── Required environment variables ──────────────────────────────
-const REQUIRED_VARS = ['ABUSEIPDB_API_KEY', 'VIRUSTOTAL_API_KEY'];
-
-const missing = REQUIRED_VARS.filter((key) => !process.env[key]);
+// ── Environment variables check (Graceful degradation) ───────────
+const RECOMMENDED_VARS = ['ABUSEIPDB_API_KEY', 'VIRUSTOTAL_API_KEY'];
+const missing = RECOMMENDED_VARS.filter((key) => !process.env[key]);
 if (missing.length > 0) {
-  console.error('╔══════════════════════════════════════════════════════════╗');
-  console.error('║  FATAL: Missing required environment variables          ║');
-  console.error('╠══════════════════════════════════════════════════════════╣');
+  console.warn('╔══════════════════════════════════════════════════════════╗');
+  console.warn('║  NOTICE: Running with partial/missing API keys           ║');
+  console.warn('╠══════════════════════════════════════════════════════════╣');
   missing.forEach((key) => {
-    console.error(`║  ✗  ${key.padEnd(50)}║`);
+    console.warn(`║  !  ${key.padEnd(50)}║`);
   });
-  console.error('╠══════════════════════════════════════════════════════════╣');
-  console.error('║  Create a .env file with the required API keys.         ║');
-  console.error('╚══════════════════════════════════════════════════════════╝');
-  process.exit(1);
+  console.warn('╠══════════════════════════════════════════════════════════╣');
+  console.warn('║  Add keys in environment variables for live VT/AbuseIPDB ║');
+  console.warn('╚══════════════════════════════════════════════════════════╝');
 }
 
 // ── Export validated config ──────────────────────────────────────

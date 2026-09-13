@@ -171,7 +171,7 @@ app.get('{*path}', (req, res) => {
 app.use(errorHandler);
 
 // ── Start server ────────────────────────────────────────────────
-const server = app.listen(config.PORT, () => {
+const server = app.listen(config.PORT, '0.0.0.0', () => {
   console.log('');
   console.log('╔══════════════════════════════════════════════════════════╗');
   console.log('║  🛡️  OSINT Threat Intelligence Platform                  ║');
