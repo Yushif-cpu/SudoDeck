@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initReportedIPsRefresh();
   initUtilsModule();
   initEmailHeaderModule();
+  initUniversalSearch();
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -159,35 +160,165 @@ async function apiRequest(url, options = {}) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  TAB NAVIGATION
+//  TAB NAVIGATION & PORTAL ROUTING
 // ═══════════════════════════════════════════════════════════════
+function switchToTab(tabName) {
+  const btns = document.querySelectorAll('.tab-btn');
+  const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+
+  btns.forEach((b) => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+
+  if (targetBtn) {
+    targetBtn.classList.add('active');
+    targetBtn.setAttribute('aria-selected', 'true');
+  }
+
+  document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
+  const panel = document.getElementById(`panel-${tabName}`);
+  if (panel) {
+    panel.classList.remove('hidden');
+    panel.classList.add('animate-fade-in');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  // Isolate special modules from live threat feed (utils and email hide it, home and others show it)
+  const reportedSection = document.getElementById('reported-ips-section');
+  if (reportedSection) {
+    if (tabName === 'utils' || tabName === 'email') {
+      reportedSection.classList.add('hidden');
+    } else {
+      reportedSection.classList.remove('hidden');
+    }
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.switchToTab = switchToTab;
+
 function initTabs() {
   const btns = document.querySelectorAll('.tab-btn');
   btns.forEach((btn) => {
     btn.addEventListener('click', () => {
-      btns.forEach((b) => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
+      const tabName = btn.dataset.tab;
+      switchToTab(tabName);
+      history.pushState(null, '', tabName === 'home' ? '/' : `/#${tabName}`);
+    });
+  });
 
-      document.querySelectorAll('.tab-panel').forEach((p) => p.classList.add('hidden'));
-      const panel = document.getElementById(`panel-${btn.dataset.tab}`);
-      if (panel) {
-        panel.classList.remove('hidden');
-        panel.classList.add('animate-fade-in');
-        if (window.lucide) lucide.createIcons();
+  // Global click delegator for any button or link with [data-switch-tab]
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-switch-tab]');
+    if (trigger) {
+      e.preventDefault();
+      const tab = trigger.getAttribute('data-switch-tab');
+      if (tab) {
+        switchToTab(tab);
+        history.pushState(null, '', tab === 'home' ? '/' : `/#${tab}`);
       }
+    }
+  });
 
-      // Isolate special modules (utilities, email) from live threat feed
-      const reportedSection = document.getElementById('reported-ips-section');
-      if (reportedSection) {
-        if (btn.dataset.tab === 'utils' || btn.dataset.tab === 'email') {
-          reportedSection.classList.add('hidden');
-        } else {
-          reportedSection.classList.remove('hidden');
-        }
+  // Brand Logo and Name click in Header/Footer -> Always return to Home smoothly on index.html!
+  const brandLogos = document.querySelectorAll('#brand-logo-link, header a[href="/"], footer a[href="/"]');
+  brandLogos.forEach((logo) => {
+    logo.addEventListener('click', (e) => {
+      if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
+        e.preventDefault();
+        switchToTab('home');
+        history.pushState(null, '', '/');
+      }
+    });
+  });
+
+  // Handle URL parameters or Hash on initial load
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramTab = urlParams.get('tab');
+  const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
+  const targetTab = paramTab || hashTab;
+
+  if (targetTab && document.getElementById(`panel-${targetTab}`)) {
+    switchToTab(targetTab);
+  } else {
+    // Default is always Home!
+    switchToTab('home');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  UNIVERSAL SMART SEARCH (HOME HUB)
+// ═══════════════════════════════════════════════════════════════
+function initUniversalSearch() {
+  const form = document.getElementById('universal-search-form');
+  const input = document.getElementById('universal-search-input');
+  if (!form || !input) return;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const query = input.value.trim();
+    if (!query) return;
+
+    // 1. CVE detection (e.g. CVE-2024-3094)
+    if (/^CVE-\d{4}-\d{4,}$/i.test(query)) {
+      window.location.href = `/cve?query=${encodeURIComponent(query)}`;
+      return;
+    }
+
+    // 2. MAC address detection (e.g. 00:1A:2B:3C:4D:5E or 001A2B3C4D5E)
+    if (/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(query) || /^[0-9A-Fa-f]{12}$/.test(query)) {
+      window.location.href = `/mac?query=${encodeURIComponent(query)}`;
+      return;
+    }
+
+    // 3. IP address detection (IPv4 / IPv6)
+    const isIPv4 = /^(\d{1,3}\.){3}\d{1,3}$/.test(query);
+    const isIPv6 = query.includes(':') && /^[0-9a-fA-F:]+$/.test(query);
+    if (isIPv4 || isIPv6) {
+      switchToTab('ip');
+      const ipInput = document.getElementById('ip-input');
+      const ipForm = document.getElementById('ip-form');
+      if (ipInput) ipInput.value = query;
+      if (ipForm) ipForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      return;
+    }
+
+    // 4. File Hash detection (MD5 = 32 hex, SHA-1 = 40 hex, SHA-256 = 64 hex)
+    if (/^[a-fA-F0-9]{32}$/.test(query) || /^[a-fA-F0-9]{40}$/.test(query) || /^[a-fA-F0-9]{64}$/.test(query)) {
+      switchToTab('file');
+      const hashTabBtn = document.getElementById('tab-btn-hash');
+      if (hashTabBtn) hashTabBtn.click();
+      const hashInput = document.getElementById('hash-input');
+      const hashForm = document.getElementById('hash-form');
+      if (hashInput) hashInput.value = query;
+      if (hashForm) hashForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      return;
+    }
+
+    // 5. Domain detection (contains dot and valid domain suffix)
+    if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(query)) {
+      switchToTab('domain');
+      const domainInput = document.getElementById('domain-input');
+      const domainForm = document.getElementById('domain-form');
+      if (domainInput) domainInput.value = query;
+      if (domainForm) domainForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      return;
+    }
+
+    // Fallback: Default to IP search
+    switchToTab('ip');
+    const fallbackInput = document.getElementById('ip-input');
+    if (fallbackInput) fallbackInput.value = query;
+  });
+
+  // Universal quick buttons
+  document.querySelectorAll('.universal-quick-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.value;
+      if (val && input) {
+        input.value = val;
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
       }
     });
   });

@@ -130,7 +130,7 @@
     },
     {
       id: 'nav-about',
-      title: 'About sudodeck Intelligence Platform',
+      title: 'About SudoDeck Intelligence Platform',
       desc: 'Platform mission, architectural pillars, telemetry metrics, and privacy architecture',
       category: 'Platform & Operations',
       icon: 'info',
@@ -199,7 +199,7 @@
               </span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-emerald-400 font-semibold">sudodeck</span>
+              <span class="text-emerald-400 font-semibold">SudoDeck</span>
               <span>Quick Launcher</span>
             </div>
           </div>

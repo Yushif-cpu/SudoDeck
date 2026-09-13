@@ -131,7 +131,7 @@ app.post('/api/contact', (req, res) => {
 
   return res.json({
     success: true,
-    message: 'Message dispatched securely to sudodeck CIRT desk',
+    message: 'Message dispatched securely to SudoDeck CIRT desk',
     ticketId,
     timestamp: new Date().toISOString(),
   });

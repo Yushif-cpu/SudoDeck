@@ -1,7 +1,7 @@
 {
   "name": "threat-intel-node",
   "version": "2.0.0",
-  "description": "sudodeck — OSINT Threat Intelligence & Indicator Analysis Platform",
+  "description": "SudoDeck — OSINT Threat Intelligence & Indicator Analysis Platform",
   "main": "server.js",
   "type": "module",
   "scripts": {

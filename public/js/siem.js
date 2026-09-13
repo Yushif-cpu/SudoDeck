@@ -1058,7 +1058,7 @@ function generateSiemDetectionRules() {
 id: ${generateUuid()}
 status: experimental
 description: Detects matches for pattern ${pattern}
-author: sudodeck SIEM Suite
+author: SudoDeck SIEM Suite
 date: ${new Date().toISOString().split('T')[0]}
 logsource:
   category: process_creation
@@ -1072,7 +1072,7 @@ falsepositives:
 level: medium`;
 
   // YARA Rule
-  const yaraRule = `rule Detect_Regex_Pattern {\n    meta:\n        description = "Automated YARA rule for regex matching"\n        author = "sudodeck SIEM Utilities"\n        date = "${new Date().toISOString().split('T')[0]}"\n    strings:\n        $re1 = /${pattern}/\n    condition:\n        $re1\n}`;
+  const yaraRule = `rule Detect_Regex_Pattern {\n    meta:\n        description = "Automated YARA rule for regex matching"\n        author = "SudoDeck SIEM Utilities"\n        date = "${new Date().toISOString().split('T')[0]}"\n    strings:\n        $re1 = /${pattern}/\n    condition:\n        $re1\n}`;
 
   if (modalContent) {
     modalContent.innerHTML = `
