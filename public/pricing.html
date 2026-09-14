@@ -377,21 +377,21 @@
         </p>
 
         <!-- Monthly / Annual Billing Toggle Switch -->
-        <div class="mt-8 inline-flex items-center p-1.5 rounded-2xl bg-surface-850 border border-slate-700/80 shadow-inner">
+        <div class="mt-8 inline-flex items-center p-1 sm:p-1.5 rounded-2xl bg-surface-850 border border-slate-700/80 shadow-inner max-w-full">
           <button
             type="button"
             id="toggle-monthly"
-            class="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm"
+            class="px-3 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-mono font-semibold transition-all duration-200 whitespace-nowrap inline-flex items-center justify-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm shrink-0"
           >
             Monthly Billing
           </button>
           <button
             type="button"
             id="toggle-annual"
-            class="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 text-slate-400 hover:text-white"
+            class="px-3 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-mono font-semibold transition-all duration-200 whitespace-nowrap inline-flex items-center justify-center gap-1.5 text-slate-400 hover:text-white border border-transparent shrink-0"
           >
             <span>Annual Billing</span>
-            <span class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">SAVE 20%</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 whitespace-nowrap shrink-0">SAVE 20%</span>
           </button>
         </div>
       </div>
@@ -469,7 +469,7 @@
         <div class="flex flex-col justify-between rounded-2xl p-6 sm:p-8 bg-surface-850/90 border-2 border-emerald-500/50 hover:border-emerald-400 transition-all duration-300 shadow-2xl relative group ring-1 ring-emerald-500/20">
           
           <!-- Top Popular Badge -->
-          <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-mono font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-teal-500 text-surface-900 shadow-md">
+          <div class="absolute -top-3 sm:-top-3.5 left-1/2 -translate-x-1/2 px-3 sm:px-4 py-1 rounded-full text-[9px] sm:text-[10px] font-mono font-extrabold uppercase tracking-wide sm:tracking-wider whitespace-nowrap bg-gradient-to-r from-emerald-500 to-teal-500 text-surface-900 shadow-md shadow-emerald-500/20 z-10 text-center select-none max-w-[92%]">
             RECOMMENDED FOR PRACTITIONERS
           </div>
 
@@ -922,12 +922,15 @@
           el.textContent = isAnnual ? '/ month (billed annually)' : '/ month';
         });
 
+        const baseClassActive = 'px-3 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-mono font-semibold transition-all duration-200 whitespace-nowrap inline-flex items-center justify-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm shrink-0';
+        const baseClassInactive = 'px-3 sm:px-4 py-2 rounded-xl text-[11px] sm:text-xs font-mono font-semibold transition-all duration-200 whitespace-nowrap inline-flex items-center justify-center gap-1.5 text-slate-400 hover:text-white border border-transparent shrink-0';
+
         if (isAnnual) {
-          toggleAnnual.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm';
-          toggleMonthly.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 text-slate-400 hover:text-white';
+          toggleAnnual.className = baseClassActive;
+          toggleMonthly.className = baseClassInactive;
         } else {
-          toggleMonthly.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm';
-          toggleAnnual.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 text-slate-400 hover:text-white';
+          toggleMonthly.className = baseClassActive;
+          toggleAnnual.className = baseClassInactive;
         }
       }
 

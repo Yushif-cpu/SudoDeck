@@ -759,16 +759,18 @@
         
         <!-- Card Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+          <div class="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 mt-0.5 sm:mt-0">
               <i data-lucide="scan-face" class="w-5 h-5"></i>
             </div>
-            <div>
-              <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                User-Agent Deep Parser & Threat Fingerprinter
-                <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">CLIENT-SIDE</span>
-              </h3>
-              <p class="text-xs text-slate-400">Extract browser family, OS architecture, device factor, and detect automated pentest scanners & bots</p>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider leading-snug">
+                  User-Agent Deep Parser &amp; Threat Fingerprinter
+                </h3>
+                <span class="self-start whitespace-nowrap shrink-0 px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">CLIENT-SIDE</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-1 sm:mt-0.5">Extract browser family, OS architecture, device factor, and detect automated pentest scanners &amp; bots</p>
             </div>
           </div>
 
@@ -1304,16 +1306,16 @@
               
               <!-- Header -->
               <div>
-                <div class="flex items-center gap-3.5 mb-5">
-                  <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center shrink-0">
-                    <i data-lucide="mail-check" class="w-6 h-6 text-indigo-400"></i>
+                <div class="flex items-start sm:items-center gap-3.5 mb-5">
+                  <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                    <i data-lucide="mail-check" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400"></i>
                   </div>
-                  <div>
-                    <h3 class="text-base font-bold text-white flex items-center gap-2">
-                      <span>RFC 822/5322 Email Security & Relay Forensics</span>
-                      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">ZERO LOGGING</span>
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Deconstruct internet message headers to identify sender authenticity, relay hop latency, SPF/DKIM verification, and spoofing attempts.</p>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                      <h3 class="text-sm sm:text-base font-bold text-white leading-snug">RFC 822/5322 Email Security &amp; Relay Forensics</h3>
+                      <span class="self-start whitespace-nowrap shrink-0 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">ZERO LOGGING</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1 sm:mt-0.5">Deconstruct internet message headers to identify sender authenticity, relay hop latency, SPF/DKIM verification, and spoofing attempts.</p>
                   </div>
                 </div>
 
@@ -1467,16 +1469,16 @@
               
               <!-- Header -->
               <div>
-                <div class="flex items-center gap-3.5 mb-5">
-                  <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center shrink-0">
-                    <i data-lucide="shield-alert" class="w-6 h-6 text-indigo-400"></i>
+                <div class="flex items-start sm:items-center gap-3.5 mb-5">
+                  <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+                    <i data-lucide="shield-alert" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400"></i>
                   </div>
-                  <div>
-                    <h3 class="text-base font-bold text-white flex items-center gap-2">
-                      <span>Multi-Vendor Malware & Binary Intelligence</span>
-                      <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">70+ ENGINES</span>
-                    </h3>
-                    <p class="text-xs text-slate-400 mt-0.5">Upload a suspicious binary or query a cryptographic hash to inspect antivirus verdicts, threat tags, and detection ratios.</p>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                      <h3 class="text-sm sm:text-base font-bold text-white leading-snug">Multi-Vendor Malware &amp; Binary Intelligence</h3>
+                      <span class="self-start whitespace-nowrap shrink-0 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">70+ ENGINES</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1 sm:mt-0.5">Upload a suspicious binary or query a cryptographic hash to inspect antivirus verdicts, threat tags, and detection ratios.</p>
                   </div>
                 </div>
 
@@ -1596,27 +1598,27 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  FOOTER                                                    -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <footer class="border-t border-slate-800/80 mt-16 py-6 bg-surface-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-      <div class="flex items-center gap-2">
-        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i>
-        <span>SudoDeck SIEM Suite • Client-Side SOC Log Parsing & Detection Workbench</span>
+  <footer class="border-t border-slate-800/80 mt-16 pt-6 pb-20 sm:pb-6 bg-surface-900">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex items-center gap-2 text-center sm:text-left flex-wrap justify-center sm:justify-start">
+        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+        <span>SudoDeck SIEM Suite &bull; Client-Side SOC Log Parsing &amp; Detection Workbench</span>
       </div>
-      <div class="flex items-center gap-4 font-medium flex-wrap">
+      <div class="flex items-center justify-center sm:justify-end gap-x-3 gap-y-1.5 sm:gap-4 font-medium flex-wrap text-center">
         <a href="/#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
-        <span>•</span>
+        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
-        <span>•</span>
+        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Platform</a>
-        <span>•</span>
+        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/cve" class="text-slate-400 hover:text-white transition-colors">CVE Scanner</a>
-        <span>•</span>
+        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/crypto" class="text-slate-400 hover:text-white transition-colors">Crypto Suite</a>
-        <span>•</span>
+        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/mac" class="text-slate-400 hover:text-white transition-colors">MAC Lookup</a>
-        <span>•</span>
+        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/gtfobins" class="text-slate-400 hover:text-white transition-colors">GTFOBins</a>
-        <span>•</span>
+        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/siem" class="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">SIEM Utilities</a>
       </div>
     </div>
