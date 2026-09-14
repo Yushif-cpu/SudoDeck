@@ -784,7 +784,7 @@ function renderSmartAnalyzer(data) {
                   <textarea
                     readonly
                     rows="2"
-                    class="input-field w-full text-xs font-mono text-cyan-300 p-2.5 bg-surface-950/80 border-slate-700/80 resize-none break-all select-all leading-relaxed"
+                    class="input-field w-full text-xs font-mono text-cyan-300 p-2.5 bg-surface-900/80 border-slate-700/80 resize-none break-all select-all leading-relaxed"
                   >${escapeHtml(d.decoded)}</textarea>
                 </div>
               ` : `
@@ -847,7 +847,7 @@ function renderSmartAnalyzer(data) {
               <textarea
                 readonly
                 rows="3"
-                class="input-field w-full text-xs font-mono text-amber-300 p-2.5 bg-surface-950/80 border-slate-700/80 resize-none break-all select-all leading-relaxed"
+                class="input-field w-full text-xs font-mono text-amber-300 p-2.5 bg-surface-900/80 border-slate-700/80 resize-none break-all select-all leading-relaxed"
               >${escapeHtml(c.transformed)}</textarea>
             </div>
 

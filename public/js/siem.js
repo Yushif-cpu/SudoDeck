@@ -164,6 +164,8 @@ function initSiemUtilities() {
   setupFormatter();
   setupRegexTester();
   setupHeadersAnalyzer();
+  setupEmailHeaderModule();
+  setupFileHashModule();
   setupGlobalActions();
 
   // Load initial defaults silently (NO toasts on page load / F5!)
@@ -175,7 +177,7 @@ function initSiemUtilities() {
   // Restore active tab on page load (from URL hash or localStorage)
   const hash = window.location.hash ? window.location.hash.replace('#', '') : null;
   const savedTab = hash || localStorage.getItem('siem_active_tab') || 'formatter';
-  if (['formatter', 'regex', 'headers'].includes(savedTab)) {
+  if (['formatter', 'regex', 'headers', 'email', 'file'].includes(savedTab)) {
     switchTab(savedTab);
   }
 }
@@ -190,7 +192,9 @@ function switchTab(tabName) {
   const sections = {
     formatter: document.getElementById('section-formatter'),
     regex: document.getElementById('section-regex'),
-    headers: document.getElementById('section-headers')
+    headers: document.getElementById('section-headers'),
+    email: document.getElementById('section-email'),
+    file: document.getElementById('section-file')
   };
 
   tabButtons.forEach(b => {
@@ -231,7 +235,7 @@ function setupTabs() {
 
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace('#', '');
-    if (['formatter', 'regex', 'headers'].includes(hash)) {
+    if (['formatter', 'regex', 'headers', 'email', 'file'].includes(hash)) {
       switchTab(hash);
     }
   });
@@ -976,7 +980,7 @@ function renderMatchesTable(matches, container) {
   container.innerHTML = `
     <div class="overflow-x-auto">
       <table class="w-full text-left text-xs text-slate-300">
-        <thead class="bg-surface-950/80 text-[10px] uppercase font-mono font-bold text-slate-400 border-b border-slate-800">
+        <thead class="bg-surface-900 text-[10px] uppercase font-mono font-bold text-slate-400 border-b border-slate-800">
           <tr>
             <th class="py-2.5 px-3">#</th>
             <th class="py-2.5 px-3">Match Value</th>
@@ -1021,7 +1025,7 @@ function renderMatchesTable(matches, container) {
         </tbody>
       </table>
       ${matches.length > 100 ? `
-        <div class="p-2 text-center text-[10px] font-mono text-slate-500 bg-surface-950/60 border-t border-slate-800">
+        <div class="p-2 text-center text-[10px] font-mono text-slate-500 bg-surface-900 border-t border-slate-800">
           Showing first 100 of ${matches.length} matches
         </div>
       ` : ''}
@@ -1085,7 +1089,7 @@ level: medium`;
               Copy SPL
             </button>
           </div>
-          <pre class="bg-surface-950 p-3 rounded-lg text-xs font-mono text-slate-300 overflow-x-auto"><code>${escapeHtml(splunkQuery)}</code></pre>
+          <pre class="bg-surface-900 p-3 rounded-lg text-xs font-mono text-slate-300 overflow-x-auto border border-slate-800/80"><code>${escapeHtml(splunkQuery)}</code></pre>
         </div>
 
         <!-- Sigma Rule Card -->
@@ -1096,7 +1100,7 @@ level: medium`;
               Copy Sigma
             </button>
           </div>
-          <pre class="bg-surface-950 p-3 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto"><code>${escapeHtml(sigmaYaml)}</code></pre>
+          <pre class="bg-surface-900 p-3 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-slate-800/80"><code>${escapeHtml(sigmaYaml)}</code></pre>
         </div>
 
         <!-- Elasticsearch Query -->
@@ -1107,7 +1111,7 @@ level: medium`;
               Copy DSL
             </button>
           </div>
-          <pre class="bg-surface-950 p-3 rounded-lg text-xs font-mono text-slate-300 overflow-x-auto"><code>${escapeHtml(elasticQuery)}</code></pre>
+          <pre class="bg-surface-900 p-3 rounded-lg text-xs font-mono text-slate-300 overflow-x-auto border border-slate-800/80"><code>${escapeHtml(elasticQuery)}</code></pre>
         </div>
 
         <!-- YARA Rule Card -->
@@ -1118,7 +1122,7 @@ level: medium`;
               Copy YARA
             </button>
           </div>
-          <pre class="bg-surface-950 p-3 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto"><code>${escapeHtml(yaraRule)}</code></pre>
+          <pre class="bg-surface-900 p-3 rounded-lg text-xs font-mono text-rose-300 overflow-x-auto border border-slate-800/80"><code>${escapeHtml(yaraRule)}</code></pre>
         </div>
       </div>
     `;
@@ -2304,7 +2308,7 @@ function renderSecurityAudit(audit) {
             </a>
             <div>${badgeHtml}</div>
           </div>
-          <div class="text-[11px] font-mono text-slate-300 break-all bg-surface-950/60 px-2.5 py-1 rounded border border-slate-800/80">
+          <div class="text-[11px] font-mono text-slate-300 break-all bg-surface-900 px-2.5 py-1 rounded border border-slate-800/80">
             ${escapeHtml(item.value)}
           </div>
           <p class="text-[11px] text-slate-400 leading-tight">
@@ -2517,4 +2521,758 @@ function generateUuid() {
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EMAIL HEADER ANALYSIS MODULE (SIEM UTILITIES)
+// ═══════════════════════════════════════════════════════════════
+function setupEmailHeaderModule() {
+  const form = document.getElementById('email-header-form');
+  const input = document.getElementById('email-header-input');
+  const submitBtn = document.getElementById('email-header-submit');
+  const clearBtn = document.getElementById('email-header-clear');
+  const resultsContainer = document.getElementById('email-header-results');
+
+  const legitBtn = document.getElementById('preset-legit-email');
+  const spoofedBtn = document.getElementById('preset-spoofed-email');
+
+  if (!form) return;
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      input.focus();
+    });
+  }
+
+  const LEGIT_SAMPLE = `Delivered-To: victim@company.com
+Received: by 2002:a05:6512:2146:b0:4f7:d08e:1499 with SMTP id c6csp123456lfb;
+        Sat, 12 Sep 2026 18:25:34 -0700 (PDT)
+X-Received: by 2002:a17:907:738b:b0:a22:a5a1:5f87 with SMTP id c11-20020a170907738bb00a22a5a15f87mr10291419ejc.29;
+        Sat, 12 Sep 2026 18:25:34 -0700 (PDT)
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@github.com header.s=s20150108;
+       spf=pass (google.com: domain of noreply@github.com designates 192.30.252.204 as permitted sender) smtp.mailfrom=noreply@github.com;
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=github.com
+Received-SPF: pass (google.com: domain of noreply@github.com designates 192.30.252.204 as permitted sender) client-ip=192.30.252.204;
+Received: from smtp.github.com (out-16.mta.github.com. [192.30.252.204])
+        by mx.google.com with ESMTPS id o18-20020a1709075752b00a29334547si5733157ejc.38.2026.09.12.18.25.33
+        for <victim@company.com>;
+        Sat, 12 Sep 2026 18:25:34 -0700 (PDT)
+From: GitHub Security <noreply@github.com>
+To: victim@company.com
+Subject: [GitHub] Critical Security Advisory Notification
+Date: Sat, 12 Sep 2026 18:25:32 -0700
+Message-ID: <github/security-advisory/883921@github.com>
+Return-Path: <noreply@github.com>`;
+
+  const SPOOFED_SAMPLE = `Delivered-To: finance@corporate.com
+Received: by 2002:a2e:9209:0:b0:2e1:14a0:5252 with SMTP id u9csp9948218;
+        Sat, 12 Sep 2026 14:10:12 -0400 (EDT)
+Authentication-Results: mx.corporate.com;
+       dkim=none;
+       spf=fail (corporate.com: domain of billing-notice@paypal.com does not designate 185.220.101.5 as permitted sender) smtp.mailfrom=bounce@evil-phish-server.ru;
+       dmarc=fail (p=REJECT) header.from=paypal.com
+Received-SPF: fail (corporate.com: domain of paypal.com designates 185.220.101.5 as unauthorized sender) client-ip=185.220.101.5;
+Received: from tor-exit-node.evil-phish-server.ru ([185.220.101.5])
+        by mx.corporate.com with ESMTP id x82-corp-gateway.7712;
+        Sat, 12 Sep 2026 14:10:10 -0400 (EDT)
+From: "PayPal Security Support" <billing-notice@paypal.com>
+To: finance@corporate.com
+Reply-To: phisher-collector@evil-phish-server.ru
+Subject: URGENT: Your PayPal Business Account is Suspended
+Date: Sat, 12 Sep 2026 14:09:58 -0400
+Message-ID: <20260912140958.9918237@fake-mailer>
+Return-Path: <bounce@evil-phish-server.ru>`;
+
+  if (legitBtn) {
+    legitBtn.addEventListener('click', () => {
+      input.value = LEGIT_SAMPLE;
+      form.dispatchEvent(new Event('submit'));
+    });
+  }
+
+  if (spoofedBtn) {
+    spoofedBtn.addEventListener('click', () => {
+      input.value = SPOOFED_SAMPLE;
+      form.dispatchEvent(new Event('submit'));
+    });
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const rawHeader = input.value.trim();
+    if (!rawHeader) return;
+
+    setButtonLoading(submitBtn, true);
+    showSkeleton(resultsContainer);
+
+    try {
+      const res = await fetch('/api/analyze-header', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rawHeader }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message || data.error || 'Header analysis failed');
+      }
+
+      renderEmailHeaderResults(data.data);
+      showToast('Email header analysis complete', 'success');
+    } catch (err) {
+      resultsContainer.innerHTML = `
+        <div class="card p-6 border-rose-500/30 bg-rose-500/5 animate-fade-in">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-semibold text-rose-400">Header Parsing Failed</h4>
+              <p class="text-xs text-slate-400 mt-0.5">${escapeHtml(err.message)}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons({ nodes: [resultsContainer] });
+      showToast(err.message, 'error');
+    } finally {
+      setButtonLoading(submitBtn, false);
+    }
+  });
+}
+
+function renderEmailHeaderResults(data) {
+  const container = document.getElementById('email-header-results');
+  if (!container) return;
+  const auth = data.authentication;
+  const sec = data.securityChecks;
+  const ov = data.overview;
+  const hops = data.hops?.hopsList || [];
+
+  container.innerHTML = `
+    <!-- Security Verdict & Authentication Scoreboard -->
+    <div class="card p-5 animate-fade-in border-slate-700/80 bg-gradient-to-r from-surface-800 via-surface-700/50 to-surface-800 shadow-xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center border" style="background: ${sec.verdictColor}15; border-color: ${sec.verdictColor}30;">
+            <i data-lucide="${sec.riskScore >= 60 ? 'shield-alert' : sec.riskScore >= 25 ? 'shield-question' : 'shield-check'}" class="w-6 h-6" style="color: ${sec.verdictColor}"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-base font-bold text-white tracking-tight">${escapeHtml(sec.verdict)}</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono" style="color: ${sec.verdictColor}; background: ${sec.verdictColor}15; border: 1px solid ${sec.verdictColor}30">
+                RISK: ${sec.riskScore}%
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">
+              ${data.rawHeaderCount} message headers processed • ${hops.length} network relay hops detected
+            </p>
+          </div>
+        </div>
+
+        ${data.hops?.originatingIP ? `
+          <div class="text-left sm:text-right">
+            <span class="text-[10px] uppercase font-bold text-slate-500">Originating Sender IP</span>
+            <p class="font-mono text-xs font-bold text-cyan-400">${escapeHtml(data.hops.originatingIP)}</p>
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- 3 Core Auth Badges: SPF, DKIM, DMARC -->
+      <div class="grid grid-cols-3 gap-3 pt-4">
+        <!-- SPF -->
+        <div class="net-val-box text-center !p-3">
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">SPF Auth</span>
+          <span
+            class="px-2.5 py-1 rounded-md text-xs font-bold font-mono uppercase inline-block border"
+            style="color: ${auth.spf.badge.color}; background: ${auth.spf.badge.bg}; border-color: ${auth.spf.badge.border};"
+          >
+            ${escapeHtml(auth.spf.status)}
+          </span>
+          <p class="text-[10px] text-slate-500 mt-1 truncate" title="${escapeHtml(auth.spf.details)}">
+            ${escapeHtml(auth.spf.details)}
+          </p>
+        </div>
+
+        <!-- DKIM -->
+        <div class="net-val-box text-center !p-3">
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">DKIM Sign</span>
+          <span
+            class="px-2.5 py-1 rounded-md text-xs font-bold font-mono uppercase inline-block border"
+            style="color: ${auth.dkim.badge.color}; background: ${auth.dkim.badge.bg}; border-color: ${auth.dkim.badge.border};"
+          >
+            ${escapeHtml(auth.dkim.status)}
+          </span>
+          <p class="text-[10px] text-slate-500 mt-1 truncate">
+            ${auth.dkim.domain ? 'd=' + escapeHtml(auth.dkim.domain) : (auth.dkim.signatureCount > 0 ? auth.dkim.signatureCount + ' signature(s)' : 'No signature')}
+          </p>
+        </div>
+
+        <!-- DMARC -->
+        <div class="net-val-box text-center !p-3">
+          <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">DMARC Policy</span>
+          <span
+            class="px-2.5 py-1 rounded-md text-xs font-bold font-mono uppercase inline-block border"
+            style="color: ${auth.dmarc.badge.color}; background: ${auth.dmarc.badge.bg}; border-color: ${auth.dmarc.badge.border};"
+          >
+            ${escapeHtml(auth.dmarc.status)}
+          </span>
+          <p class="text-[10px] text-slate-500 mt-1">
+            ${auth.dmarc.policy ? 'p=' + escapeHtml(auth.dmarc.policy) : 'Policy: None'}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Warning Alerts (if any) -->
+    ${sec.flags && sec.flags.length > 0 ? `
+      <div class="space-y-2 animate-fade-in">
+        ${sec.flags.map((flag) => `
+          <div class="card !p-3.5 border-${flag.type === 'CRITICAL' ? 'rose-500/40 bg-rose-500/10' : 'amber-500/40 bg-amber-500/10'} flex items-start gap-3">
+            <i data-lucide="${flag.type === 'CRITICAL' ? 'alert-triangle' : 'alert-circle'}" class="w-4 h-4 flex-shrink-0 mt-0.5 ${flag.type === 'CRITICAL' ? 'text-rose-400' : 'text-amber-400'}"></i>
+            <div>
+              <h5 class="text-xs font-bold ${flag.type === 'CRITICAL' ? 'text-rose-300' : 'text-amber-300'}">${escapeHtml(flag.title)}</h5>
+              <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">${escapeHtml(flag.description)}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
+
+    <!-- Message Core Metadata Card -->
+    <div class="card p-5 animate-fade-in">
+      <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3.5 flex items-center justify-between">
+        <span class="flex items-center gap-2">
+          <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
+          Message Header Envelope
+        </span>
+        <button type="button" class="text-xs text-slate-400 hover:text-white flex items-center gap-1" onclick="copyToClipboard('${escapeHtml(ov.subject)}', this)">
+          <i data-lucide="copy" class="w-3 h-3"></i> Copy Subject
+        </button>
+      </h4>
+
+      <div class="space-y-2 text-xs">
+        <div class="net-val-box !p-2.5">
+          <span class="text-[10px] uppercase font-bold text-slate-500 block">Subject</span>
+          <span class="font-semibold text-slate-200 text-sm break-words">${escapeHtml(ov.subject)}</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div class="net-val-box !p-2.5">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Sender (From)</span>
+            <span class="font-mono text-cyan-300 font-semibold break-all">${escapeHtml(ov.from || 'N/A')}</span>
+          </div>
+
+          <div class="net-val-box !p-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] uppercase font-bold text-slate-500">Return-Path (Envelope)</span>
+              ${ov.fromDomain && ov.returnPathDomain && ov.fromDomain !== ov.returnPathDomain ? `
+                <span class="text-[9px] font-bold text-rose-400 uppercase bg-rose-500/10 px-1.5 py-0.2 rounded border border-rose-500/20">MISMATCH</span>
+              ` : ''}
+            </div>
+            <span class="font-mono text-amber-300 font-semibold break-all">${escapeHtml(ov.returnPath || 'N/A')}</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div class="net-val-box !p-2.5">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Recipient (To)</span>
+            <span class="font-mono text-slate-300 break-all">${escapeHtml(ov.to || 'N/A')}</span>
+          </div>
+
+          <div class="net-val-box !p-2.5">
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Message Timestamp</span>
+            <span class="font-mono text-slate-300">${escapeHtml(ov.date || 'N/A')}</span>
+          </div>
+        </div>
+
+        <div class="net-val-box !p-2.5">
+          <span class="text-[10px] uppercase font-bold text-slate-500 block">Message-ID</span>
+          <span class="font-mono text-slate-400 break-all">${escapeHtml(ov.messageId || 'N/A')}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hop-by-Hop Relay Table -->
+    ${hops.length > 0 ? `
+      <div class="card p-5 animate-fade-in space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <i data-lucide="git-commit" class="w-4 h-4 text-indigo-400"></i>
+            Mail Transfer Agent (MTA) Relay Hops (${hops.length})
+          </h4>
+          <span class="text-[10px] font-mono text-slate-500">Chronological: First Hop → Final MX</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="text-[10px] uppercase font-bold text-slate-500 border-b border-slate-800">
+                <th class="py-2 pr-3">#</th>
+                <th class="py-2 pr-4">Relay Node (From → By)</th>
+                <th class="py-2 pr-4">IP Address</th>
+                <th class="py-2 pr-4">Protocol</th>
+                <th class="py-2 text-right">Hop Delay</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 font-mono text-[11px]">
+              ${hops.map((h) => `
+                <tr class="hover:bg-surface-800/50 transition-colors">
+                  <td class="py-2.5 pr-3 text-slate-400 font-bold">${h.hop}</td>
+                  <td class="py-2.5 pr-4">
+                    <span class="text-slate-200 font-semibold">${escapeHtml(h.from || 'Origin')}</span>
+                    <span class="text-slate-500 mx-1">→</span>
+                    <span class="text-slate-400">${escapeHtml(h.by || 'Destination')}</span>
+                  </td>
+                  <td class="py-2.5 pr-4">
+                    ${h.ip ? `
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-cyan-400 font-semibold">${escapeHtml(h.ip)}</span>
+                        ${h.isPrivate ? '<span class="text-[9px] px-1 bg-slate-800 text-slate-400 rounded">LAN</span>' : ''}
+                      </div>
+                    ` : '<span class="text-slate-600">—</span>'}
+                  </td>
+                  <td class="py-2.5 pr-4 text-slate-400 font-mono">${escapeHtml(h.protocol || 'SMTP')}</td>
+                  <td class="py-2.5 text-right font-bold ${h.delayMs > 30000 ? 'text-rose-400' : 'text-emerald-400'}">
+                    ${h.delayText}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ` : ''}
+
+    ${renderJsonToggle(data, 'email-header')}
+  `;
+
+  if (window.lucide) lucide.createIcons({ nodes: [container] });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FILE HASH ANALYSIS MODULE (SIEM UTILITIES)
+// ═══════════════════════════════════════════════════════════════
+function setupFileHashModule() {
+  const fileForm = document.getElementById('file-form');
+  const fileInput = document.getElementById('file-input');
+  const fileInfo = document.getElementById('file-info');
+  const fileName = document.getElementById('file-name');
+  const fileSize = document.getElementById('file-size');
+  const dropZone = document.getElementById('drop-zone');
+
+  const hashForm = document.getElementById('hash-form');
+  const hashInput = document.getElementById('hash-input');
+
+  if (!fileForm && !hashForm) return;
+
+  if (fileInput) {
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        const f = fileInput.files[0];
+        if (fileName) fileName.textContent = f.name;
+        if (fileSize) fileSize.textContent = formatBytes(f.size);
+        if (fileInfo) fileInfo.classList.remove('hidden');
+      }
+    });
+  }
+
+  // Drag & drop highlight
+  if (dropZone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-indigo-500', 'bg-indigo-500/5');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-500/5');
+      });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      if (e.dataTransfer && e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        const f = fileInput.files[0];
+        if (fileName) fileName.textContent = f.name;
+        if (fileSize) fileSize.textContent = formatBytes(f.size);
+        if (fileInfo) fileInfo.classList.remove('hidden');
+      }
+    });
+  }
+
+  // Quick signature buttons
+  document.querySelectorAll('.quick-hash-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const hash = btn.dataset.hash;
+      if (hash && hashInput) {
+        hashInput.value = hash;
+        hashForm.dispatchEvent(new Event('submit'));
+      }
+    });
+  });
+
+  // File Upload Form Submit
+  if (fileForm) {
+    fileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!fileInput.files.length) {
+        showToast('Please select a file to analyze', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('file-submit');
+      const results = document.getElementById('file-results');
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      setButtonLoading(btn, true);
+      showSkeleton(results);
+
+      try {
+        const res = await fetch('/api/check-file', {
+          method: 'POST',
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error?.message || data.error || 'File analysis failed');
+        }
+
+        renderFileResults(results, data);
+        showToast('File analysis complete', 'success');
+      } catch (err) {
+        renderError(results, err.message);
+        showToast(err.message, 'error');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    });
+  }
+
+  // Direct Hash Lookup Form Submit
+  if (hashForm) {
+    hashForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const hash = (hashInput ? hashInput.value : '').trim();
+      if (!hash) {
+        showToast('Please enter a SHA-256 hash', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('hash-submit');
+      const results = document.getElementById('file-results');
+
+      setButtonLoading(btn, true);
+      showSkeleton(results);
+
+      try {
+        const res = await fetch('/api/check-hash', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hash }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          throw new Error(data.error?.message || data.error || 'Hash lookup failed');
+        }
+
+        renderFileResults(results, data);
+        showToast('Hash lookup complete', 'success');
+      } catch (err) {
+        renderError(results, err.message);
+        showToast(err.message, 'error');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    });
+  }
+
+  // Auto-analyze hash if passed via URL parameters (e.g. from Universal Search)
+  const urlParams = new URLSearchParams(window.location.search);
+  const qHash = urlParams.get('hash') || urlParams.get('query');
+  if (qHash && hashInput && hashForm) {
+    hashInput.value = qHash;
+    setTimeout(() => {
+      hashForm.dispatchEvent(new Event('submit'));
+    }, 150);
+  }
+}
+
+function renderFileResults(container, response) {
+  if (!container) return;
+  const d = response.data;
+
+  if (!d.found) {
+    container.innerHTML = `
+      <div class="card p-8 text-center animate-fade-in">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="shield-check" class="w-8 h-8 text-emerald-400"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Not Found in Database</h3>
+        <p class="text-sm text-slate-400 mb-4">${escapeHtml(d.message || 'This file hash was not found in the VirusTotal database.')}</p>
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-surface-700/60 rounded-lg font-mono text-xs text-slate-400 break-all">
+          ${escapeHtml(d.hash?.sha256 || response.hash)}
+          <button class="copy-btn ml-2" onclick="copyToClipboard('${escapeHtml(d.hash?.sha256 || response.hash)}', this)">
+            <i data-lucide="copy" class="w-3 h-3"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    if (window.lucide) lucide.createIcons({ nodes: [container] });
+    return;
+  }
+
+  const stats = d.detectionStats;
+  const total = stats.total || 1;
+  const malPct = ((stats.malicious / total) * 100).toFixed(1);
+  const susPct = ((stats.suspicious / total) * 100).toFixed(1);
+  const cleanPct = ((stats.harmless / total) * 100).toFixed(1);
+  const undPct = ((stats.undetected / total) * 100).toFixed(1);
+
+  const threatClasses = {
+    malicious: 'badge-malicious',
+    suspicious: 'badge-suspicious',
+    low_risk: 'badge-medium',
+    clean: 'badge-clean',
+  };
+  const threatGradients = {
+    malicious: 'from-red-500 to-rose-600',
+    suspicious: 'from-orange-500 to-amber-600',
+    low_risk: 'from-yellow-500 to-amber-500',
+    clean: 'from-emerald-500 to-green-600',
+  };
+
+  container.innerHTML = `
+    <!-- Threat Score Header -->
+    <div class="card p-6 animate-slide-up">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${threatGradients[d.threatLevel] || threatGradients.clean} flex items-center justify-center shadow-lg">
+            <span class="text-xl font-bold text-white">${d.threatScore}</span>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">${escapeHtml(d.fileName)}</h3>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="badge ${threatClasses[d.threatLevel] || 'badge-clean'}">${escapeHtml(d.threatLabel)}</span>
+              <span class="text-xs text-slate-500">${escapeHtml(d.fileType)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-slate-500">Detection Ratio</p>
+          <p class="text-xl font-bold text-white">${stats.malicious}<span class="text-slate-500">/${total}</span></p>
+        </div>
+      </div>
+
+      <!-- Detection Bar -->
+      <div class="mb-3">
+        <div class="flex justify-between text-xs text-slate-500 mb-1.5">
+          <span>Detection Breakdown</span>
+          <span>${stats.malicious + stats.suspicious} flagged of ${total}</span>
+        </div>
+        <div class="detection-bar">
+          <div class="bg-rose-500" style="width: ${malPct}%" title="Malicious: ${stats.malicious}"></div>
+          <div class="bg-orange-500" style="width: ${susPct}%" title="Suspicious: ${stats.suspicious}"></div>
+          <div class="bg-slate-600" style="width: ${undPct}%" title="Undetected: ${stats.undetected}"></div>
+          <div class="bg-emerald-500" style="width: ${cleanPct}%" title="Harmless: ${stats.harmless}"></div>
+        </div>
+        <div class="flex gap-4 mt-2">
+          <span class="flex items-center gap-1.5 text-xs"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Malicious (${stats.malicious})</span>
+          <span class="flex items-center gap-1.5 text-xs"><span class="w-2 h-2 rounded-full bg-orange-500"></span> Suspicious (${stats.suspicious})</span>
+          <span class="flex items-center gap-1.5 text-xs"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Clean (${stats.harmless})</span>
+          <span class="flex items-center gap-1.5 text-xs"><span class="w-2 h-2 rounded-full bg-slate-600"></span> Undetected (${stats.undetected})</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hash Info -->
+    <div class="card p-6 animate-slide-up" style="animation-delay: 0.1s">
+      <h4 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+        <i data-lucide="hash" class="w-4 h-4 text-indigo-400"></i>
+        Hash Values
+      </h4>
+      ${hashRow('SHA-256', d.hash.sha256)}
+      ${hashRow('SHA-1', d.hash.sha1)}
+      ${hashRow('MD5', d.hash.md5)}
+    </div>
+
+    <!-- File Details -->
+    <div class="card p-6 animate-slide-up" style="animation-delay: 0.15s">
+      <h4 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+        <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
+        File Details
+      </h4>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+        ${detailRow('File Size', d.fileSizeFormatted)}
+        ${detailRow('File Type', d.fileType)}
+        ${detailRow('Threat Name', d.popularThreatName || 'N/A')}
+        ${detailRow('Category', d.threatCategory || 'N/A')}
+        ${detailRow('Times Submitted', d.timesSubmitted)}
+        ${detailRow('First Submission', formatDate(d.firstSubmissionDate))}
+        ${detailRow('Last Analysis', formatDate(d.lastAnalysisDate))}
+      </div>
+      ${d.tags?.length ? `
+        <div class="mt-4 pt-3 border-t border-slate-700/30">
+          <p class="text-xs text-slate-500 mb-2">Tags</p>
+          <div class="flex flex-wrap gap-1.5">
+            ${d.tags.map(t => `<span class="text-xs px-2 py-0.5 rounded-md bg-surface-700/60 border border-slate-700/40 text-slate-400">${escapeHtml(t)}</span>`).join('')}
+          </div>
+        </div>
+      ` : ''}
+    </div>
+
+    <!-- Top Detections -->
+    ${d.topDetections?.length ? `
+      <div class="card p-6 animate-slide-up" style="animation-delay: 0.2s">
+        <h4 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400"></i>
+          Top Detections (${d.topDetections.length})
+        </h4>
+        <div class="space-y-2">
+          ${d.topDetections.map(det => `
+            <div class="flex items-center justify-between py-2 px-3 rounded-lg bg-surface-900/40 border border-slate-800/40">
+              <span class="text-xs font-medium text-slate-300">${escapeHtml(det.engine)}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono ${det.category === 'malicious' ? 'text-rose-400' : 'text-orange-400'}">${escapeHtml(det.result || det.category)}</span>
+                <span class="badge ${det.category === 'malicious' ? 'badge-malicious' : 'badge-suspicious'}">${det.category}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    ` : ''}
+
+    ${renderJsonToggle(d, 'file')}
+  `;
+
+  if (window.lucide) lucide.createIcons({ nodes: [container] });
+}
+
+// ── Shared Helpers for SIEM Additional Modules ──────────────────
+function detailRow(label, value) {
+  return `
+    <div class="flex justify-between py-2 border-b border-slate-800/40">
+      <span class="text-xs text-slate-500">${escapeHtml(label)}</span>
+      <span class="text-xs text-slate-300 font-medium text-right max-w-[60%] truncate" title="${escapeHtml(String(value))}">${escapeHtml(String(value))}</span>
+    </div>
+  `;
+}
+
+function hashRow(label, value) {
+  if (!value) return '';
+  return `
+    <div class="flex items-center justify-between py-2.5 border-b border-slate-800/30 gap-2">
+      <span class="text-xs text-slate-500 font-medium shrink-0">${label}</span>
+      <div class="flex items-center gap-2 min-w-0">
+        <span class="text-xs font-mono text-slate-400 truncate">${escapeHtml(value)}</span>
+        <button class="copy-btn shrink-0" onclick="copyToClipboard('${escapeHtml(value)}', this)">
+          <i data-lucide="copy" class="w-3 h-3"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderJsonToggle(data, id) {
+  const jsonStr = JSON.stringify(data, null, 2);
+  return `
+    <div class="card p-4 animate-slide-up" style="animation-delay: 0.3s">
+      <div class="json-toggle flex items-center justify-between cursor-pointer" onclick="toggleJson('${id}')">
+        <span class="text-xs font-medium text-slate-500 flex items-center gap-2">
+          <i data-lucide="code-2" class="w-3.5 h-3.5"></i>
+          Raw JSON Response
+        </span>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-600 transition-transform" id="json-chevron-${id}"></i>
+      </div>
+      <div class="json-content mt-3 hidden" id="json-body-${id}">
+        <pre class="text-[11px] font-mono p-3 rounded-lg bg-surface-950 border border-slate-800/80 text-slate-300 overflow-x-auto">${escapeHtml(jsonStr)}</pre>
+      </div>
+    </div>
+  `;
+}
+
+function toggleJson(id) {
+  const body = document.getElementById(`json-body-${id}`);
+  const chevron = document.getElementById(`json-chevron-${id}`);
+  if (body) {
+    const isHidden = body.classList.contains('hidden');
+    body.classList.toggle('hidden', !isHidden);
+    if (chevron) chevron.classList.toggle('rotate-180', isHidden);
+  }
+}
+window.toggleJson = toggleJson;
+
+function setButtonLoading(btn, loading) {
+  if (!btn) return;
+  if (loading) {
+    btn.disabled = true;
+    btn._originalHTML = btn.innerHTML;
+    btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Analyzing...</span>`;
+    if (window.lucide) lucide.createIcons({ nodes: [btn] });
+  } else {
+    btn.disabled = false;
+    if (btn._originalHTML) btn.innerHTML = btn._originalHTML;
+    if (window.lucide) lucide.createIcons({ nodes: [btn] });
+  }
+}
+
+function showSkeleton(container) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="card p-6 animate-fade-in">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="skeleton w-16 h-16 rounded-2xl bg-surface-700/60 animate-pulse"></div>
+        <div class="flex-1 space-y-2">
+          <div class="skeleton h-5 w-48 bg-surface-700/60 rounded animate-pulse"></div>
+          <div class="skeleton h-3 w-32 bg-surface-700/60 rounded animate-pulse"></div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="skeleton h-3 w-full bg-surface-700/60 rounded animate-pulse"></div>
+        <div class="skeleton h-3 w-3/4 bg-surface-700/60 rounded animate-pulse"></div>
+        <div class="skeleton h-8 w-full bg-surface-700/60 rounded-lg animate-pulse"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3 mt-6">
+        <div class="skeleton h-20 bg-surface-700/60 rounded-lg animate-pulse"></div>
+        <div class="skeleton h-20 bg-surface-700/60 rounded-lg animate-pulse"></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderError(container, message) {
+  if (!container) return;
+  container.innerHTML = `
+    <div class="card p-6 border-rose-500/30 bg-rose-500/5 animate-fade-in">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center flex-shrink-0">
+          <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400"></i>
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-rose-400">Analysis Failed</h4>
+          <p class="text-xs text-slate-400 mt-0.5">${escapeHtml(message)}</p>
+        </div>
+      </div>
+    </div>
+  `;
+  if (window.lucide) lucide.createIcons({ nodes: [container] });
+}
+
+function formatDate(isoStr) {
+  if (!isoStr) return 'N/A';
+  const d = new Date(isoStr);
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+    ' ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatBytes(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 }

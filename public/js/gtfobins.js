@@ -563,7 +563,7 @@ function renderBinaryDetails(binary) {
 
                     <!-- Code Block -->
                     <div class="relative group">
-                      <pre class="bg-surface-950 p-3.5 rounded-xl font-mono text-xs text-amber-300 border border-slate-800/90 overflow-x-auto select-all leading-relaxed whitespace-pre-wrap break-all shadow-inner"><code class="cmd-code-text">${escapedCode}</code></pre>
+                      <pre class="bg-surface-900 p-3.5 rounded-xl font-mono text-xs text-amber-300 border border-slate-800/90 overflow-x-auto select-all leading-relaxed whitespace-pre-wrap break-all shadow-inner"><code class="cmd-code-text">${escapedCode}</code></pre>
                     </div>
 
                     ${cmd.description ? `

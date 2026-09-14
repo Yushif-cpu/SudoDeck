@@ -163,6 +163,15 @@ async function apiRequest(url, options = {}) {
 //  TAB NAVIGATION & PORTAL ROUTING
 // ═══════════════════════════════════════════════════════════════
 function switchToTab(tabName) {
+  if (tabName === 'file') {
+    window.location.href = '/siem#file';
+    return;
+  }
+  if (tabName === 'email') {
+    window.location.href = '/siem#email';
+    return;
+  }
+
   const btns = document.querySelectorAll('.tab-btn');
   const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
 
@@ -199,10 +208,11 @@ function switchToTab(tabName) {
 window.switchToTab = switchToTab;
 
 function initTabs() {
-  const btns = document.querySelectorAll('.tab-btn');
+  const btns = document.querySelectorAll('.tab-btn[data-tab]');
   btns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const tabName = btn.dataset.tab;
+      if (!tabName) return;
       switchToTab(tabName);
       history.pushState(null, '', tabName === 'home' ? '/' : `/#${tabName}`);
     });
@@ -222,7 +232,7 @@ function initTabs() {
   });
 
   // Brand Logo and Name click in Header/Footer -> Always return to Home smoothly on index.html!
-  const brandLogos = document.querySelectorAll('#brand-logo-link, header a[href="/"], footer a[href="/"]');
+  const brandLogos = document.querySelectorAll('#brand-logo-link, .brand-home-link');
   brandLogos.forEach((logo) => {
     logo.addEventListener('click', (e) => {
       if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
@@ -233,11 +243,38 @@ function initTabs() {
     });
   });
 
+  // Handle Hash change dynamically (e.g. clicking /#ip anywhere)
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash ? window.location.hash.replace('#', '') : null;
+    if (hash === 'file') {
+      window.location.href = '/siem#file';
+      return;
+    }
+    if (hash === 'email') {
+      window.location.href = '/siem#email';
+      return;
+    }
+    if (hash && document.getElementById(`panel-${hash}`)) {
+      switchToTab(hash);
+    } else if (!hash) {
+      switchToTab('home');
+    }
+  });
+
   // Handle URL parameters or Hash on initial load
   const urlParams = new URLSearchParams(window.location.search);
   const paramTab = urlParams.get('tab');
   const hashTab = window.location.hash ? window.location.hash.replace('#', '') : null;
   const targetTab = paramTab || hashTab;
+
+  if (targetTab === 'file') {
+    window.location.href = '/siem#file';
+    return;
+  }
+  if (targetTab === 'email') {
+    window.location.href = '/siem#email';
+    return;
+  }
 
   if (targetTab && document.getElementById(`panel-${targetTab}`)) {
     switchToTab(targetTab);
@@ -286,13 +323,7 @@ function initUniversalSearch() {
 
     // 4. File Hash detection (MD5 = 32 hex, SHA-1 = 40 hex, SHA-256 = 64 hex)
     if (/^[a-fA-F0-9]{32}$/.test(query) || /^[a-fA-F0-9]{40}$/.test(query) || /^[a-fA-F0-9]{64}$/.test(query)) {
-      switchToTab('file');
-      const hashTabBtn = document.getElementById('tab-btn-hash');
-      if (hashTabBtn) hashTabBtn.click();
-      const hashInput = document.getElementById('hash-input');
-      const hashForm = document.getElementById('hash-form');
-      if (hashInput) hashInput.value = query;
-      if (hashForm) hashForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      window.location.href = `/siem?hash=${encodeURIComponent(query)}#file`;
       return;
     }
 
@@ -513,7 +544,7 @@ function renderIPResults(container, d) {
             <span class="text-slate-400">Abuse Confidence Score</span>
             <span class="font-bold ${riskTextColors[d.riskLevel] || 'text-emerald-400'}">${d.abuseConfidenceScore}% Confidence</span>
           </div>
-          <div class="w-full h-2.5 bg-surface-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
+          <div class="w-full h-2.5 bg-surface-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
             <div
               class="h-full rounded-full transition-all duration-700 bg-gradient-to-r ${riskGradients[d.riskLevel] || riskGradients.clean}"
               style="width: ${Math.max(d.abuseConfidenceScore, 3)}%"

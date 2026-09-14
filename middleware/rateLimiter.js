@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 // ── General rate limiter (all routes) ───────────────────────────
 export const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200,
+  max: 5000,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -18,14 +18,14 @@ export const generalLimiter = rateLimit({
 // ── Strict API limiter ──────────────────────────────────────────
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 60,
+  max: 2000,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     success: false,
     error: {
       code: 'API_RATE_LIMIT_EXCEEDED',
-      message: 'API rate limit exceeded. Maximum 60 requests per 15 minutes.',
+      message: 'API rate limit exceeded. Maximum 2000 requests per 15 minutes.',
     },
   },
 });

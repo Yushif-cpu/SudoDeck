@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SudoDeck — Transparent Cyber Intelligence & Enterprise Pricing</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260914" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260914" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=20260914" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260914" />
+  <link rel="shortcut icon" href="/favicon.ico?v=20260914" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260914" />
+  <meta name="description" content="Flexible, market-standard pricing tiers for threat intelligence analysts, red teamers, and SOC incident response teams. Transparent, scalable, and zero hidden fees." />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              900: '#0a0e17',
+              850: '#0d1322',
+              800: '#0f1629',
+              750: '#151e36',
+              700: '#151d33',
+              600: '#1a2440',
+              500: '#212d4a',
+            },
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.4s ease-out',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Shared App Styles -->
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+
+<body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased flex flex-col selection:bg-emerald-500/30 selection:text-emerald-300">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOP NAV BAR                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-surface-900/90 backdrop-blur-xl">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Left: Logo & Brand -->
+        <div class="flex items-center gap-6">
+          <a href="/" id="brand-logo-link" class="flex items-center group">
+            <h1 class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+              Sudo<span class="text-emerald-400">Deck</span>
+            </h1>
+          </a>
+
+          <!-- Categorized Desktop Navigation -->
+          <nav class="hidden lg:flex items-center gap-2">
+
+            <!-- Category 1: Threat & Recon Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-intel"
+                class="nav-pill"
+              >
+                <i data-lucide="radar" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Threat & Recon</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-intel"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/#ip" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP Reputation Check</div>
+                    <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
+                  </div>
+                </a>
+                <a href="/#domain" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-blue-500/15 border border-blue-500/30 text-blue-400">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Domain Intelligence</div>
+                    <div class="text-[11px] text-slate-400 truncate">VirusTotal, DNS & WHOIS Engine</div>
+                  </div>
+                </a>
+                <a href="/#utils" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-teal-500/15 border border-teal-500/30 text-teal-400">
+                    <i data-lucide="network" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP & Subnet Utilities</div>
+                    <div class="text-[11px] text-slate-400 truncate">CIDR calculator & network masks</div>
+                  </div>
+                </a>
+                <a href="/mac" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
+                  </div>
+                </a>
+                <a href="/cve" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                    <i data-lucide="flame" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">CVE Scanner</div>
+                    <div class="text-[11px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category 2: SIEM Utilities Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                id="siem-nav-btn"
+                data-dropdown-toggle="menu-siem"
+                class="nav-pill"
+              >
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+                <span>SIEM Utilities</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-siem"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/siem#formatter" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="file-code" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Log & Alert Formatter</div>
+                    <div class="text-[11px] text-slate-400 truncate">Windows Event & Syslog to JSON</div>
+                  </div>
+                </a>
+                <a href="/siem#regex" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="search-code" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Detection Regex Tester</div>
+                    <div class="text-[11px] text-slate-400 truncate">Test regex against threat logs</div>
+                  </div>
+                </a>
+                <a href="/siem#headers" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">User-Agent & HTTP Headers</div>
+                    <div class="text-[11px] text-slate-400 truncate">Analyze web client anomalies</div>
+                  </div>
+                </a>
+                <a href="/siem#email" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="mail-search" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Email Header Analysis</div>
+                    <div class="text-[11px] text-slate-400 truncate">SPF, DKIM, DMARC & hop forensics</div>
+                  </div>
+                </a>
+                <a href="/siem#file" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="file-search" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">File Hash Analysis</div>
+                    <div class="text-[11px] text-slate-400 truncate">VirusTotal multi-engine hash verdict</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Category 3: Attack Utilities Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-tools"
+                class="nav-pill"
+              >
+                <i data-lucide="crosshair" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Attack Utilities</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-tools"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/crypto" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                    <i data-lucide="key-round" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Crypto & Hash Suite</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
+                  </div>
+                </a>
+                <a href="/gtfobins" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">GTFOBins Explorer</div>
+                    <div class="text-[11px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
+                  </div>
+                </a>
+                <a href="/wordlist" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="book-text" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Wordlist Mutator</div>
+                    <div class="text-[11px] text-slate-400 truncate">Generate & mutate password lists</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </nav>
+        </div>
+
+        <!-- Right: Direct Links, Command Palette Launcher & System Status -->
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0 ml-6 xl:ml-8">
+          <a
+            href="/news"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="newspaper" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>News</span>
+          </a>
+          <a
+            href="/premium"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="crown" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Premium Tools</span>
+          </a>
+          <a
+            href="/pricing"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Pricing</span>
+          </a>
+          <a
+            href="/#about"
+            class="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>About</span>
+          </a>
+          <a
+            href="/#contact"
+            class="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Contact</span>
+          </a>
+
+          <button
+            type="button"
+            id="cmd-palette-btn"
+            data-action="open-command-palette"
+            class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-700/60 hover:border-slate-600 text-slate-300 text-xs font-medium transition-all shadow-sm group cursor-pointer"
+            title="Quick Action Palette (Ctrl+K)"
+          >
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 transition-colors pointer-events-none"></i>
+            <span class="text-slate-400 group-hover:text-slate-200 pointer-events-none">Search tools...</span>
+            <kbd class="px-1.5 py-0.5 text-[10px] font-mono font-semibold bg-surface-900 border border-slate-700 text-slate-400 rounded pointer-events-none">Ctrl+K</kbd>
+          </button>
+
+
+          <!-- Mobile Hamburger Toggle -->
+          <button
+            id="mobile-menu-btn"
+            type="button"
+            class="lg:hidden p-2 rounded-xl bg-surface-800 border border-slate-700 text-slate-400 hover:text-white"
+            aria-label="Toggle navigation menu"
+          >
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Drawer -->
+      <div id="mobile-menu-drawer" class="hidden lg:hidden border-t border-slate-800/80 py-3 space-y-1 animate-fade-in">
+        <a href="/news" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="newspaper" class="w-4 h-4 text-slate-400"></i>
+          <span>Cybersecurity News</span>
+        </a>
+        <a href="/premium" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="crown" class="w-4 h-4 text-slate-400"></i>
+          <span>Premium Tools</span>
+        </a>
+        <a href="/pricing" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="credit-card" class="w-4 h-4 text-slate-400"></i>
+          <span>Pricing</span>
+        </a>
+        <div class="pt-2 border-t border-slate-800/60 text-[11px] text-slate-400 font-mono px-3">
+          SudoDeck Intelligence Platform
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  HERO SECTION                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="flex-1">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+
+      <!-- Breadcrumbs & Status Tag -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+          <a href="/" class="hover:text-emerald-400 transition-colors">home</a>
+          <span>/</span>
+          <span class="text-emerald-400 font-semibold">pricing</span>
+        </div>
+
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+          <span>TRANSPARENT TIER ARCHITECTURE</span>
+        </div>
+      </div>
+
+      <!-- Main Heading -->
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white mb-4">
+          Market-Driven Cyber Intelligence
+          <span class="block text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 mt-1">
+            Built for Offensive & Defensive Operators
+          </span>
+        </h2>
+        <p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-2xl mx-auto">
+          Choose a tier calibrated to your operational volume. From solo threat researchers to enterprise SOC triage units, get predictable throughput with zero hidden licensing friction.
+        </p>
+
+        <!-- Monthly / Annual Billing Toggle Switch -->
+        <div class="mt-8 inline-flex items-center p-1.5 rounded-2xl bg-surface-850 border border-slate-700/80 shadow-inner">
+          <button
+            type="button"
+            id="toggle-monthly"
+            class="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm"
+          >
+            Monthly Billing
+          </button>
+          <button
+            type="button"
+            id="toggle-annual"
+            class="px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 text-slate-400 hover:text-white"
+          >
+            <span>Annual Billing</span>
+            <span class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">SAVE 20%</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <!--  PRICING CARDS (3 TIERS)                                -->
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-20 items-stretch">
+
+        <!-- Tier 1: Community (Free) -->
+        <div class="flex flex-col justify-between rounded-2xl p-6 sm:p-8 bg-surface-850 border border-slate-800 hover:border-slate-700 transition-all duration-300 shadow-lg relative group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                <i data-lucide="terminal" class="w-3.5 h-3.5 text-slate-400"></i>
+                COMMUNITY
+              </span>
+              <span class="text-[11px] font-mono text-slate-500">FREE FOREVER</span>
+            </div>
+
+            <div class="mb-4">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-extrabold text-white font-mono">$0</span>
+                <span class="text-xs font-mono text-slate-400">/ forever</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-2">
+                Ideal for students, security enthusiasts, and solo bug hunters getting started with OSINT reconnaissance.
+              </p>
+            </div>
+
+            <div class="h-px bg-slate-800/80 my-6"></div>
+
+            <!-- Features -->
+            <ul class="space-y-3 text-xs text-slate-300 mb-8 font-sans">
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span><strong class="text-white">100</strong> IP lookups / day (AbuseIPDB & ASN)</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span><strong class="text-white">50</strong> Domain WHOIS & DNS queries / day</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Standard CVE & NVD v2.0 CVSS Advisories</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Full GTFOBins Privilege Escalation Database</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Client-side Crypto & Hash calculation suite</span>
+              </li>
+              <li class="flex items-center gap-2.5 text-slate-500">
+                <i data-lucide="x" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                <span>VirusTotal 70+ Multi-Engine Hash Analysis</span>
+              </li>
+              <li class="flex items-center gap-2.5 text-slate-500">
+                <i data-lucide="x" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                <span>Automated STIX 2.1 & SIEM Webhook Feeds</span>
+              </li>
+            </ul>
+          </div>
+
+          <a
+            href="/"
+            class="w-full py-3 px-4 rounded-xl text-xs font-mono font-semibold text-center transition-all bg-surface-800 hover:bg-surface-750 text-slate-200 border border-slate-700 hover:border-slate-600"
+          >
+            Launch Free Arsenal &rarr;
+          </a>
+        </div>
+
+        <!-- Tier 2: Analyst Pro (Highlighted Tier) -->
+        <div class="flex flex-col justify-between rounded-2xl p-6 sm:p-8 bg-surface-850/90 border-2 border-emerald-500/50 hover:border-emerald-400 transition-all duration-300 shadow-2xl relative group ring-1 ring-emerald-500/20">
+          
+          <!-- Top Popular Badge -->
+          <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-mono font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-teal-500 text-surface-900 shadow-md">
+            RECOMMENDED FOR PRACTITIONERS
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-4 mt-2">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i>
+                ANALYST PRO
+              </span>
+              <span class="text-[11px] font-mono text-emerald-400 font-semibold">HIGH VELOCITY</span>
+            </div>
+
+            <div class="mb-4">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-extrabold text-white font-mono tier-price" data-monthly="29" data-annual="24">$29</span>
+                <span class="text-xs font-mono text-slate-400 tier-period">/ month</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-2">
+                Engineered for penetration testers, incident responders, and independent SOC consultants who need unthrottled intel.
+              </p>
+            </div>
+
+            <div class="h-px bg-emerald-500/20 my-6"></div>
+
+            <!-- Features -->
+            <ul class="space-y-3 text-xs text-slate-200 mb-8 font-sans">
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span><strong class="text-white">5,000</strong> High-Speed API Lookups / day</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span><strong class="text-white">VirusTotal 70+</strong> Multi-Engine Hash Forensics</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Deep Email Header Forensics & Hop Anomalies</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Full CIDR / ASN Subnet Matrix Mapping</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Instant IoC Exporter (JSON, CSV, MISP format)</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Zero Rate-Limiting & High-Priority Queue</span>
+              </li>
+              <li class="flex items-center gap-2.5 text-slate-500">
+                <i data-lucide="x" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                <span>Enterprise Splunk / Sentinel Webhook Automation</span>
+              </li>
+            </ul>
+          </div>
+
+          <button
+            type="button"
+            onclick="openOrderModal('Analyst Pro', 29)"
+            class="w-full py-3 px-4 rounded-xl text-xs font-mono font-bold text-center transition-all bg-emerald-500 hover:bg-emerald-400 text-surface-900 shadow-lg shadow-emerald-500/20 cursor-pointer"
+          >
+            Deploy Analyst Pro &rarr;
+          </button>
+        </div>
+
+        <!-- Tier 3: SOC Enterprise -->
+        <div class="flex flex-col justify-between rounded-2xl p-6 sm:p-8 bg-surface-850 border border-purple-500/30 hover:border-purple-500/60 transition-all duration-300 shadow-lg relative group">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-purple-400"></i>
+                SOC ENTERPRISE
+              </span>
+              <span class="text-[11px] font-mono text-purple-400">UNLIMITED OPS</span>
+            </div>
+
+            <div class="mb-4">
+              <div class="flex items-baseline gap-1">
+                <span class="text-4xl font-extrabold text-white font-mono tier-price" data-monthly="99" data-annual="79">$99</span>
+                <span class="text-xs font-mono text-slate-400 tier-period">/ month</span>
+              </div>
+              <p class="text-xs text-slate-400 mt-2">
+                Constructed for corporate SOCs, MSSPs, and CSIRT response desks demanding high automation and bespoke telemetry feeds.
+              </p>
+            </div>
+
+            <div class="h-px bg-purple-500/20 my-6"></div>
+
+            <!-- Features -->
+            <ul class="space-y-3 text-xs text-slate-300 mb-8 font-sans">
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0"></i>
+                <span><strong class="text-white">Unlimited</strong> Parallel IoC Lookups & Scans</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0"></i>
+                <span>Real-Time Darknet & Ransomware Telemetry Feed</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0"></i>
+                <span>Splunk, Elastic & Microsoft Sentinel Webhooks</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0"></i>
+                <span>STIX 2.1 / TAXII Automated Threat Pipelines</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0"></i>
+                <span>Team RBAC (Up to 15 Analyst seats included)</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0"></i>
+                <span>Dedicated Enterprise Proxy & Isolated IP egress</span>
+              </li>
+              <li class="flex items-center gap-2.5">
+                <i data-lucide="check" class="w-4 h-4 text-purple-400 shrink-0"></i>
+                <span>99.99% Guaranteed SLA & 24/7 Priority Hotline</span>
+              </li>
+            </ul>
+          </div>
+
+          <button
+            type="button"
+            onclick="openOrderModal('SOC Enterprise', 99)"
+            class="w-full py-3 px-4 rounded-xl text-xs font-mono font-semibold text-center transition-all bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/40 hover:border-purple-400 cursor-pointer"
+          >
+            Authorize Enterprise Seat &rarr;
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <!--  DETAILED COMPARISON TABLE                              -->
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <div class="mb-20">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+          <div>
+            <div class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider mb-1">
+              CAPABILITY MATRIX
+            </div>
+            <h3 class="text-2xl font-bold text-white tracking-tight">
+              Compare Tier Capabilities
+            </h3>
+          </div>
+          <p class="text-xs font-mono text-slate-400">
+            All plans include SSL encryption, API tokens & dark mode terminal interface.
+          </p>
+        </div>
+
+        <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-surface-850/80 backdrop-blur-sm">
+          <table class="w-full text-left text-xs border-collapse font-sans">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400 font-mono text-[11px] bg-surface-900/60">
+                <th class="p-4 sm:px-6 font-semibold w-2/5">FEATURE & CAPABILITY</th>
+                <th class="p-4 font-semibold text-center w-1/5 text-slate-300">COMMUNITY</th>
+                <th class="p-4 font-semibold text-center w-1/5 text-emerald-400">ANALYST PRO</th>
+                <th class="p-4 font-semibold text-center w-1/5 text-purple-400">SOC ENTERPRISE</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 text-slate-300">
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">Daily IP Reputation Queries</td>
+                <td class="p-4 text-center font-mono">100 / day</td>
+                <td class="p-4 text-center font-mono font-semibold text-emerald-300">5,000 / day</td>
+                <td class="p-4 text-center font-mono font-semibold text-purple-300">Unlimited</td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">Domain WHOIS & DNS Intel</td>
+                <td class="p-4 text-center font-mono">50 / day</td>
+                <td class="p-4 text-center font-mono font-semibold text-emerald-300">1,000 / day</td>
+                <td class="p-4 text-center font-mono font-semibold text-purple-300">Unlimited</td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">VirusTotal 70+ Multi-Engine Hash Analysis</td>
+                <td class="p-4 text-center text-slate-500 font-mono">MD5 / SHA only</td>
+                <td class="p-4 text-center text-emerald-400 font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
+                <td class="p-4 text-center text-purple-400 font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">Email Header Hop & Forensic Tracer</td>
+                <td class="p-4 text-center font-mono text-slate-400">Basic SPF/DKIM</td>
+                <td class="p-4 text-center text-emerald-400 font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
+                <td class="p-4 text-center text-purple-400 font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">Darknet & Ransomware Intelligence Feed</td>
+                <td class="p-4 text-center text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto"></i></td>
+                <td class="p-4 text-center text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto"></i></td>
+                <td class="p-4 text-center text-purple-400 font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">STIX 2.1 / TAXII Pipeline Streaming</td>
+                <td class="p-4 text-center text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto"></i></td>
+                <td class="p-4 text-center text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto"></i></td>
+                <td class="p-4 text-center text-purple-400 font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">SIEM & SOAR Webhooks (Splunk, Sentinel)</td>
+                <td class="p-4 text-center text-slate-600"><i data-lucide="minus" class="w-4 h-4 mx-auto"></i></td>
+                <td class="p-4 text-center text-slate-400 font-mono">Custom JSON</td>
+                <td class="p-4 text-center text-purple-400 font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">Service Level Agreement (SLA)</td>
+                <td class="p-4 text-center font-mono text-slate-500">Best Effort</td>
+                <td class="p-4 text-center font-mono text-emerald-300">99.5% Uptime</td>
+                <td class="p-4 text-center font-mono text-purple-300">99.99% Dedicated</td>
+              </tr>
+              <tr>
+                <td class="p-4 sm:px-6 font-medium text-white">Support Response Protocol</td>
+                <td class="p-4 text-center font-mono text-slate-400">Community Forum</td>
+                <td class="p-4 text-center font-mono text-emerald-300">&lt; 12 Hours</td>
+                <td class="p-4 text-center font-mono text-purple-300">24/7 Dedicated CSIRT</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <!--  FREQUENTLY ASKED QUESTIONS (ACCORDION)                 -->
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <div class="max-w-3xl mx-auto mb-20">
+        <div class="text-center mb-8">
+          <div class="text-xs font-mono text-emerald-400 font-semibold uppercase tracking-wider mb-1">
+            FAQ & LICENSING
+          </div>
+          <h3 class="text-2xl font-bold text-white tracking-tight">
+            Frequently Asked Questions
+          </h3>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Item 1 -->
+          <div class="rounded-xl border border-slate-800 bg-surface-850 p-4 transition-all hover:border-slate-700">
+            <button
+              type="button"
+              class="flex items-center justify-between w-full text-left font-medium text-sm text-white focus:outline-none"
+              onclick="toggleFaq(this)"
+            >
+              <span>Can I switch between monthly and annual billing at any time?</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div class="mt-2 text-xs text-slate-400 leading-relaxed hidden">
+              Yes. You can upgrade, downgrade, or cancel your tier whenever you wish from your security console. Upgrades apply immediately with prorated credits applied to your billing cycle.
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="rounded-xl border border-slate-800 bg-surface-850 p-4 transition-all hover:border-slate-700">
+            <button
+              type="button"
+              class="flex items-center justify-between w-full text-left font-medium text-sm text-white focus:outline-none"
+              onclick="toggleFaq(this)"
+            >
+              <span>What payment methods are supported for anonymous operations?</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div class="mt-2 text-xs text-slate-400 leading-relaxed hidden">
+              We support standard corporate credit/debit cards, SEPA wire transfer for enterprise invoices, and privacy-preserving cryptocurrency transactions (BTC, XMR, ETH) with zero KYC baggage.
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="rounded-xl border border-slate-800 bg-surface-850 p-4 transition-all hover:border-slate-700">
+            <button
+              type="button"
+              class="flex items-center justify-between w-full text-left font-medium text-sm text-white focus:outline-none"
+              onclick="toggleFaq(this)"
+            >
+              <span>How does the VirusTotal multi-engine integration work in Analyst Pro?</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div class="mt-2 text-xs text-slate-400 leading-relaxed hidden">
+              Analyst Pro utilizes SudoDeck's pooled cluster keys to query 70+ antivirus vendor engines simultaneously, aggregating malicious detections, sandbox execution graphs, and behavioral tags into your single SIEM verdict.
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="rounded-xl border border-slate-800 bg-surface-850 p-4 transition-all hover:border-slate-700">
+            <button
+              type="button"
+              class="flex items-center justify-between w-full text-left font-medium text-sm text-white focus:outline-none"
+              onclick="toggleFaq(this)"
+            >
+              <span>What happens if my team exceeds our daily query quota?</span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div class="mt-2 text-xs text-slate-400 leading-relaxed hidden">
+              We never sever active investigation tunnels. If you approach 90% quota, your dashboard receives a non-blocking toast warning. You can trigger on-demand query boosters or auto-upgrade without query drops.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <!--  ENTERPRISE CIRT CONTACT BANNER                         -->
+      <!-- ═════════════════════════════════════════════════════════ -->
+      <div class="rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-surface-850 via-surface-800 to-surface-850 p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl">
+        <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-2xl mx-auto">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-4">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+            <span>CUSTOM CONTRACT & MSSP SIZING</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-bold text-white mb-3 tracking-tight">
+            Need Custom Quota or On-Premise Air-Gapped Deployment?
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6">
+            Contact our senior engineering team for tailored threat feed integration, custom NDA agreements, and multi-tenant MSSP pricing.
+          </p>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <a
+              href="mailto:enterprise@sudodeck.com"
+              class="px-5 py-2.5 rounded-xl text-xs font-mono font-bold bg-emerald-500 hover:bg-emerald-400 text-surface-900 transition-all shadow-lg shadow-emerald-500/20"
+            >
+              Contact Enterprise Desk &rarr;
+            </a>
+            <a
+              href="/premium"
+              class="px-5 py-2.5 rounded-xl text-xs font-mono font-semibold bg-surface-750 hover:bg-surface-700 text-slate-200 border border-slate-700 hover:border-slate-600 transition-all"
+            >
+              Explore Premium Staged Arsenal
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TIER ORDER MODAL (CLIENT INTERACTION)                     -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="order-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-850 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative animate-fade-in font-sans">
+      <button
+        type="button"
+        onclick="closeOrderModal()"
+        class="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
+      >
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <i data-lucide="shield-check" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h4 id="modal-tier-title" class="text-base font-bold text-white">Authorize Tier Access</h4>
+          <p class="text-xs font-mono text-emerald-400" id="modal-tier-price">$29 / month</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+        Submit your operator contact or telemetry handle to generate your dedicated API authorization token and enterprise invoice.
+      </p>
+
+      <form id="tier-order-form" onsubmit="submitOrder(event)" class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-mono text-slate-300 mb-1">OPERATOR EMAIL / PGP KEY ID</label>
+          <input
+            type="email"
+            required
+            placeholder="operator@security.domain"
+            class="w-full px-3 py-2 rounded-xl bg-surface-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+          />
+        </div>
+        <div>
+          <label class="block text-[11px] font-mono text-slate-300 mb-1">ORGANIZATION / TEAM HANDLE</label>
+          <input
+            type="text"
+            placeholder="e.g. Red Team Division Alpha"
+            class="w-full px-3 py-2 rounded-xl bg-surface-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+          />
+        </div>
+
+        <div id="order-status-msg" class="text-xs font-mono hidden pt-1"></div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onclick="closeOrderModal()"
+            class="px-4 py-2 rounded-xl text-xs font-mono text-slate-400 hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            id="order-submit-btn"
+            class="px-4 py-2 rounded-xl text-xs font-mono font-bold bg-emerald-500 hover:bg-emerald-400 text-surface-900 transition-all shadow-md shadow-emerald-500/20"
+          >
+            Confirm Authorization &rarr;
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-slate-800/80 bg-surface-900/60 mt-auto py-8">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-white tracking-tight">Sudo<span class="text-emerald-400">Deck</span></span>
+        <span class="text-[11px] text-slate-500 font-mono">&mdash; Cyber Threat Intelligence & Red-Team Arsenal</span>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
+        <a href="/" class="hover:text-emerald-400 transition-colors">Overview</a>
+        <a href="/news" class="hover:text-emerald-400 transition-colors">News</a>
+        <a href="/premium" class="hover:text-purple-400 transition-colors">Premium Tools</a>
+        <a href="/pricing" class="text-emerald-400 font-semibold">Pricing</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared Navigation Scripts & Command Palette -->
+  <script src="/js/shared-nav.js"></script>
+
+  <!-- Pricing Interactive JS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+
+      // Monthly vs Annual Toggle
+      const toggleMonthly = document.getElementById('toggle-monthly');
+      const toggleAnnual = document.getElementById('toggle-annual');
+      const tierPrices = document.querySelectorAll('.tier-price');
+      const tierPeriods = document.querySelectorAll('.tier-period');
+
+      let isAnnual = false;
+
+      function updatePricingView() {
+        tierPrices.forEach((el) => {
+          const mPrice = el.getAttribute('data-monthly');
+          const aPrice = el.getAttribute('data-annual');
+          if (isAnnual) {
+            el.textContent = '$' + aPrice;
+          } else {
+            el.textContent = '$' + mPrice;
+          }
+        });
+
+        tierPeriods.forEach((el) => {
+          el.textContent = isAnnual ? '/ month (billed annually)' : '/ month';
+        });
+
+        if (isAnnual) {
+          toggleAnnual.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm';
+          toggleMonthly.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 text-slate-400 hover:text-white';
+        } else {
+          toggleMonthly.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shadow-sm';
+          toggleAnnual.className = 'px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all duration-200 text-slate-400 hover:text-white';
+        }
+      }
+
+      toggleMonthly?.addEventListener('click', () => {
+        isAnnual = false;
+        updatePricingView();
+      });
+
+      toggleAnnual?.addEventListener('click', () => {
+        isAnnual = true;
+        updatePricingView();
+      });
+    });
+
+    // Accordion Toggle
+    function toggleFaq(button) {
+      const content = button.nextElementSibling;
+      const icon = button.querySelector('i');
+      if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // Modal Interaction
+    function openOrderModal(tierName, price) {
+      const modal = document.getElementById('order-modal');
+      const title = document.getElementById('modal-tier-title');
+      const priceTag = document.getElementById('modal-tier-price');
+      const statusMsg = document.getElementById('order-status-msg');
+
+      title.textContent = `Authorize ${tierName} Access`;
+      priceTag.textContent = `$${price} / month — Priority Provisioning`;
+      statusMsg.className = 'text-xs font-mono hidden pt-1';
+      modal.classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeOrderModal() {
+      const modal = document.getElementById('order-modal');
+      modal.classList.add('hidden');
+    }
+
+    function submitOrder(e) {
+      e.preventDefault();
+      const statusMsg = document.getElementById('order-status-msg');
+      const submitBtn = document.getElementById('order-submit-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Authenticating...';
+
+      setTimeout(() => {
+        statusMsg.textContent = '[SUCCESS] Operator authorization request logged. Key dispatched to inbox.';
+        statusMsg.className = 'text-xs font-mono text-emerald-400 pt-1 block';
+        submitBtn.textContent = 'Dispatched ✓';
+
+        setTimeout(() => {
+          closeOrderModal();
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Confirm Authorization →';
+        }, 1800);
+      }, 700);
+    }
+  </script>
+</body>
+</html>

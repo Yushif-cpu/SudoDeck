@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SudoDeck — MAC Address & OUI Hardware Lookup</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260914" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260914" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=20260914" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260914" />
+  <link rel="shortcut icon" href="/favicon.ico?v=20260914" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260914" />
   <meta name="description" content="Enterprise MAC Address Lookup and IEEE Organizationally Unique Identifier (OUI) hardware reconnaissance tool." />
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
@@ -56,41 +62,30 @@
 
         <!-- Left: Logo & Brand -->
         <div class="flex items-center gap-6">
-          <a href="/" class="flex items-center gap-3 group">
-            <div class="relative">
-              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-                <i data-lucide="cpu" class="w-5 h-5 text-white"></i>
-              </div>
-              <div class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse-slow border-2 border-surface-900"></div>
-            </div>
-            <div>
-              <div class="flex items-center gap-1.5">
-                <h1 class="text-base font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors">Sudo<span class="text-cyan-400">Deck</span></h1>
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">MAC</span>
-              </div>
-            </div>
+          <a href="/" class="flex items-center group">
+            <h1 class="text-base font-bold tracking-tight text-white group-hover:text-cyan-400 transition-colors">Sudo<span class="text-cyan-400">Deck</span></h1>
           </a>
 
           <!-- Categorized Desktop Navigation -->
           <nav class="hidden lg:flex items-center gap-2">
 
-            <!-- Category 1: Threat & Recon Dropdown (Active on MAC page) -->
+            <!-- Category 1: Threat & Recon Dropdown -->
             <div class="relative">
               <button
                 type="button"
                 data-dropdown-toggle="menu-intel"
-                class="nav-pill active active-cyan"
+                class="nav-pill"
               >
-                <i data-lucide="radar" class="w-3.5 h-3.5 text-cyan-400"></i>
+                <i data-lucide="radar" class="w-3.5 h-3.5 text-emerald-400"></i>
                 <span>Threat & Recon</span>
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-cyan-400/80"></i>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
               </button>
               <div
                 id="menu-intel"
                 data-dropdown-menu
                 class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
               >
-                <a href="/" class="dropdown-card-item">
+                <a href="/#ip" class="dropdown-card-item">
                   <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                     <i data-lucide="shield-check" class="w-4 h-4"></i>
                   </div>
@@ -99,15 +94,30 @@
                     <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
                   </div>
                 </a>
-                <a href="/mac" class="dropdown-card-item active">
+                <a href="/#domain" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-blue-500/15 border border-blue-500/30 text-blue-400">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Domain Intelligence</div>
+                    <div class="text-[11px] text-slate-400 truncate">VirusTotal, DNS & WHOIS Engine</div>
+                  </div>
+                </a>
+                <a href="/#utils" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-teal-500/15 border border-teal-500/30 text-teal-400">
+                    <i data-lucide="network" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP & Subnet Utilities</div>
+                    <div class="text-[11px] text-slate-400 truncate">CIDR calculator & network masks</div>
+                  </div>
+                </a>
+                <a href="/mac" class="dropdown-card-item">
                   <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
                     <i data-lucide="cpu" class="w-4 h-4"></i>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white flex items-center justify-between">
-                      <span>MAC & OUI Lookup</span>
-                      <span class="nav-pill-badge bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">Active</span>
-                    </div>
+                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
                     <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
                   </div>
                 </a>
@@ -123,25 +133,80 @@
               </div>
             </div>
 
-            <!-- Category 2: SOC & SIEM Direct Link -->
-            <a
-              href="/siem"
-              class="nav-pill"
-            >
-              <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
-              <span>SIEM Utilities</span>
-              <span class="nav-pill-badge bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PARSER</span>
-            </a>
+            <!-- Category 2: SIEM Utilities Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                id="siem-nav-btn"
+                data-dropdown-toggle="menu-siem"
+                class="nav-pill"
+              >
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+                <span>SIEM Utilities</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-siem"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/siem#formatter" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="file-code" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Log & Alert Formatter</div>
+                    <div class="text-[11px] text-slate-400 truncate">Windows Event & Syslog to JSON</div>
+                  </div>
+                </a>
+                <a href="/siem#regex" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="search-code" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Detection Regex Tester</div>
+                    <div class="text-[11px] text-slate-400 truncate">Test regex against threat logs</div>
+                  </div>
+                </a>
+                <a href="/siem#headers" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">User-Agent & HTTP Headers</div>
+                    <div class="text-[11px] text-slate-400 truncate">Analyze web client anomalies</div>
+                  </div>
+                </a>
+                <a href="/siem#email" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="mail-search" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Email Header Analysis</div>
+                    <div class="text-[11px] text-slate-400 truncate">SPF, DKIM, DMARC & hop forensics</div>
+                  </div>
+                </a>
+                <a href="/siem#file" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="file-search" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">File Hash Analysis</div>
+                    <div class="text-[11px] text-slate-400 truncate">VirusTotal multi-engine hash verdict</div>
+                  </div>
+                </a>
+              </div>
+            </div>
 
-            <!-- Category 3: Security Tools Dropdown -->
+            <!-- Category 3: Attack Utilities Dropdown -->
             <div class="relative">
               <button
                 type="button"
                 data-dropdown-toggle="menu-tools"
                 class="nav-pill"
               >
-                <i data-lucide="wrench" class="w-3.5 h-3.5 text-amber-400"></i>
-                <span>Security Tools</span>
+                <i data-lucide="crosshair" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Attack Utilities</span>
                 <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
               </button>
               <div
@@ -167,6 +232,15 @@
                     <div class="text-[11px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
                   </div>
                 </a>
+                <a href="/wordlist" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="book-text" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Wordlist Mutator</div>
+                    <div class="text-[11px] text-slate-400 truncate">Generate & mutate password lists</div>
+                  </div>
+                </a>
               </div>
             </div>
 
@@ -174,23 +248,43 @@
         </div>
 
         <!-- Right: Direct Links, Command Palette Launcher & System Status -->
-        <div class="flex items-center gap-3 shrink-0 ml-6 xl:ml-8">
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0 ml-6 xl:ml-8">
+          <a
+            href="/news"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="newspaper" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>News</span>
+          </a>
+          <a
+            href="/premium"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="crown" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Premium Tools</span>
+          </a>
+          <a
+            href="/pricing"
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>Pricing</span>
+          </a>
           <a
             href="/#about"
-            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+            class="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
           >
             <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
             <span>About</span>
           </a>
           <a
             href="/#contact"
-            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+            class="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
           >
             <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
             <span>Contact</span>
           </a>
 
-          <!-- Command Palette Trigger Button -->
           <button
             type="button"
             data-action="open-command-palette"
@@ -204,14 +298,6 @@
             </kbd>
           </button>
 
-          <!-- System Status Badge -->
-          <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 whitespace-nowrap shrink-0">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-            </span>
-            <span class="text-[11px] font-mono font-medium tracking-wide">API Live</span>
-          </div>
 
           <!-- Mobile Hamburger Toggle -->
           <button
@@ -227,7 +313,19 @@
 
       <!-- Mobile Navigation Drawer -->
       <div id="mobile-menu-drawer" class="hidden lg:hidden border-t border-slate-800/80 py-3 space-y-1 animate-fade-in">
-        <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+        <a href="/news" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="newspaper" class="w-4 h-4 text-slate-400"></i>
+          <span>Cybersecurity News</span>
+        </a>
+        <a href="/premium" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="crown" class="w-4 h-4 text-slate-400"></i>
+          <span>Premium Tools</span>
+        </a>
+        <a href="/pricing" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="credit-card" class="w-4 h-4 text-slate-400"></i>
+          <span>Pricing</span>
+        </a>
+        <a href="/#ip" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
           <i data-lucide="radar" class="w-4 h-4 text-emerald-400"></i>
           <span>IP Reputation Check</span>
         </a>
@@ -250,6 +348,10 @@
         <a href="/gtfobins" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
           <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
           <span>GTFOBins Explorer</span>
+        </a>
+        <a href="/wordlist" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="book-text" class="w-4 h-4 text-emerald-400"></i>
+          <span>Wordlist Mutator</span>
         </a>
         <a href="/#about" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
           <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>

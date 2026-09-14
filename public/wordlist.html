@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SudoDeck — NVD CVE Vulnerability Scanner</title>
+  <title>SudoDeck — Automated Wordlist & Mutator Suite</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260914" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260914" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=20260914" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260914" />
   <link rel="shortcut icon" href="/favicon.ico?v=20260914" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260914" />
-  <meta name="description" content="Dedicated National Vulnerability Database (NVD) CVE scanner with CVSS v3.1 metrics, attack vector analysis, and security advisories." />
+  <meta name="description" content="Generate, mutate, and export custom wordlists for security assessments. Leet-speak, case permutations, suffix/prefix injections, and more." />
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -49,6 +49,135 @@
 
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/app.css" />
+
+  <style>
+    /* ── Wordlist-specific custom styles ─────────────────────────── */
+    .wl-terminal {
+      background: #0a0e17;
+      color: #00ff41;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8125rem;
+      line-height: 1.7;
+      border: 1px solid rgba(0, 255, 65, 0.15);
+      border-radius: 0.75rem;
+      resize: none;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 255, 65, 0.2) transparent;
+    }
+    .wl-terminal::placeholder {
+      color: rgba(0, 255, 65, 0.25);
+    }
+    .wl-terminal:focus {
+      outline: none;
+      border-color: rgba(0, 255, 65, 0.35);
+      box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.07), 0 0 30px rgba(0, 255, 65, 0.05);
+    }
+    .wl-terminal::-webkit-scrollbar {
+      width: 5px;
+    }
+    .wl-terminal::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .wl-terminal::-webkit-scrollbar-thumb {
+      background: rgba(0, 255, 65, 0.2);
+      border-radius: 999px;
+    }
+
+    /* Terminal header glow bar */
+    .terminal-glow-bar {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00ff41, #00ff41, transparent);
+      opacity: 0.5;
+      border-radius: 999px;
+    }
+
+    /* Mutation toggles */
+    .mutation-toggle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0.875rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      background: rgba(10, 14, 23, 0.6);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      font-size: 0.8125rem;
+    }
+    .mutation-toggle:hover {
+      border-color: rgba(0, 255, 65, 0.3);
+      background: rgba(0, 255, 65, 0.04);
+    }
+    .mutation-toggle.active {
+      border-color: rgba(0, 255, 65, 0.45);
+      background: rgba(0, 255, 65, 0.08);
+      box-shadow: 0 0 15px rgba(0, 255, 65, 0.06);
+    }
+    .mutation-toggle .toggle-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(100, 116, 139, 0.5);
+      background: transparent;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .mutation-toggle.active .toggle-dot {
+      border-color: #00ff41;
+      background: #00ff41;
+      box-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+    }
+
+    /* Stats pill animation */
+    @keyframes statPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    .stat-pulse {
+      animation: statPulse 2s ease-in-out infinite;
+    }
+
+    /* Matrix rain scanline effect on terminal */
+    .terminal-scanline {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 65, 0.008) 2px,
+        rgba(0, 255, 65, 0.008) 4px
+      );
+      pointer-events: none;
+      border-radius: 0.75rem;
+    }
+
+    /* Generate button custom glow */
+    .btn-generate {
+      background: linear-gradient(135deg, rgba(0, 255, 65, 0.85), rgba(16, 185, 129, 0.85));
+      border: 1px solid rgba(0, 255, 65, 0.3);
+      color: #000;
+      font-weight: 700;
+    }
+    .btn-generate:hover {
+      box-shadow: 0 4px 25px rgba(0, 255, 65, 0.3), 0 0 50px rgba(0, 255, 65, 0.1);
+      transform: translateY(-1px);
+    }
+    .btn-generate:active {
+      transform: translateY(0);
+    }
+    .btn-generate:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  </style>
 </head>
 
 <body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased flex flex-col">
@@ -63,9 +192,8 @@
         <!-- Left: Logo & Brand -->
         <div class="flex items-center gap-6">
           <a href="/" class="flex items-center group">
-            <h1 class="text-base font-bold tracking-tight text-white group-hover:text-rose-400 transition-colors">Sudo<span class="text-rose-400">Deck</span></h1>
+            <h1 class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">Sudo<span class="text-emerald-400">Deck</span></h1>
           </a>
-
           <!-- Categorized Desktop Navigation -->
           <nav class="hidden lg:flex items-center gap-2">
 
@@ -288,10 +416,10 @@
           <button
             type="button"
             data-action="open-command-palette"
-            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-rose-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
+            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-emerald-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
             title="Open Command Launcher (Ctrl + K)"
           >
-            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-rose-400 transition-colors shrink-0"></i>
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0"></i>
             <span class="text-slate-400 group-hover:text-slate-200 whitespace-nowrap">Search intel...</span>
             <kbd class="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-900 border border-slate-750 text-[10px] font-mono text-slate-400 shrink-0">
               <span>Ctrl</span><span>K</span>
@@ -333,7 +461,7 @@
           <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
           <span>MAC & OUI Lookup</span>
         </a>
-        <a href="/cve" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-rose-400 bg-rose-500/10">
+        <a href="/cve" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
           <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
           <span>CVE Vulnerability Scanner</span>
         </a>
@@ -349,7 +477,7 @@
           <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
           <span>GTFOBins Explorer</span>
         </a>
-        <a href="/wordlist" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+        <a href="/wordlist" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-emerald-400 bg-emerald-500/10">
           <i data-lucide="book-text" class="w-4 h-4 text-emerald-400"></i>
           <span>Wordlist Mutator</span>
         </a>
@@ -373,126 +501,307 @@
 
     <!-- ── Hero Banner ─────────────────────────────────────────── -->
     <div class="text-center max-w-3xl mx-auto mb-8 animate-fade-in">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold mb-3">
-        <i data-lucide="flame" class="w-3.5 h-3.5 text-rose-400"></i>
-        <span>NIST National Vulnerability Database v2.0</span>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-3">
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-emerald-400"></i>
+        <span>Automated Wordlist Generation & Mutation Engine</span>
       </div>
       <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-        CVE Vulnerability & Exploit Scanner
+        Wordlist & Mutator Suite
       </h2>
       <p class="text-sm text-slate-400 mt-2">
-        Direct intelligence interrogation from the official NIST NVD repository. Real-time CVSS v3.1 severity metrics, attack vectors, and vendor mitigation advisories.
+        Enter base words, enable mutation rules, and generate comprehensive password lists with leet-speak, case permutations, suffix/prefix injections, and custom patterns.
       </p>
     </div>
 
-    <!-- ── Search Form Card ────────────────────────────────────── -->
-    <div class="max-w-3xl mx-auto mb-8 animate-fade-in">
-      <div class="card p-5 sm:p-6 border-slate-700/60 bg-gradient-to-b from-surface-800/90 to-surface-900/90 shadow-2xl">
-        <form id="cve-search-form" class="space-y-3" autocomplete="off">
-          <label for="cve-input" class="block text-xs font-bold uppercase tracking-wider text-slate-400">
-            Target Vulnerability Identifier (CVE)
-          </label>
-          <div class="flex flex-col sm:flex-row gap-2.5">
-            <div class="relative flex-1">
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  INPUT SECTION                                            -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- ── Left Column: Base Words + Config ──────────────────── -->
+      <div class="lg:col-span-5 space-y-5">
+
+        <!-- Base Words Card -->
+        <div class="card p-5">
+          <div class="flex items-center gap-2.5 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+              <i data-lucide="text-cursor-input" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Base Words</h3>
+              <p class="text-[11px] text-slate-400">One word per line — these are your seed inputs</p>
+            </div>
+          </div>
+          <textarea
+            id="wl-base-words"
+            rows="8"
+            class="w-full wl-terminal px-4 py-3"
+            placeholder="admin&#10;password&#10;security&#10;company2024&#10;letmein"
+            spellcheck="false"
+          ></textarea>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-[11px] text-slate-500 font-mono">
+              Seed count: <span id="wl-seed-count" class="text-emerald-400 font-semibold">0</span>
+            </span>
+            <button
+              type="button"
+              id="wl-clear-seeds"
+              class="text-[11px] text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1"
+            >
+              <i data-lucide="trash-2" class="w-3 h-3"></i>
+              <span>Clear</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mutation Rules Card -->
+        <div class="card p-5">
+          <div class="flex items-center gap-2.5 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+              <i data-lucide="settings-2" class="w-4 h-4 text-amber-400"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Mutation Rules</h3>
+              <p class="text-[11px] text-slate-400">Toggle transformations to apply</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <label class="mutation-toggle active" data-rule="leet">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">L33t Speak</span>
+            </label>
+            <label class="mutation-toggle active" data-rule="case">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">Case Variants</span>
+            </label>
+            <label class="mutation-toggle active" data-rule="numbers">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">Number Suffix</span>
+            </label>
+            <label class="mutation-toggle active" data-rule="specials">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">Special Chars</span>
+            </label>
+            <label class="mutation-toggle" data-rule="reverse">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">Reverse</span>
+            </label>
+            <label class="mutation-toggle" data-rule="duplicate">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">Duplicate Word</span>
+            </label>
+            <label class="mutation-toggle" data-rule="prefix">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">Common Prefix</span>
+            </label>
+            <label class="mutation-toggle" data-rule="year">
+              <span class="toggle-dot"></span>
+              <span class="text-slate-200 text-xs font-medium">Year Append</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Custom Suffixes / Prefixes Card -->
+        <div class="card p-5">
+          <div class="flex items-center gap-2.5 mb-4">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center">
+              <i data-lucide="puzzle" class="w-4 h-4 text-cyan-400"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Custom Affixes</h3>
+              <p class="text-[11px] text-slate-400">Extra prefixes/suffixes (comma-separated)</p>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="text-[11px] text-slate-400 font-mono mb-1 block">Custom Prefixes</label>
               <input
                 type="text"
-                id="cve-input"
-                name="cveId"
-                placeholder="e.g. CVE-2021-44228 or CVE-2024-3094"
-                class="input-field w-full pl-11 pr-9 text-sm font-mono font-semibold tracking-wider uppercase text-white"
-                required
-                autofocus
+                id="wl-custom-prefix"
+                class="w-full input-field font-mono text-xs"
+                placeholder="e.g. admin_, root_, test_"
+                spellcheck="false"
               />
-              <i data-lucide="shield-search" class="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            </div>
+            <div>
+              <label class="text-[11px] text-slate-400 font-mono mb-1 block">Custom Suffixes</label>
+              <input
+                type="text"
+                id="wl-custom-suffix"
+                class="w-full input-field font-mono text-xs"
+                placeholder="e.g. _2024, !!, @123, #admin"
+                spellcheck="false"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Generate Button -->
+        <button
+          type="button"
+          id="wl-generate-btn"
+          class="w-full btn-generate flex items-center justify-center gap-2.5 py-3.5 rounded-xl text-sm transition-all duration-200"
+        >
+          <i data-lucide="zap" class="w-5 h-5"></i>
+          <span>Generate Wordlist</span>
+        </button>
+
+      </div>
+
+      <!-- ── Right Column: Output Terminal ─────────────────────── -->
+      <div class="lg:col-span-7 flex flex-col">
+
+        <!-- Terminal Header -->
+        <div class="card overflow-hidden flex flex-col flex-1">
+          <div class="bg-surface-850/90 border-b border-slate-800/80 px-5 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1.5">
+                <span class="w-3 h-3 rounded-full bg-rose-500/70"></span>
+                <span class="w-3 h-3 rounded-full bg-amber-500/70"></span>
+                <span class="w-3 h-3 rounded-full bg-emerald-500/70"></span>
+              </div>
+              <span class="text-[11px] font-mono text-slate-400">wordlist_output.txt</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <!-- Live Stats -->
+              <div id="wl-stats" class="hidden items-center gap-3 text-[11px] font-mono text-slate-400">
+                <span>
+                  Lines: <span id="wl-line-count" class="text-emerald-400 font-semibold">0</span>
+                </span>
+                <span class="text-slate-700">|</span>
+                <span>
+                  Size: <span id="wl-size" class="text-cyan-400 font-semibold">0 B</span>
+                </span>
+                <span class="text-slate-700">|</span>
+                <span>
+                  Unique: <span id="wl-unique-count" class="text-amber-400 font-semibold">0</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="terminal-glow-bar"></div>
+
+          <!-- Terminal Output Area -->
+          <div class="relative flex-1 flex flex-col min-h-[400px]">
+            <textarea
+              id="wl-output"
+              class="wl-terminal w-full flex-1 px-5 py-4 rounded-none border-none"
+              readonly
+              placeholder="// Generated wordlist will appear here...&#10;// Enter base words → configure mutations → click Generate&#10;&#10;$ awaiting input_"
+            ></textarea>
+            <div class="terminal-scanline"></div>
+          </div>
+
+          <!-- Terminal Footer Actions -->
+          <div class="bg-surface-850/90 border-t border-slate-800/80 px-5 py-3.5 flex items-center justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-2">
               <button
                 type="button"
-                id="btn-clear-cve"
-                class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded hover:bg-surface-700 transition-colors"
-                title="Clear CVE input"
+                id="wl-copy-btn"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-800 hover:bg-surface-700 border border-slate-700/60 hover:border-emerald-500/40 text-xs font-semibold text-slate-300 hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled
               >
-                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                <i data-lucide="clipboard-copy" class="w-3.5 h-3.5"></i>
+                <span>Copy to Clipboard</span>
+              </button>
+              <button
+                type="button"
+                id="wl-download-btn"
+                class="flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-800 hover:bg-surface-700 border border-slate-700/60 hover:border-cyan-500/40 text-xs font-semibold text-slate-300 hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled
+              >
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Download .txt</span>
               </button>
             </div>
             <button
-              type="submit"
-              id="cve-submit-btn"
-              class="btn-primary !bg-gradient-to-r !from-rose-500 !to-amber-500 !border-rose-400/40 hover:!shadow-rose-500/25 whitespace-nowrap px-6 py-3"
+              type="button"
+              id="wl-clear-output"
+              class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-500 hover:text-rose-400 hover:bg-rose-500/5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled
             >
-              <i data-lucide="radar" class="w-4 h-4"></i>
-              <span>Inspect CVE</span>
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>Clear Output</span>
             </button>
-          </div>
-        </form>
-
-        <!-- Quick Vulnerabilities Pills -->
-        <div class="mt-4 pt-3.5 border-t border-slate-800 space-y-2.5">
-          <div class="flex flex-wrap items-center gap-1.5">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mr-1 flex items-center gap-1">
-              <i data-lucide="zap" class="w-3 h-3 text-amber-400"></i> Notable CVEs:
-            </span>
-            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2021-44228">
-              <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-              <span class="font-mono font-bold">CVE-2021-44228</span>
-              <span class="text-[10px] text-rose-300">(Log4Shell)</span>
-            </button>
-            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2024-3094">
-              <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-              <span class="font-mono font-bold">CVE-2024-3094</span>
-              <span class="text-[10px] text-rose-300">(XZ Backdoor)</span>
-            </button>
-            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2017-0144">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              <span class="font-mono font-bold">CVE-2017-0144</span>
-              <span class="text-[10px] text-amber-300">(EternalBlue)</span>
-            </button>
-            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2021-34527">
-              <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
-              <span class="font-mono font-bold">CVE-2021-34527</span>
-              <span class="text-[10px] text-orange-300">(PrintNightmare)</span>
-            </button>
-            <button type="button" class="preset-chip quick-cve-pill" data-cve="CVE-2023-38606">
-              <span class="w-1.5 h-1.5 rounded-full bg-orange-400"></span>
-              <span class="font-mono font-bold">CVE-2023-38606</span>
-              <span class="text-[10px] text-orange-300">(iOS Kernel)</span>
-            </button>
-          </div>
-
-          <!-- Recent CVE Lookups -->
-          <div id="recent-cves-container" class="hidden pt-2 border-t border-slate-800/60">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Recent Searches</span>
-              <button type="button" id="btn-clear-cve-history" class="text-[10px] text-slate-500 hover:text-rose-400 transition-colors">Clear</button>
-            </div>
-            <div id="recent-cves-list" class="flex flex-wrap gap-1.5">
-              <!-- Populated by JS -->
-            </div>
           </div>
         </div>
+
       </div>
+
     </div>
 
-    <!-- ── Result Container ────────────────────────────────────── -->
-    <div id="cve-results" class="max-w-5xl mx-auto space-y-6">
-
-      <!-- Default Placeholder State -->
-      <div class="card p-12 text-center border-slate-800 bg-surface-800/40 animate-fade-in">
-        <div class="w-16 h-16 rounded-2xl bg-surface-700/60 border border-slate-700/40 flex items-center justify-center mx-auto mb-4 text-slate-500 shadow-inner">
-          <i data-lucide="shield-alert" class="w-8 h-8 text-slate-600"></i>
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  MUTATION REFERENCE TABLE                                 -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div class="mt-10 card p-6">
+      <div class="flex items-center gap-2.5 mb-5">
+        <div class="w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-500/30 flex items-center justify-center">
+          <i data-lucide="book-open" class="w-4 h-4 text-violet-400"></i>
         </div>
-        <h3 class="text-base font-semibold text-slate-300">Ready for CVE Investigation</h3>
-        <p class="text-xs text-slate-500 max-w-md mx-auto mt-1.5">
-          Enter any standard Common Vulnerabilities and Exposures (CVE) ID above to extract full CVSS scoring, attack metrics, affected software, and mitigation patches.
-        </p>
+        <div>
+          <h3 class="text-sm font-bold text-white">Mutation Reference</h3>
+          <p class="text-[11px] text-slate-400">How each rule transforms your base words</p>
+        </div>
       </div>
 
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b border-slate-800/80">
+              <th class="text-left py-2.5 px-3 text-slate-400 font-semibold">Rule</th>
+              <th class="text-left py-2.5 px-3 text-slate-400 font-semibold">Input Example</th>
+              <th class="text-left py-2.5 px-3 text-slate-400 font-semibold">Output Examples</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/50">
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">L33t Speak</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">password</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">p@ssw0rd, p4ssw0rd, pa$$word</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">Case Variants</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">admin</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">ADMIN, Admin, aDMIN, AdMiN</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">Number Suffix</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">user</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">user1, user123, user007, user1234</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">Special Chars</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">test</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">test!, test@, test#, test$</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">Reverse</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">hello</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">olleh</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">Duplicate</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">pass</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">passpass</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">Common Prefix</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">admin</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">theadmin, superadmin, myadmin</td>
+            </tr>
+            <tr>
+              <td class="py-2.5 px-3 text-emerald-400 font-mono font-semibold">Year Append</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">secret</td>
+              <td class="py-2.5 px-3 text-slate-300 font-mono">secret2023, secret2024, secret2025</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </main>
-
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <!--  TOAST CONTAINER                                          -->
-  <!-- ═══════════════════════════════════════════════════════════ -->
-  <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  FOOTER                                                   -->
@@ -500,8 +809,8 @@
   <footer class="border-t border-slate-800/60 mt-12 py-5 bg-surface-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
       <div class="flex items-center gap-2">
-        <i data-lucide="shield-check" class="w-4 h-4 text-rose-400"></i>
-        <span>SudoDeck NVD Scanner • Powered by NIST NVD REST API v2.0</span>
+        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+        <span>SudoDeck Wordlist & Mutator Suite • Client-Side Generation — No Data Leaves Your Browser</span>
       </div>
       <div class="flex items-center gap-4 flex-wrap">
         <a href="/#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
@@ -509,6 +818,10 @@
         <a href="/#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
         <span>•</span>
         <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Dashboard</a>
+        <span>•</span>
+        <a href="/crypto" class="text-slate-400 hover:text-white transition-colors">Crypto Suite</a>
+        <span>•</span>
+        <a href="/cve" class="text-slate-400 hover:text-white transition-colors">CVE Scanner</a>
         <span>•</span>
         <a href="/api/health" target="_blank" class="text-slate-400 hover:text-white transition-colors">API Health</a>
       </div>
@@ -518,7 +831,7 @@
   <!-- Shared Navigation & Command Palette -->
   <script src="/js/shared-nav.js"></script>
 
-  <!-- CVE Application Script -->
-  <script src="/js/cve.js"></script>
+  <!-- Wordlist Generator Script -->
+  <script src="/js/wordlist.js"></script>
 </body>
 </html>

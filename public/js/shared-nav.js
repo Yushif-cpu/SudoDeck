@@ -44,7 +44,7 @@
       desc: 'Analyze IP reputation, malicious reports, geolocation, and ASN data',
       category: 'Threat & Recon',
       icon: 'radar',
-      url: '/',
+      url: '/#ip',
       keywords: ['ip', 'abuseipdb', 'threat', 'reputation', 'asn', 'dns', 'scan']
     },
     {
@@ -55,6 +55,24 @@
       icon: 'cpu',
       url: '/mac',
       keywords: ['mac', 'oui', 'hardware', 'vendor', 'ieee', 'ethernet', 'device']
+    },
+    {
+      id: 'nav-domain',
+      title: 'Domain Intelligence & WHOIS',
+      desc: 'VirusTotal threat scans, DNS records, MX/TXT verification, and WHOIS registration',
+      category: 'Threat & Recon',
+      icon: 'globe',
+      url: '/#domain',
+      keywords: ['domain', 'whois', 'dns', 'virustotal', 'mx', 'txt', 'ns', 'url', 'hostname']
+    },
+    {
+      id: 'nav-utils',
+      title: 'IP & Subnet Utilities',
+      desc: 'Interactive CIDR calculator, subnet masks, wildcard masks, usable bounds, and broadcast addresses',
+      category: 'Threat & Recon',
+      icon: 'network',
+      url: '/#utils',
+      keywords: ['subnet', 'cidr', 'mask', 'ip', 'network', 'broadcast', 'wildcard', 'dns', 'ping']
     },
     {
       id: 'nav-cve',
@@ -93,10 +111,28 @@
       keywords: ['regex', 'regular expression', 'pattern', 'detection', 'rule', 'sigma', 'yara']
     },
     {
+      id: 'nav-siem-email',
+      title: 'Email Header Forensic Analyzer',
+      desc: 'Parse RFC 822/5322 headers, inspect Received hops, SPF/DKIM/DMARC authentication verdicts',
+      category: 'SOC & SIEM',
+      icon: 'mail-search',
+      url: '/siem#email',
+      keywords: ['email', 'header', 'spf', 'dkim', 'dmarc', 'phishing', 'smtp', 'hops']
+    },
+    {
+      id: 'nav-siem-file',
+      title: 'File Hash & Malware Analyzer',
+      desc: 'VirusTotal multi-engine malware scans, SHA-256 integrity lookup, and threat scores',
+      category: 'SOC & SIEM',
+      icon: 'file-search',
+      url: '/siem#file',
+      keywords: ['file', 'hash', 'sha256', 'md5', 'virustotal', 'malware', 'antivirus']
+    },
+    {
       id: 'nav-crypto-hash',
       title: 'Crypto Suite: Hash Generator & Analyzer',
       desc: 'Generate and inspect MD5, SHA-1, SHA-256, SHA-512, and file integrity checksums',
-      category: 'Security Tools',
+      category: 'Attack Utilities',
       icon: 'hash',
       url: '/crypto#hash',
       keywords: ['hash', 'md5', 'sha1', 'sha256', 'sha512', 'checksum', 'crypto']
@@ -105,7 +141,7 @@
       id: 'nav-crypto-jwt',
       title: 'Crypto Suite: JWT Token Decoder',
       desc: 'Inspect JWT header, payload, expiration timestamps, and signature structure',
-      category: 'Security Tools',
+      category: 'Attack Utilities',
       icon: 'key-round',
       url: '/crypto#jwt',
       keywords: ['jwt', 'token', 'decode', 'bearer', 'auth', 'claim', 'signature']
@@ -114,7 +150,7 @@
       id: 'nav-crypto-encoder',
       title: 'Crypto Suite: Multi-Encoder & Decoder',
       desc: 'Base64, URL encoding, Hexadecimal, Binary, and CyberChef-style conversions',
-      category: 'Security Tools',
+      category: 'Attack Utilities',
       icon: 'binary',
       url: '/crypto#convert',
       keywords: ['base64', 'hex', 'url', 'encode', 'decode', 'cyberchef', 'convert']
@@ -123,10 +159,46 @@
       id: 'nav-gtfobins',
       title: 'GTFOBins Unix PrivEsc & Bypass Explorer',
       desc: 'Search Unix binaries that can be exploited to bypass local security restrictions',
-      category: 'Security Tools',
+      category: 'Attack Utilities',
       icon: 'terminal',
       url: '/gtfobins',
       keywords: ['gtfobins', 'privesc', 'sudo', 'suid', 'privilege escalation', 'bypass', 'linux', 'unix']
+    },
+    {
+      id: 'nav-wordlist',
+      title: 'Automated Wordlist & Mutator Suite',
+      desc: 'Generate and mutate password wordlists with leet-speak, case variants, suffixes, and custom patterns',
+      category: 'Attack Utilities',
+      icon: 'book-text',
+      url: '/wordlist',
+      keywords: ['wordlist', 'password', 'mutator', 'leet', 'bruteforce', 'dictionary', 'generator', 'mutation']
+    },
+    {
+      id: 'nav-news',
+      title: 'Cybersecurity News & Threat Wire (The Hacker News)',
+      desc: 'Live real-time cybersecurity newsfeed, zero-day advisories, and APT campaign reports',
+      category: 'Threat & Recon',
+      icon: 'newspaper',
+      url: '/news',
+      keywords: ['news', 'the hacker news', 'feed', 'rss', 'live', 'wire', 'articles', 'intel', 'breach']
+    },
+    {
+      id: 'nav-premium',
+      title: 'Premium Tools Suite (Classified Arsenal)',
+      desc: 'Exclusive high-grade red team operations and advanced autonomous SOC defense capabilities',
+      category: 'Enterprise & Premium',
+      icon: 'crown',
+      url: '/premium',
+      keywords: ['premium', 'tools', 'red team', 'pro', 'arsenal', 'exploit', 'darknet', 'c2', 'vip']
+    },
+    {
+      id: 'nav-pricing',
+      title: 'Pricing & Subscription Tiers',
+      desc: 'Compare Community, Analyst Pro, and Enterprise SOC plans with transparent pricing',
+      category: 'Enterprise & Premium',
+      icon: 'credit-card',
+      url: '/pricing',
+      keywords: ['pricing', 'plans', 'subscription', 'price', 'cost', 'pro', 'enterprise', 'upgrade', 'billing']
     },
     {
       id: 'nav-about',
@@ -186,7 +258,7 @@
           </div>
 
           <!-- Footer Bar -->
-          <div class="border-t border-slate-800/80 px-4 py-2.5 bg-surface-950/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div class="border-t border-slate-800/80 px-4 py-2.5 bg-surface-900/90 flex items-center justify-between text-[11px] text-slate-400 font-mono">
             <div class="flex items-center gap-3">
               <span class="flex items-center gap-1">
                 <kbd class="px-1.5 py-0.5 rounded bg-surface-800 border border-slate-700 text-slate-300">↑</kbd>
@@ -461,12 +533,21 @@
 
   // ── 4. Dropdowns & Mobile Navigation ──────────────────────────
   function initHeaderNavigation() {
-    // Command Palette Trigger buttons across all pages
-    document.querySelectorAll('[data-action="open-command-palette"]').forEach(btn => {
+    // Command Palette Trigger buttons across all pages (direct listeners)
+    document.querySelectorAll('[data-action="open-command-palette"], #cmd-palette-btn, .cmd-palette-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         openPalette();
       });
+    });
+
+    // Global click delegation for command palette trigger
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-action="open-command-palette"], #cmd-palette-btn, .cmd-palette-btn');
+      if (trigger) {
+        e.preventDefault();
+        openPalette();
+      }
     });
 
     // Mobile Navigation Toggle
@@ -519,15 +600,58 @@
     return String(str || '').replace(/[&<>"']/g, m => map[m]);
   }
 
+  // ── 6. Automated Favicon & Page Route Synchronizer ────────────
+  // Silently warms page routes in background so Firefox & Chrome
+  // automatically update their omnibox / history suggestion icons to >_
+  function syncAllPageFavicons() {
+    if (window._sudodeck_synced_favicons) return;
+    window._sudodeck_synced_favicons = true;
+
+    const routes = [
+      '/',
+      '/siem',
+      '/crypto',
+      '/gtfobins',
+      '/cve',
+      '/mac',
+      '/wordlist',
+      '/news',
+      '/pricing',
+      '/premium'
+    ];
+
+    setTimeout(() => {
+      const container = document.createElement('div');
+      container.style.cssText = 'position:absolute;width:1px;height:1px;top:-9999px;left:-9999px;opacity:0;pointer-events:none;overflow:hidden;';
+      document.body.appendChild(container);
+
+      let delay = 200;
+      routes.forEach(route => {
+        if (window.location.pathname === route) return;
+        setTimeout(() => {
+          const iframe = document.createElement('iframe');
+          iframe.src = route;
+          iframe.setAttribute('tabindex', '-1');
+          iframe.setAttribute('aria-hidden', 'true');
+          container.appendChild(iframe);
+          setTimeout(() => iframe.remove(), 4000);
+        }, delay);
+        delay += 350;
+      });
+    }, 1200);
+  }
+
   // ── 5. DOM Ready Bootstrap ─────────────────────────────────────
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       injectCommandPalette();
       initHeaderNavigation();
+      syncAllPageFavicons();
     });
   } else {
     injectCommandPalette();
     initHeaderNavigation();
+    syncAllPageFavicons();
   }
 
   // Expose global methods

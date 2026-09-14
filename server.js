@@ -26,6 +26,7 @@ import emailHeaderRoutes from './routes/emailHeader.routes.js';
 import macRoutes from './routes/mac.routes.js';
 import cryptoRoutes from './routes/crypto.routes.js';
 import gtfobinsRoutes from './routes/gtfobins.routes.js';
+import newsRoutes from './routes/news.routes.js';
 import { fetchRecentMaliciousIPs } from './services/threatfox.service.js';
 
 // ── Path setup ──────────────────────────────────────────────────
@@ -52,8 +53,32 @@ app.use(cors());
 app.use(generalLimiter);
 app.use(express.json({ limit: '1mb' }));
 
+// ── Favicons & Root with strict cache busting ───────────────────
+app.get('/favicon.ico', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.type('image/x-icon');
+  res.sendFile(join(__dirname, 'public', 'favicon.ico'));
+});
+
+app.get('/', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(join(__dirname, 'public', 'index.html'));
+});
+
 // ── Static files ────────────────────────────────────────────────
-app.use(express.static(join(__dirname, 'public')));
+app.use(express.static(join(__dirname, 'public'), {
+  setHeaders: (res, path) => {
+    if (path.includes('favicon')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // ── API routes ──────────────────────────────────────────────────
 app.use('/api', apiLimiter);
@@ -66,6 +91,7 @@ app.use('/api', macRoutes);
 app.use('/api/crypto', cryptoRoutes);
 app.use('/api/gtfobins', gtfobinsRoutes);
 app.use('/api/utils', utilsRoutes);
+app.use('/api', newsRoutes);
 
 // ── ThreatFox Live Malicious IPs Feed (Keyless & Free) ──────────
 app.get('/api/recent-malicious-ips', async (req, res) => {
@@ -137,34 +163,62 @@ app.post('/api/contact', (req, res) => {
   });
 });
 
+// ── HTML Page delivery helper (Prevents stale favicon & layout caches) ──
+function sendPage(res, filename) {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(join(__dirname, 'public', filename));
+}
+
 // ── Dedicated CVE page route ────────────────────────────────────
 app.get('/cve', (req, res) => {
-  res.sendFile(join(__dirname, 'public', 'cve.html'));
+  sendPage(res, 'cve.html');
 });
 
 // ── Dedicated MAC Lookup page route ─────────────────────────────
 app.get('/mac', (req, res) => {
-  res.sendFile(join(__dirname, 'public', 'mac.html'));
+  sendPage(res, 'mac.html');
 });
 
 // ── Dedicated Crypto Suite page route ───────────────────────────
 app.get('/crypto', (req, res) => {
-  res.sendFile(join(__dirname, 'public', 'crypto.html'));
+  sendPage(res, 'crypto.html');
 });
 
 // ── Dedicated GTFOBins Explorer page route ──────────────────────
 app.get('/gtfobins', (req, res) => {
-  res.sendFile(join(__dirname, 'public', 'gtfobins.html'));
+  sendPage(res, 'gtfobins.html');
 });
 
-// ── Dedicated SIEM Utilities page route ─────────────────────────
+// ── Dedicated Wordlist & Mutator Suite page route ───────────
+app.get('/wordlist', (req, res) => {
+  sendPage(res, 'wordlist.html');
+});
+
+// ── Dedicated SIEM Utilities page route ─────────────────────
 app.get('/siem', (req, res) => {
-  res.sendFile(join(__dirname, 'public', 'siem.html'));
+  sendPage(res, 'siem.html');
+});
+
+// ── Dedicated Security News Live Feed page route ───────────
+app.get('/news', (req, res) => {
+  sendPage(res, 'news.html');
+});
+
+// ── Dedicated Premium Tools page route ─────────────────────
+app.get(['/premium', '/premium-tools'], (req, res) => {
+  sendPage(res, 'premium.html');
+});
+
+// ── Dedicated Pricing page route ───────────────────────────
+app.get('/pricing', (req, res) => {
+  sendPage(res, 'pricing.html');
 });
 
 // ── SPA fallback ────────────────────────────────────────────────
 app.get('{*path}', (req, res) => {
-  res.sendFile(join(__dirname, 'public', 'index.html'));
+  sendPage(res, 'index.html');
 });
 
 // ── Global error handler (must be last) ─────────────────────────
