@@ -550,13 +550,16 @@
       }
     });
 
-    // Mobile Navigation Toggle
+    // ── Mobile Navigation Toggle & Drawer Builder ───────────────
     const mobileBtn = document.getElementById('mobile-menu-btn') || 
                       document.getElementById('mobile-menu-toggle') || 
                       document.querySelector('[data-action="toggle-mobile-menu"]');
     const mobileDrawer = document.getElementById('mobile-menu-drawer');
 
     if (mobileBtn && mobileDrawer) {
+      // Build the symmetrical categorized accordion mobile menu
+      buildMobileMenuDrawer(mobileDrawer);
+
       mobileBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const isHidden = mobileDrawer.classList.contains('hidden');
@@ -595,6 +598,262 @@
           }
         }
       });
+    }
+
+    // ── Symmetrical & Grouped Mobile Menu Drawer Builder ───────────
+    function buildMobileMenuDrawer(drawer) {
+      if (!drawer) return;
+
+      drawer.innerHTML = `
+        <div class="p-3 space-y-3">
+          <!-- Quick Nav Header Pills: News, Premium, Pricing -->
+          <div class="grid grid-cols-3 gap-2 pb-1">
+            <a href="/news" class="mobile-quick-pill group ${window.location.pathname === '/news' ? 'active' : ''}">
+              <div class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-300 group-hover:text-emerald-400 group-hover:border-emerald-500/40 transition-colors">
+                <i data-lucide="newspaper" class="w-3.5 h-3.5"></i>
+              </div>
+              <span class="text-[11px] font-semibold text-slate-300 group-hover:text-white">News</span>
+            </a>
+            <a href="/premium" class="mobile-quick-pill group ${window.location.pathname === '/premium' ? 'active' : ''}">
+              <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:border-amber-400 transition-colors">
+                <i data-lucide="crown" class="w-3.5 h-3.5"></i>
+              </div>
+              <span class="text-[11px] font-semibold text-slate-300 group-hover:text-white">Premium</span>
+            </a>
+            <a href="/pricing" class="mobile-quick-pill group ${window.location.pathname === '/pricing' ? 'active' : ''}">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:border-emerald-400 transition-colors">
+                <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+              </div>
+              <span class="text-[11px] font-semibold text-slate-300 group-hover:text-white">Pricing</span>
+            </a>
+          </div>
+
+          <!-- Section 1: Threat & Recon (Symmetrical Accordion) -->
+          <div class="mobile-accordion-group rounded-2xl border border-slate-800 bg-surface-850/80 overflow-hidden shadow-sm">
+            <button type="button" class="mobile-accordion-trigger w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-surface-800/80 cursor-pointer" data-target="mob-threat-group">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+                  <i data-lucide="radar" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white tracking-wide">Threat & Recon</div>
+                  <div class="text-[10px] font-mono text-emerald-400/80">5 intelligence modules</div>
+                </div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div id="mob-threat-group" class="mobile-accordion-content hidden border-t border-slate-800/80 bg-surface-900/60 p-2 space-y-1">
+              <a href="/#ip" data-switch-tab="ip" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-emerald-300 truncate">IP Reputation Check</div>
+                  <div class="text-[10px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
+                </div>
+              </a>
+              <a href="/#domain" data-switch-tab="domain" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-blue-500/15 border border-blue-500/30 text-blue-400">
+                  <i data-lucide="globe" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-blue-300 truncate">Domain Intelligence</div>
+                  <div class="text-[10px] text-slate-400 truncate">VirusTotal, DNS & WHOIS Engine</div>
+                </div>
+              </a>
+              <a href="/#utils" data-switch-tab="utils" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-teal-500/15 border border-teal-500/30 text-teal-400">
+                  <i data-lucide="network" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-teal-300 truncate">IP & Subnet Utilities</div>
+                  <div class="text-[10px] text-slate-400 truncate">CIDR calculator & subnet masks</div>
+                </div>
+              </a>
+              <a href="/mac" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
+                  <i data-lucide="cpu" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-cyan-300 truncate">MAC & OUI Lookup</div>
+                  <div class="text-[10px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
+                </div>
+              </a>
+              <a href="/cve" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
+                  <i data-lucide="flame" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-rose-300 truncate">CVE Scanner</div>
+                  <div class="text-[10px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Section 2: SIEM Utilities (Symmetrical Accordion) -->
+          <div class="mobile-accordion-group rounded-2xl border border-slate-800 bg-surface-850/80 overflow-hidden shadow-sm">
+            <button type="button" class="mobile-accordion-trigger w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-surface-800/80 cursor-pointer" data-target="mob-siem-group">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shrink-0">
+                  <i data-lucide="layers" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white tracking-wide">SIEM Utilities</div>
+                  <div class="text-[10px] font-mono text-indigo-400/80">5 SOC tools & parsers</div>
+                </div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div id="mob-siem-group" class="mobile-accordion-content hidden border-t border-slate-800/80 bg-surface-900/60 p-2 space-y-1">
+              <a href="/siem#formatter" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                  <i data-lucide="file-code" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">Log & Alert Formatter</div>
+                  <div class="text-[10px] text-slate-400 truncate">Windows Event & Syslog to JSON</div>
+                </div>
+              </a>
+              <a href="/siem#regex" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                  <i data-lucide="search-code" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">Detection Regex Tester</div>
+                  <div class="text-[10px] text-slate-400 truncate">Test regex against threat logs</div>
+                </div>
+              </a>
+              <a href="/siem#headers" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                  <i data-lucide="scan-face" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">User-Agent & HTTP Headers</div>
+                  <div class="text-[10px] text-slate-400 truncate">Analyze web client anomalies</div>
+                </div>
+              </a>
+              <a href="/siem#email" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                  <i data-lucide="mail-search" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">Email Header Analysis</div>
+                  <div class="text-[10px] text-slate-400 truncate">SPF, DKIM, DMARC hop forensics</div>
+                </div>
+              </a>
+              <a href="/siem#file" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                  <i data-lucide="file-search" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">File Hash Analysis</div>
+                  <div class="text-[10px] text-slate-400 truncate">VirusTotal multi-engine verdicts</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Section 3: Attack Utilities (Symmetrical Accordion) -->
+          <div class="mobile-accordion-group rounded-2xl border border-slate-800 bg-surface-850/80 overflow-hidden shadow-sm">
+            <button type="button" class="mobile-accordion-trigger w-full flex items-center justify-between p-3 text-left transition-colors hover:bg-surface-800/80 cursor-pointer" data-target="mob-attack-group">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                  <i data-lucide="crosshair" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-white tracking-wide">Attack Utilities</div>
+                  <div class="text-[10px] font-mono text-amber-400/80">3 offensive security suites</div>
+                </div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
+            </button>
+            <div id="mob-attack-group" class="mobile-accordion-content hidden border-t border-slate-800/80 bg-surface-900/60 p-2 space-y-1">
+              <a href="/crypto" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
+                  <i data-lucide="key-round" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-purple-300 truncate">Crypto & Hash Suite</div>
+                  <div class="text-[10px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
+                </div>
+              </a>
+              <a href="/gtfobins" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <i data-lucide="terminal" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-amber-300 truncate">GTFOBins Explorer</div>
+                  <div class="text-[10px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
+                </div>
+              </a>
+              <a href="/wordlist" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                  <i data-lucide="book-text" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-emerald-300 truncate">Wordlist Mutator</div>
+                  <div class="text-[10px] text-slate-400 truncate">Generate & mutate password lists</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bottom Actions: About, Contact CIRT -->
+          <div class="pt-2 border-t border-slate-800/80 grid grid-cols-2 gap-2">
+            <a href="/#about" class="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white transition-colors">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>About</span>
+            </a>
+            <a href="/#contact" class="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-800 text-xs font-medium text-slate-300 hover:text-white transition-colors">
+              <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>Contact CIRT</span>
+            </a>
+          </div>
+        </div>
+      `;
+
+      // Accordion Toggle handlers
+      drawer.querySelectorAll('.mobile-accordion-trigger').forEach(trigger => {
+        trigger.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const targetId = trigger.getAttribute('data-target');
+          const content = document.getElementById(targetId);
+          const chevron = trigger.querySelector('[data-lucide="chevron-down"]');
+          if (!content) return;
+
+          const isHidden = content.classList.contains('hidden');
+          if (isHidden) {
+            content.classList.remove('hidden');
+            if (chevron) chevron.classList.add('rotate-180');
+          } else {
+            content.classList.add('hidden');
+            if (chevron) chevron.classList.remove('rotate-180');
+          }
+        });
+      });
+
+      // In index.html, support switching tabs on link click
+      drawer.querySelectorAll('[data-switch-tab]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          const tab = link.getAttribute('data-switch-tab');
+          if (window.switchTab && (window.location.pathname === '/' || window.location.pathname === '')) {
+            e.preventDefault();
+            window.switchTab(tab);
+            window.location.hash = tab;
+            drawer.classList.add('hidden');
+            const mBtn = document.getElementById('mobile-menu-btn') || document.getElementById('mobile-menu-toggle');
+            if (mBtn) {
+              mBtn.setAttribute('aria-expanded', 'false');
+              mBtn.innerHTML = '<i data-lucide="menu" class="w-5 h-5 text-slate-300"></i>';
+              if (window.lucide) window.lucide.createIcons();
+            }
+          }
+        });
+      });
+
+      if (window.lucide) window.lucide.createIcons();
     }
 
     // Floating Back to Top Button (Mobile & Desktop)
