@@ -376,24 +376,24 @@
         </div>
 
         <!-- Right: Direct Links, Command Palette Launcher & System Status -->
-        <div class="flex items-center gap-2 sm:gap-3 shrink-0 ml-6 xl:ml-8">
+        <div class="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-auto">
           <a
             href="/news"
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
           >
             <i data-lucide="newspaper" class="w-3.5 h-3.5 text-slate-400"></i>
             <span>News</span>
           </a>
           <a
             href="/premium"
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
           >
             <i data-lucide="crown" class="w-3.5 h-3.5 text-slate-400"></i>
             <span>Premium Tools</span>
           </a>
           <a
             href="/pricing"
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
           >
             <i data-lucide="credit-card" class="w-3.5 h-3.5 text-slate-400"></i>
             <span>Pricing</span>
@@ -416,24 +416,22 @@
           <button
             type="button"
             data-action="open-command-palette"
-            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-emerald-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
-            title="Open Command Launcher (Ctrl + K)"
+            class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-700/60 hover:border-slate-600 text-slate-300 text-xs font-medium transition-all shadow-sm group cursor-pointer"
+            title="Quick Action Palette (Ctrl+K)"
           >
-            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 transition-colors shrink-0"></i>
-            <span class="text-slate-400 group-hover:text-slate-200 whitespace-nowrap">Search intel...</span>
-            <kbd class="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-900 border border-slate-750 text-[10px] font-mono text-slate-400 shrink-0">
-              <span>Ctrl</span><span>K</span>
-            </kbd>
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 transition-colors pointer-events-none"></i>
+            <span class="hidden sm:inline text-slate-400 group-hover:text-slate-200 pointer-events-none">Search tools...</span>
+            <kbd class="hidden sm:inline px-1.5 py-0.5 text-[10px] font-mono font-semibold bg-surface-900 border border-slate-700 text-slate-400 rounded pointer-events-none">Ctrl+K</kbd>
           </button>
-
 
           <!-- Mobile Hamburger Toggle -->
           <button
-            id="mobile-menu-toggle"
+            id="mobile-menu-btn"
             type="button"
-            class="lg:hidden h-9 w-9 flex items-center justify-center rounded-xl bg-surface-800 border border-slate-700/60 text-slate-300 hover:text-white transition-colors shrink-0"
+            class="lg:hidden p-2 rounded-xl bg-surface-800 border border-slate-700 text-slate-400 hover:text-white transition-colors"
+            aria-label="Toggle navigation menu"
           >
-            <i data-lucide="menu" class="w-4 h-4"></i>
+            <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
         </div>
 
