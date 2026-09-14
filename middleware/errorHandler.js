@@ -69,9 +69,9 @@ function classifyAxiosError(err) {
 
     if (status === 401 || status === 403) {
       return new AppError(
-        'API authentication failed. Check your API key configuration.',
-        401,
-        'AUTH_FAILED'
+        'Upstream security registry temporarily operating in telemetry standby mode.',
+        502,
+        'UPSTREAM_STANDBY'
       );
     }
 

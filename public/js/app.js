@@ -500,6 +500,12 @@ function renderIPResults(container, d) {
     <div class="space-y-4 animate-fade-in w-full">
       <!-- ── 1. Main Risk Score & Target IP Card ── -->
       <div class="card p-6 border-slate-800/80 bg-surface-850 shadow-xl space-y-4">
+        ${d.warning ? `
+          <div class="px-3.5 py-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 flex items-center gap-2 animate-fade-in">
+            <i data-lucide="info" class="w-4 h-4 text-cyan-400 shrink-0"></i>
+            <span class="font-mono text-[11px]">${escapeHtml(d.warning)}</span>
+          </div>
+        ` : ''}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-2xl ${riskBorderColors[d.riskLevel] || riskBorderColors.clean} border flex flex-col items-center justify-center flex-shrink-0 shadow-inner">
@@ -767,6 +773,12 @@ function renderFileResults(container, response) {
   };
 
   container.innerHTML = `
+    ${d.warning ? `
+      <div class="px-4 py-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 flex items-center gap-2 mb-4 animate-fade-in">
+        <i data-lucide="info" class="w-4 h-4 text-cyan-400 shrink-0"></i>
+        <span class="font-mono text-[11px]">${escapeHtml(d.warning)}</span>
+      </div>
+    ` : ''}
     <!-- Threat Score Header -->
     <div class="card p-6 animate-slide-up">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
@@ -958,6 +970,12 @@ function renderDomainResults(container, d) {
     : '<span class="text-xs text-slate-500">No DNS records available</span>';
 
   container.innerHTML = `
+    ${d.warning ? `
+      <div class="px-4 py-2.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 flex items-center gap-2 mb-4 animate-fade-in">
+        <i data-lucide="info" class="w-4 h-4 text-cyan-400 shrink-0"></i>
+        <span class="font-mono text-[11px]">${escapeHtml(d.warning)}</span>
+      </div>
+    ` : ''}
     <!-- Threat Score Header -->
     <div class="card p-6 animate-slide-up">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">

@@ -5,9 +5,17 @@ import { dirname, resolve } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load .env strictly from the root of the project (threat-intel-node/.env)
-const envPath = resolve(__dirname, '..', '.env');
-dotenv.config({ path: envPath });
+// Load .env reliably from project root, current working directory, or parent directory
+const possibleEnvPaths = [
+  resolve(__dirname, '..', '.env'),
+  resolve(process.cwd(), '.env'),
+  resolve(process.cwd(), 'threat-intel-node', '.env'),
+  resolve(__dirname, '..', '..', '.env'),
+];
+for (const p of possibleEnvPaths) {
+  dotenv.config({ path: p });
+}
+
 
 // ── Environment variables check (Graceful degradation) ───────────
 const RECOMMENDED_VARS = ['ABUSEIPDB_API_KEY', 'VIRUSTOTAL_API_KEY'];
