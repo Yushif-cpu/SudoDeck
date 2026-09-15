@@ -589,27 +589,29 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
-  <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  FOOTER                                                   -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <footer class="border-t border-slate-800/60 mt-12 py-5 bg-surface-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-      <div class="flex items-center gap-2">
-        <i data-lucide="shield-check" class="w-4 h-4 text-purple-400"></i>
-        <span>SudoDeck Crypto & Encoding Suite • Built with Node.js Native Cryptographic Primitives</span>
+  <footer class="border-t border-slate-800/80 bg-surface-900 py-8 text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center space-y-3">
+      <div>
+        <a href="/" class="text-sm font-bold text-white font-mono tracking-tight hover:opacity-90 transition-opacity">
+          Sudo<span class="text-emerald-400">Deck</span>
+        </a>
       </div>
-      <div class="flex items-center gap-4 flex-wrap">
-        <a href="/#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
-        <span>•</span>
-        <a href="/#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
-        <span>•</span>
-        <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Dashboard</a>
-        <span>•</span>
-        <a href="/cve" class="text-slate-400 hover:text-white transition-colors">CVE Scanner</a>
-        <span>•</span>
-        <a href="/mac" class="text-slate-400 hover:text-white transition-colors">MAC Lookup</a>
-        <span>•</span>
-        <a href="/api/health" target="_blank" class="text-slate-400 hover:text-white transition-colors">API Health</a>
+      <p class="text-xs text-slate-400 font-normal">
+        &copy; 2026 SudoDeck OSINT Platform
+      </p>
+      <div class="flex items-center justify-center gap-x-5 gap-y-2 flex-wrap font-medium text-slate-400">
+        <a href="/premium" class="hover:text-purple-400 transition-colors">Premium Tools</a>
+        <a href="/pricing" class="hover:text-emerald-400 transition-colors">Pricing</a>
+        <a href="/#about" class="hover:text-emerald-400 transition-colors">About</a>
+        <a href="/#contact" class="hover:text-cyan-400 transition-colors">Contact</a>
+        <a href="/api/health" target="_blank" class="hover:text-white transition-colors">Health</a>
+      </div>
+      <div class="flex items-center justify-center gap-2 pt-0.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-medium text-slate-300">Operational</span>
       </div>
     </div>
   </footer>

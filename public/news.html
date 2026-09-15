@@ -531,21 +531,25 @@
   <!--  FOOTER                                                    -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <footer class="border-t border-slate-800/80 bg-surface-900 py-8 text-xs text-slate-500 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-6 h-6 rounded-lg bg-emerald-500/15 flex items-center justify-center text-emerald-400">
-          <i data-lucide="shield-check" class="w-4 h-4"></i>
-        </div>
-        <span class="font-mono text-slate-400 font-semibold">SudoDeck Pro CIRT Suite</span>
-        <span>•</span>
-        <span>Live Threat Intelligence Wire</span>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center space-y-3">
+      <div>
+        <a href="/" class="text-sm font-bold text-white font-mono tracking-tight hover:opacity-90 transition-opacity">
+          Sudo<span class="text-emerald-400">Deck</span>
+        </a>
       </div>
-      <div class="flex items-center gap-6">
-        <a href="/news" class="hover:text-emerald-400 text-emerald-400 font-semibold transition-colors">News Feed</a>
-        <a href="/siem" class="hover:text-slate-300 transition-colors">SIEM Tools</a>
-        <a href="/wordlist" class="hover:text-slate-300 transition-colors">Wordlist Mutator</a>
-        <a href="/cve" class="hover:text-slate-300 transition-colors">CVE Scanner</a>
-        <a href="/#about" class="hover:text-slate-300 transition-colors">Platform Docs</a>
+      <p class="text-xs text-slate-400 font-normal">
+        &copy; 2026 SudoDeck OSINT Platform
+      </p>
+      <div class="flex items-center justify-center gap-x-5 gap-y-2 flex-wrap font-medium text-slate-400">
+        <a href="/premium" class="hover:text-purple-400 transition-colors">Premium Tools</a>
+        <a href="/pricing" class="hover:text-emerald-400 transition-colors">Pricing</a>
+        <a href="/#about" class="hover:text-emerald-400 transition-colors">About</a>
+        <a href="/#contact" class="hover:text-cyan-400 transition-colors">Contact</a>
+        <a href="/api/health" target="_blank" class="hover:text-white transition-colors">Health</a>
+      </div>
+      <div class="flex items-center justify-center gap-2 pt-0.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-medium text-slate-300">Operational</span>
       </div>
     </div>
   </footer>

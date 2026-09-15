@@ -1762,28 +1762,26 @@ Ping statistics for 104.16.132.229:
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  FOOTER                                                    -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <footer class="border-t border-slate-800/80 mt-16 pt-6 pb-20 sm:pb-6 bg-[#070b14]/90">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <div class="flex items-center gap-2 text-center sm:text-left flex-wrap justify-center sm:justify-start font-mono">
-        <i data-lucide="shield-check" class="w-4 h-4 text-[#00C897] shrink-0"></i>
-        <span>&copy; 2024 SudoDeck. All rights reserved. v1.0</span>
+  <footer class="border-t border-slate-800/80 mt-16 py-8 pb-24 sm:pb-8 bg-[#070b14]/90 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center space-y-3">
+      <div>
+        <a href="/" class="text-sm font-bold text-white font-mono tracking-tight hover:opacity-90 transition-opacity">
+          Sudo<span class="text-emerald-400">Deck</span>
+        </a>
       </div>
-      <div class="flex items-center justify-center sm:justify-end gap-x-3 gap-y-1.5 sm:gap-4 font-medium flex-wrap text-center">
-        <a href="/#about" class="text-slate-400 hover:text-[#00C897] transition-colors">About</a>
-        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/#contact" class="text-slate-400 hover:text-[#FFB7C5] transition-colors">Contact</a>
-        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Platform</a>
-        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/cve" class="text-slate-400 hover:text-white transition-colors">CVE Scanner</a>
-        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/crypto" class="text-slate-400 hover:text-white transition-colors">Crypto Suite</a>
-        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/mac" class="text-slate-400 hover:text-white transition-colors">MAC Lookup</a>
-        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/gtfobins" class="text-slate-400 hover:text-white transition-colors">GTFOBins</a>
-        <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/siem" class="text-[#00C897] hover:text-[#00C897]/80 font-semibold transition-colors">SIEM Utilities</a>
+      <p class="text-xs text-slate-400 font-normal">
+        &copy; 2026 SudoDeck OSINT Platform
+      </p>
+      <div class="flex items-center justify-center gap-x-5 gap-y-2 flex-wrap font-medium text-slate-400">
+        <a href="/premium" class="hover:text-purple-400 transition-colors">Premium Tools</a>
+        <a href="/pricing" class="hover:text-emerald-400 transition-colors">Pricing</a>
+        <a href="/#about" class="hover:text-emerald-400 transition-colors">About</a>
+        <a href="/#contact" class="hover:text-cyan-400 transition-colors">Contact</a>
+        <a href="/api/health" target="_blank" class="hover:text-white transition-colors">Health</a>
+      </div>
+      <div class="flex items-center justify-center gap-2 pt-0.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-medium text-slate-300">Operational</span>
       </div>
     </div>
   </footer>
