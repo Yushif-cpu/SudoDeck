@@ -161,7 +161,6 @@ const state = {
 // ── Initialization ──────────────────────────────────────────────
 function initSiemUtilities() {
   setupTabs();
-  setupThreatIntelSuite();
   setupFormatter();
   setupRegexTester();
   setupHeadersAnalyzer();
@@ -216,8 +215,7 @@ function switchTab(tabName) {
     }
   });
 
-  const activeSection = sections[tabName];
-  if (window.lucide && activeSection) lucide.createIcons({ nodes: [activeSection] });
+  if (window.lucide) lucide.createIcons();
 }
 
 function setupTabs() {
@@ -1739,8 +1737,7 @@ function renderUaResults(data) {
     }
   }
 
-  const uaSection = document.getElementById('section-regex');
-  if (window.lucide && uaSection) lucide.createIcons({ nodes: [uaSection] });
+  if (window.lucide) lucide.createIcons();
 }
 
 function resetUaCards() {
@@ -2322,8 +2319,7 @@ function renderSecurityAudit(audit) {
     }).join('');
   }
 
-  const recBox = document.getElementById('header-missing-recommendations');
-  if (window.lucide && recBox) lucide.createIcons({ nodes: [recBox] });
+  if (window.lucide) lucide.createIcons();
 }
 
 function renderHeadersTable() {
@@ -2412,7 +2408,7 @@ function renderHeadersTable() {
     `;
   }).join('');
 
-  if (window.lucide && tbody) lucide.createIcons({ nodes: [tbody] });
+  if (window.lucide) lucide.createIcons();
 }
 
 function resetHeadersResults() {
@@ -3279,321 +3275,4 @@ function formatBytes(bytes) {
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  SUDODECK SIEM SUITE — THREAT INTEL & TELEMETRY MODULE
-// ═══════════════════════════════════════════════════════════════
-function setupThreatIntelSuite() {
-  // 1. Live Telemetry
-  const btnTelemetry = document.getElementById('btn-exec-telemetry');
-  const inputTelemetry = document.getElementById('telemetry-host-input');
-  if (btnTelemetry && inputTelemetry) {
-    btnTelemetry.addEventListener('click', () => runTelemetryProbe());
-    inputTelemetry.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') runTelemetryProbe();
-    });
-  }
-
-  // 2. Subnet Topology
-  const btnSubnet = document.getElementById('btn-exec-subnet');
-  const inputSubnet = document.getElementById('subnet-cidr-input');
-  if (btnSubnet && inputSubnet) {
-    btnSubnet.addEventListener('click', () => runSubnetDecompose());
-    inputSubnet.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') runSubnetDecompose();
-    });
-  }
-
-  // 3. Dig Resolver
-  const btnDns = document.getElementById('btn-exec-dns');
-  const inputDns = document.getElementById('dns-domain-input');
-  if (btnDns && inputDns) {
-    btnDns.addEventListener('click', () => runDnsResolve());
-    inputDns.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') runDnsResolve();
-    });
-  }
-
-  // 4. Domain Preset Buttons
-  const presetButtons = document.querySelectorAll('.domain-preset-btn');
-  presetButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      presetButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const domain = btn.getAttribute('data-domain');
-      const cidr = btn.getAttribute('data-cidr');
-
-      if (inputTelemetry && domain) {
-        inputTelemetry.value = domain;
-        runTelemetryProbe();
-      }
-      if (inputSubnet && cidr) {
-        inputSubnet.value = cidr;
-        runSubnetDecompose();
-      }
-      if (inputDns && domain) {
-        inputDns.value = domain;
-        runDnsResolve();
-      }
-    });
-  });
-
-  // 5. Annual/Monthly Billing Toggle
-  const billingBtn = document.getElementById('billing-toggle-btn');
-  const billingKnob = document.getElementById('billing-toggle-knob');
-  const priceDisplay = document.getElementById('plan-price-display');
-  const billingSubtext = document.getElementById('plan-billing-subtext');
-  let isAnnual = true;
-
-  if (billingBtn && billingKnob) {
-    billingBtn.addEventListener('click', () => {
-      isAnnual = !isAnnual;
-      billingBtn.setAttribute('aria-checked', String(isAnnual));
-      if (isAnnual) {
-        billingBtn.classList.remove('bg-slate-700');
-        billingBtn.classList.add('bg-[#00C897]');
-        billingKnob.classList.remove('translate-x-0');
-        billingKnob.classList.add('translate-x-5');
-        if (priceDisplay) priceDisplay.textContent = '$24';
-        if (billingSubtext) billingSubtext.textContent = 'Billed annually ($288/year). Ideal for SOC Analysts, Incident Responders & Security Engineers.';
-      } else {
-        billingBtn.classList.remove('bg-[#00C897]');
-        billingBtn.classList.add('bg-slate-700');
-        billingKnob.classList.remove('translate-x-5');
-        billingKnob.classList.add('translate-x-0');
-        if (priceDisplay) priceDisplay.textContent = '$29';
-        if (billingSubtext) billingSubtext.textContent = 'Billed monthly. Cancel or switch anytime. Zero long-term commitment.';
-      }
-    });
-  }
-
-  // 6. Floating Back to Top Button
-  const backToTopBtn = document.getElementById('floating-back-to-top');
-  if (backToTopBtn) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 280) {
-        backToTopBtn.classList.remove('hidden');
-      } else {
-        backToTopBtn.classList.add('hidden');
-      }
-    }, { passive: true });
-  }
-}
-
-async function runTelemetryProbe() {
-  const input = document.getElementById('telemetry-host-input');
-  const btn = document.getElementById('btn-exec-telemetry');
-  const badge = document.getElementById('telemetry-status-badge');
-  const statusText = document.getElementById('telemetry-status-text');
-  const avgEl = document.getElementById('telemetry-avg-val');
-  const lossEl = document.getElementById('telemetry-loss-val');
-  const minEl = document.getElementById('telemetry-min-val');
-  const maxEl = document.getElementById('telemetry-max-val');
-  const terminal = document.getElementById('telemetry-terminal-output');
-
-  if (!input) return;
-  const host = input.value.trim();
-  if (!host) return;
-
-  if (btn) btn.disabled = true;
-  if (terminal) terminal.textContent = `Initiating ICMP probe to ${host}...\nResolving host and sending packets...`;
-  if (statusText) statusText.textContent = 'PROBING';
-
-  try {
-    const res = await fetch('/api/utils/ping', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ host, count: 4 })
-    });
-    const data = await res.json();
-
-    if (data.alive) {
-      if (statusText) statusText.textContent = 'ONLINE';
-      if (badge) {
-        badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/15 text-[#00C897] border border-[#00C897]/40 flex items-center gap-1.5';
-      }
-      if (avgEl) avgEl.textContent = `${data.avgLatency || 12.4} ms`;
-      if (lossEl) lossEl.textContent = `${data.packetLossPercent || 0}%`;
-      if (minEl) minEl.textContent = `${data.minLatency || 10.1} ms`;
-      if (maxEl) maxEl.textContent = `${data.maxLatency || 16.8} ms`;
-      if (terminal) {
-        terminal.textContent = data.rawOutput || `Ping statistics for ${host}:\n    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)\nApproximate round trip times in milli-seconds:\n    Minimum = ${data.minLatency || 10}ms, Maximum = ${data.maxLatency || 16}ms, Average = ${data.avgLatency || 12}ms`;
-      }
-    } else {
-      if (statusText) statusText.textContent = 'TIMEOUT';
-      if (badge) {
-        badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/15 text-rose-400 border border-rose-500/40 flex items-center gap-1.5';
-      }
-      if (avgEl) avgEl.textContent = 'N/A';
-      if (lossEl) lossEl.textContent = '100%';
-      if (minEl) minEl.textContent = 'N/A';
-      if (maxEl) maxEl.textContent = 'N/A';
-      if (terminal) {
-        terminal.textContent = data.rawOutput || `Request timed out for ${host}.\nPackets: Sent = 4, Received = 0, Lost = 4 (100% loss).`;
-      }
-    }
-  } catch (err) {
-    if (terminal) terminal.textContent = `Telemetry probe error: ${err.message || 'Host unreachable'}`;
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
-async function runSubnetDecompose() {
-  const input = document.getElementById('subnet-cidr-input');
-  const btn = document.getElementById('btn-exec-subnet');
-  const netEl = document.getElementById('subnet-net-val');
-  const broadEl = document.getElementById('subnet-broad-val');
-  const rangeEl = document.getElementById('subnet-range-val');
-  const maskEl = document.getElementById('subnet-mask-val');
-  const hostsEl = document.getElementById('subnet-hosts-val');
-  const scopeBadge = document.getElementById('subnet-scope-badge');
-  const percentEl = document.getElementById('subnet-percent-val');
-
-  if (!input) return;
-  const cidr = input.value.trim();
-  if (!cidr) return;
-
-  if (btn) btn.disabled = true;
-
-  try {
-    const res = await fetch('/api/utils/subnet', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cidr })
-    });
-    const data = await res.json();
-
-    if (data.networkIP) {
-      if (netEl) netEl.textContent = data.networkIP;
-      if (broadEl) broadEl.textContent = data.broadcastIP || 'N/A';
-      if (rangeEl) rangeEl.textContent = `${data.usableRangeStart || data.networkIP} → ${data.usableRangeEnd || data.broadcastIP}`;
-      if (maskEl) maskEl.textContent = data.subnetMask || '255.255.255.0';
-      if (hostsEl) hostsEl.textContent = Number(data.usableHosts || 0).toLocaleString();
-      if (scopeBadge) {
-        const isPrivate = data.scope && data.scope.toLowerCase().includes('private');
-        scopeBadge.textContent = isPrivate ? 'RFC 1918 PRIVATE' : 'PUBLIC SCOPE';
-        scopeBadge.className = isPrivate
-          ? 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#8950A8]/20 text-[#FFB7C5] border border-[#8950A8]/50'
-          : 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/15 text-[#00C897] border border-[#00C897]/40';
-      }
-      if (percentEl) percentEl.textContent = '100% DECOMPOSED';
-    }
-  } catch (err) {
-    console.error('Subnet decompose error:', err);
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
-
-async function runDnsResolve() {
-  const input = document.getElementById('dns-domain-input');
-  const btn = document.getElementById('btn-exec-dns');
-  const container = document.getElementById('dns-results-container');
-  const badge = document.getElementById('dns-badge');
-
-  if (!input) return;
-  const domain = input.value.trim();
-  if (!domain) return;
-
-  if (btn) btn.disabled = true;
-  if (container) {
-    container.innerHTML = `
-      <div class="p-4 text-center text-xs font-mono text-slate-400 animate-pulse">
-        Querying authoritative nameservers for ${escapeHtml(domain)}...
-      </div>
-    `;
-  }
-
-  try {
-    const res = await fetch('/api/utils/dns', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain })
-    });
-    const data = await res.json();
-
-    if (data.records && container) {
-      let html = '';
-      const recs = data.records;
-
-      // A Records
-      if (Array.isArray(recs.A) && recs.A.length) {
-        recs.A.forEach(ip => {
-          html += `
-            <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#00C897]/15 text-[#00C897] border border-[#00C897]/30">A</span>
-              <span class="text-white truncate mx-2">${escapeHtml(ip)}</span>
-              <span class="text-[10px] text-slate-400">TTL 300</span>
-            </div>
-          `;
-        });
-      }
-
-      // AAAA Records
-      if (Array.isArray(recs.AAAA) && recs.AAAA.length) {
-        recs.AAAA.forEach(ip => {
-          html += `
-            <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#8950A8]/20 text-[#8950A8] border border-[#8950A8]/40">AAAA</span>
-              <span class="text-white truncate mx-2 text-[11px]">${escapeHtml(ip)}</span>
-              <span class="text-[10px] text-slate-400">TTL 300</span>
-            </div>
-          `;
-        });
-      }
-
-      // MX Records
-      if (Array.isArray(recs.MX) && recs.MX.length) {
-        recs.MX.forEach(mx => {
-          const ex = typeof mx === 'object' ? `${mx.exchange || ''} (P:${mx.priority || 10})` : String(mx);
-          html += `
-            <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FFB7C5]/15 text-[#FFB7C5] border border-[#FFB7C5]/30">MX</span>
-              <span class="text-white truncate mx-2 text-[11px]">${escapeHtml(ex)}</span>
-              <span class="text-[10px] text-slate-400">MAIL</span>
-            </div>
-          `;
-        });
-      }
-
-      // NS Records
-      if (Array.isArray(recs.NS) && recs.NS.length) {
-        recs.NS.forEach(ns => {
-          html += `
-            <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">NS</span>
-              <span class="text-white truncate mx-2 text-[11px]">${escapeHtml(ns)}</span>
-              <span class="text-[10px] text-slate-400">AUTH</span>
-            </div>
-          `;
-        });
-      }
-
-      // TXT Records
-      if (Array.isArray(recs.TXT) && recs.TXT.length) {
-        recs.TXT.slice(0, 3).forEach(txt => {
-          const val = Array.isArray(txt) ? txt.join('') : String(txt);
-          html += `
-            <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">TXT</span>
-              <span class="text-slate-300 truncate mx-2 text-[11px]">${escapeHtml(val)}</span>
-              <span class="text-[10px] text-slate-400">REC</span>
-            </div>
-          `;
-        });
-      }
-
-      container.innerHTML = html || `<div class="p-4 text-center text-xs text-slate-400 font-mono">No DNS records found for this domain.</div>`;
-      if (badge) badge.textContent = 'RESOLVED';
-    }
-  } catch (err) {
-    if (container) {
-      container.innerHTML = `<div class="p-4 text-center text-xs text-rose-400 font-mono">DNS resolution failed: ${escapeHtml(err.message)}</div>`;
-    }
-  } finally {
-    if (btn) btn.disabled = false;
-  }
 }
