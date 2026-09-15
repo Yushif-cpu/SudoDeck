@@ -207,7 +207,8 @@
               <div class="news-thumbnail-wrap relative">
                 <img
                   src="${escapeHtml(imgSrc)}"
-                  alt="${escapeHtml(item.title)}"
+                  alt=""
+                  role="presentation"
                   loading="lazy"
                   decoding="async"
                   onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80';"
