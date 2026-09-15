@@ -55,323 +55,487 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  HEADER / NAVIGATION                                       -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <header class="sticky top-0 z-40 bg-surface-900/90 backdrop-blur-xl border-b border-slate-800/80">
+  <header class="sticky top-0 z-40 bg-[#070b14]/95 backdrop-blur-xl border-b border-slate-800/90 py-3 sm:py-3.5 transition-all">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-3 lg:gap-8">
 
-        <!-- Left: Logo & Brand -->
-        <div class="flex items-center gap-6">
-          <a href="/" class="flex items-center group">
-            <h1 class="text-base font-bold tracking-tight text-white group-hover:text-indigo-400 transition-colors">Sudo<span class="text-indigo-400">Deck</span></h1>
-          </a>
-
-          <!-- Categorized Desktop Navigation -->
-          <nav class="hidden lg:flex items-center gap-2">
-
-            <!-- Category 1: Threat & Recon Dropdown -->
-            <div class="relative">
-              <button
-                type="button"
-                data-dropdown-toggle="menu-intel"
-                class="nav-pill"
-              >
-                <i data-lucide="radar" class="w-3.5 h-3.5 text-emerald-400"></i>
-                <span>Threat & Recon</span>
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
-              </button>
-              <div
-                id="menu-intel"
-                data-dropdown-menu
-                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
-              >
-                <a href="/#ip" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                    <i data-lucide="shield-check" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">IP Reputation Check</div>
-                    <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
-                  </div>
-                </a>
-                <a href="/#domain" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-blue-500/15 border border-blue-500/30 text-blue-400">
-                    <i data-lucide="globe" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Domain Intelligence</div>
-                    <div class="text-[11px] text-slate-400 truncate">VirusTotal, DNS & WHOIS Engine</div>
-                  </div>
-                </a>
-                <a href="/#utils" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-teal-500/15 border border-teal-500/30 text-teal-400">
-                    <i data-lucide="network" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">IP & Subnet Utilities</div>
-                    <div class="text-[11px] text-slate-400 truncate">CIDR calculator & network masks</div>
-                  </div>
-                </a>
-                <a href="/mac" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
-                    <i data-lucide="cpu" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
-                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
-                  </div>
-                </a>
-                <a href="/cve" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
-                    <i data-lucide="flame" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">CVE Scanner</div>
-                    <div class="text-[11px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
-                  </div>
-                </a>
-              </div>
+        <!-- Left: Shield Icon & SudoDeck SIEM Suite Title -->
+        <div class="flex items-center justify-between w-full lg:w-auto shrink-0">
+          <a href="/siem" class="flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00C897]/25 via-[#8950A8]/30 to-[#FFB7C5]/15 border border-[#00C897]/50 flex items-center justify-center text-[#00C897] shadow-lg shadow-[#00C897]/15 group-hover:scale-105 transition-all">
+              <i data-lucide="shield-check" class="w-5 h-5 text-[#00C897]"></i>
             </div>
-
-            <!-- Category 2: SIEM Utilities Dropdown -->
-            <div class="relative">
-              <button
-                type="button"
-                id="siem-nav-btn"
-                data-dropdown-toggle="menu-siem"
-                class="nav-pill"
-              >
-                <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
-                <span>SIEM Utilities</span>
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
-              </button>
-              <div
-                id="menu-siem"
-                data-dropdown-menu
-                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
-              >
-                <a href="/siem#formatter" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
-                    <i data-lucide="file-code" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Log & Alert Formatter</div>
-                    <div class="text-[11px] text-slate-400 truncate">Windows Event & Syslog to JSON</div>
-                  </div>
-                </a>
-                <a href="/siem#regex" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
-                    <i data-lucide="search-code" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Detection Regex Tester</div>
-                    <div class="text-[11px] text-slate-400 truncate">Test regex against threat logs</div>
-                  </div>
-                </a>
-                <a href="/siem#headers" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
-                    <i data-lucide="scan-face" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">User-Agent & HTTP Headers</div>
-                    <div class="text-[11px] text-slate-400 truncate">Analyze web client anomalies</div>
-                  </div>
-                </a>
-                <a href="/siem#email" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
-                    <i data-lucide="mail-search" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Email Header Analysis</div>
-                    <div class="text-[11px] text-slate-400 truncate">SPF, DKIM, DMARC & hop forensics</div>
-                  </div>
-                </a>
-                <a href="/siem#file" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
-                    <i data-lucide="file-search" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">File Hash Analysis</div>
-                    <div class="text-[11px] text-slate-400 truncate">VirusTotal multi-engine hash verdict</div>
-                  </div>
-                </a>
+            <div>
+              <div class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                <span>SudoDeck</span>
+                <span class="text-[#00C897]">SIEM Suite</span>
               </div>
+              <div class="text-[10px] font-mono font-medium text-slate-400 tracking-wider uppercase">Threat Intelligence &amp; SOC Platform</div>
             </div>
-
-            <!-- Category 3: Attack Utilities Dropdown -->
-            <div class="relative">
-              <button
-                type="button"
-                data-dropdown-toggle="menu-tools"
-                class="nav-pill"
-              >
-                <i data-lucide="crosshair" class="w-3.5 h-3.5 text-amber-400"></i>
-                <span>Attack Utilities</span>
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
-              </button>
-              <div
-                id="menu-tools"
-                data-dropdown-menu
-                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
-              >
-                <a href="/crypto" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
-                    <i data-lucide="key-round" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Crypto & Hash Suite</div>
-                    <div class="text-[11px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
-                  </div>
-                </a>
-                <a href="/gtfobins" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
-                    <i data-lucide="terminal" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">GTFOBins Explorer</div>
-                    <div class="text-[11px] text-slate-400 truncate">Unix binaries sudo/suid bypass</div>
-                  </div>
-                </a>
-                <a href="/wordlist" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                    <i data-lucide="book-text" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Wordlist Mutator</div>
-                    <div class="text-[11px] text-slate-400 truncate">Generate & mutate password lists</div>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-          </nav>
-        </div>
-
-        <!-- Right: Direct Links, Command Palette Launcher & System Status -->
-        <div class="flex items-center gap-2 sm:gap-3 shrink-0 ml-6 xl:ml-8">
-          <a
-            href="/news"
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
-          >
-            <i data-lucide="newspaper" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span>News</span>
-          </a>
-          <a
-            href="/premium"
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
-          >
-            <i data-lucide="crown" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span>Premium Tools</span>
-          </a>
-          <a
-            href="/pricing"
-            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
-          >
-            <i data-lucide="credit-card" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span>Pricing</span>
-          </a>
-          <a
-            href="/#about"
-            class="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
-          >
-            <i data-lucide="info" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span>About</span>
-          </a>
-          <a
-            href="/#contact"
-            class="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
-          >
-            <i data-lucide="mail" class="w-3.5 h-3.5 text-slate-400"></i>
-            <span>Contact</span>
           </a>
 
+          <!-- Command Palette trigger for mobile -->
           <button
             type="button"
             data-action="open-command-palette"
-            class="flex items-center gap-2.5 h-9 px-3.5 rounded-xl bg-surface-800/90 hover:bg-surface-750 border border-slate-700/60 hover:border-indigo-500/50 text-slate-300 hover:text-white text-xs font-medium transition-all shadow-sm group whitespace-nowrap shrink-0"
+            class="lg:hidden p-2 rounded-xl bg-surface-800 border border-slate-700/60 text-slate-300 hover:text-white"
             title="Open Command Launcher (Ctrl + K)"
           >
-            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-400 transition-colors shrink-0"></i>
-            <span class="text-slate-400 group-hover:text-slate-200 whitespace-nowrap">Search intel...</span>
-            <kbd class="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-900 border border-slate-750 text-[10px] font-mono text-slate-400 shrink-0">
-              <span>Ctrl</span><span>K</span>
-            </kbd>
-          </button>
-
-
-          <!-- Mobile Hamburger Toggle -->
-          <button
-            id="mobile-menu-toggle"
-            type="button"
-            class="lg:hidden h-9 w-9 flex items-center justify-center rounded-xl bg-surface-800 border border-slate-700/60 text-slate-300 hover:text-white transition-colors shrink-0"
-          >
-            <i data-lucide="menu" class="w-4 h-4"></i>
+            <i data-lucide="search" class="w-4 h-4"></i>
           </button>
         </div>
 
-      </div>
+        <!-- Center/Right: Two Neat, Symmetric Rows of Navigation Links -->
+        <nav class="w-full lg:w-auto flex flex-col items-center lg:items-end gap-1.5 sm:gap-2">
+          <!-- Row 1: About, Contact, OSINT Platform, CVE Scanner -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 w-full lg:w-auto">
+            <a href="/#about" class="siem-nav-pill">
+              <i data-lucide="info" class="w-3.5 h-3.5 text-[#00C897]"></i>
+              <span>About</span>
+            </a>
+            <a href="/#contact" class="siem-nav-pill">
+              <i data-lucide="mail" class="w-3.5 h-3.5 text-[#FFB7C5]"></i>
+              <span>Contact</span>
+            </a>
+            <a href="/" class="siem-nav-pill">
+              <i data-lucide="radar" class="w-3.5 h-3.5 text-[#00C897]"></i>
+              <span>OSINT Platform</span>
+            </a>
+            <a href="/cve" class="siem-nav-pill">
+              <i data-lucide="flame" class="w-3.5 h-3.5 text-[#8950A8]"></i>
+              <span>CVE Scanner</span>
+            </a>
+          </div>
 
-      <!-- Mobile Navigation Drawer -->
-      <div id="mobile-menu-drawer" class="hidden lg:hidden border-t border-slate-800/80 py-3 space-y-1 animate-fade-in">
-        <a href="/news" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="newspaper" class="w-4 h-4 text-slate-400"></i>
-          <span>Cybersecurity News</span>
-        </a>
-        <a href="/premium" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="crown" class="w-4 h-4 text-slate-400"></i>
-          <span>Premium Tools</span>
-        </a>
-        <a href="/pricing" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="credit-card" class="w-4 h-4 text-slate-400"></i>
-          <span>Pricing</span>
-        </a>
-        <a href="/#ip" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="radar" class="w-4 h-4 text-emerald-400"></i>
-          <span>IP Reputation Check</span>
-        </a>
-        <a href="/mac" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="cpu" class="w-4 h-4 text-cyan-400"></i>
-          <span>MAC & OUI Lookup</span>
-        </a>
-        <a href="/cve" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
-          <span>CVE Vulnerability Scanner</span>
-        </a>
-        <a href="/siem" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-indigo-400 bg-indigo-500/10">
-          <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
-          <span>SIEM Utilities</span>
-        </a>
-        <a href="/crypto" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="key-round" class="w-4 h-4 text-purple-400"></i>
-          <span>Crypto & Hash Suite</span>
-        </a>
-        <a href="/gtfobins" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
-          <span>GTFOBins Explorer</span>
-        </a>
-        <a href="/wordlist" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="book-text" class="w-4 h-4 text-emerald-400"></i>
-          <span>Wordlist Mutator</span>
-        </a>
-        <a href="/#about" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="info" class="w-4 h-4 text-emerald-400"></i>
-          <span>About SudoDeck</span>
-        </a>
-        <a href="/#contact" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="mail" class="w-4 h-4 text-cyan-400"></i>
-          <span>Contact CIRT</span>
-        </a>
-      </div>
+          <!-- Row 2: Crypto Suite, MAC Lookup, GTFOBins, SIEM Utilities -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 w-full lg:w-auto">
+            <a href="/crypto" class="siem-nav-pill">
+              <i data-lucide="key-round" class="w-3.5 h-3.5 text-[#8950A8]"></i>
+              <span>Crypto Suite</span>
+            </a>
+            <a href="/mac" class="siem-nav-pill">
+              <i data-lucide="cpu" class="w-3.5 h-3.5 text-[#00C897]"></i>
+              <span>MAC Lookup</span>
+            </a>
+            <a href="/gtfobins" class="siem-nav-pill">
+              <i data-lucide="terminal" class="w-3.5 h-3.5 text-[#FFB7C5]"></i>
+              <span>GTFOBins</span>
+            </a>
+            <a href="/siem" class="siem-nav-pill active">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-[#00C897]"></i>
+              <span>SIEM Utilities</span>
+            </a>
+          </div>
+        </nav>
 
+      </div>
     </div>
   </header>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  MAIN CONTENT                                             -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-10">
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  MAIN SECTION: THREAT INTELLIGENCE & REPUTATION ANALYSIS    -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section class="space-y-6 pt-2 pb-4">
+
+      <!-- Centered Main Title & Shield Icon + Justified Description Text -->
+      <div class="text-center max-w-4xl mx-auto space-y-3">
+        <div class="inline-flex items-center justify-center gap-2 px-3.5 py-1 rounded-full bg-[#00C897]/10 border border-[#00C897]/30 text-[#00C897] text-xs font-mono font-bold uppercase tracking-wider">
+          <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-[#00C897]"></i>
+          <span>SOC Active Defense Matrix</span>
+        </div>
+
+        <div class="flex items-center justify-center gap-3">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#00C897]/25 via-[#8950A8]/30 to-[#FFB7C5]/15 border border-[#00C897]/50 flex items-center justify-center text-[#00C897] shadow-xl shadow-[#00C897]/20 shrink-0">
+            <i data-lucide="shield-check" class="w-6 h-6 sm:w-7 sm:h-7 text-[#00C897]"></i>
+          </div>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+            Threat Intelligence <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00C897] via-[#8950A8] to-[#FFB7C5]">&amp; Reputation Analysis</span>
+          </h1>
+        </div>
+
+        <p class="text-xs sm:text-sm text-slate-300 max-w-3xl mx-auto leading-relaxed text-justify px-2">
+          Analyze security event telemetry, perform CIDR subnet topological breakdowns, and resolve authoritative DNS records with sub-millisecond precision. SudoDeck Threat Intelligence correlates multi-source signals into actionable detection payloads, isolating network boundary risks and hostile adversary infrastructure across global networks.
+        </p>
+      </div>
+
+      <!-- Symmetric 3-Column Grid for Analysis Tools -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Tool 1 (Left): LIVE TELEMETRY (image_2.png) -->
+        <div class="threat-tool-box p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <!-- Box Header -->
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-[#00C897]/15 border border-[#00C897]/30 flex items-center justify-center text-[#00C897]">
+                  <i data-lucide="activity" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold tracking-wider text-white uppercase">LIVE TELEMETRY</h3>
+                  <p class="text-[11px] text-slate-400">ICMP Echo &amp; RTT Latency Probe</p>
+                </div>
+              </div>
+              <span id="telemetry-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/15 text-[#00C897] border border-[#00C897]/40 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#00C897] animate-ping"></span>
+                <span id="telemetry-status-text">ONLINE</span>
+              </span>
+            </div>
+
+            <!-- Input & Action -->
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1">
+                <i data-lucide="server" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input
+                  id="telemetry-host-input"
+                  type="text"
+                  value="cloudflare.com"
+                  placeholder="Host or IP (e.g. 1.1.1.1)"
+                  class="w-full bg-[#070b14] border border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#00C897] transition-colors"
+                />
+              </div>
+              <button
+                id="btn-exec-telemetry"
+                type="button"
+                class="px-3.5 py-2 rounded-xl bg-[#00C897] hover:bg-[#00C897]/90 text-[#070b14] font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-[#00C897]/25 shrink-0"
+              >
+                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                <span>Probe</span>
+              </button>
+            </div>
+
+            <!-- Metrics Quad -->
+            <div class="grid grid-cols-2 gap-2 text-center">
+              <div class="p-2.5 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] font-mono uppercase text-slate-400">Average RTT</div>
+                <div id="telemetry-avg-val" class="text-sm font-mono font-bold text-[#00C897] mt-0.5">14.2 ms</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] font-mono uppercase text-slate-400">Packet Loss</div>
+                <div id="telemetry-loss-val" class="text-sm font-mono font-bold text-emerald-400 mt-0.5">0.0%</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] font-mono uppercase text-slate-400">Min Latency</div>
+                <div id="telemetry-min-val" class="text-sm font-mono font-bold text-slate-200 mt-0.5">11.8 ms</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] font-mono uppercase text-slate-400">Max Latency</div>
+                <div id="telemetry-max-val" class="text-sm font-mono font-bold text-slate-200 mt-0.5">17.5 ms</div>
+              </div>
+            </div>
+
+            <!-- Terminal Readout -->
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 px-1">
+                <span>ICMP ECHO TERMINAL</span>
+                <span class="text-[#00C897]">4 PACKETS TRANSMITTED</span>
+              </div>
+              <div
+                id="telemetry-terminal-output"
+                class="bg-[#070b14] border border-slate-800/90 rounded-xl p-2.5 font-mono text-[11px] text-[#00C897] h-28 overflow-y-auto leading-relaxed scrollbar-none"
+              >Pinging cloudflare.com [104.16.132.229] with 32 bytes of data:
+Reply from 104.16.132.229: bytes=32 time=12ms TTL=57
+Reply from 104.16.132.229: bytes=32 time=14ms TTL=57
+Reply from 104.16.132.229: bytes=32 time=15ms TTL=57
+Reply from 104.16.132.229: bytes=32 time=16ms TTL=57
+Ping statistics for 104.16.132.229:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool 2 (Middle): SUBNET TOPOLOGY (image_3.png) -->
+        <div class="threat-tool-box p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <!-- Box Header -->
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-[#8950A8]/20 border border-[#8950A8]/40 flex items-center justify-center text-[#8950A8]">
+                  <i data-lucide="network" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold tracking-wider text-white uppercase">SUBNET TOPOLOGY</h3>
+                  <p class="text-[11px] text-slate-400">CIDR Matrix &amp; Boundary Decomposition</p>
+                </div>
+              </div>
+              <span id="subnet-scope-badge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#8950A8]/20 text-[#FFB7C5] border border-[#8950A8]/50">
+                PUBLIC SCOPE
+              </span>
+            </div>
+
+            <!-- Input & Action -->
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1">
+                <i data-lucide="binary" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input
+                  id="subnet-cidr-input"
+                  type="text"
+                  value="1.1.1.0/24"
+                  placeholder="CIDR (e.g. 192.168.1.0/24)"
+                  class="w-full bg-[#070b14] border border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#8950A8] transition-colors"
+                />
+              </div>
+              <button
+                id="btn-exec-subnet"
+                type="button"
+                class="px-3.5 py-2 rounded-xl bg-[#8950A8] hover:bg-[#8950A8]/90 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-[#8950A8]/25 shrink-0"
+              >
+                <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                <span>Decompose</span>
+              </button>
+            </div>
+
+            <!-- Metric Cells (6 items) -->
+            <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+              <div class="p-2 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] text-slate-400 uppercase">Network IP</div>
+                <div id="subnet-net-val" class="font-bold text-white truncate mt-0.5">1.1.1.0</div>
+              </div>
+              <div class="p-2 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] text-slate-400 uppercase">Broadcast IP</div>
+                <div id="subnet-broad-val" class="font-bold text-white truncate mt-0.5">1.1.1.255</div>
+              </div>
+              <div class="p-2 rounded-xl bg-[#070b14]/70 border border-slate-800/80 col-span-2">
+                <div class="text-[10px] text-slate-400 uppercase">Usable Host Range</div>
+                <div id="subnet-range-val" class="font-bold text-[#00C897] truncate mt-0.5">1.1.1.1 &rarr; 1.1.1.254</div>
+              </div>
+              <div class="p-2 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] text-slate-400 uppercase">Subnet Mask</div>
+                <div id="subnet-mask-val" class="font-bold text-slate-300 truncate mt-0.5">255.255.255.0</div>
+              </div>
+              <div class="p-2 rounded-xl bg-[#070b14]/70 border border-slate-800/80">
+                <div class="text-[10px] text-slate-400 uppercase">Usable Hosts</div>
+                <div id="subnet-hosts-val" class="font-bold text-[#FFB7C5] truncate mt-0.5">254</div>
+              </div>
+            </div>
+
+            <!-- Visual Bar -->
+            <div class="p-2.5 rounded-xl bg-[#070b14] border border-slate-800/90 space-y-1.5">
+              <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                <span>ADDRESS UTILIZATION</span>
+                <span id="subnet-percent-val" class="text-[#8950A8] font-bold">100% ASSIGNED</span>
+              </div>
+              <div class="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-[#00C897] via-[#8950A8] to-[#FFB7C5] w-full rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool 3 (Right): DIG RESOLVER (image_4.png) -->
+        <div class="threat-tool-box p-5 flex flex-col justify-between space-y-4">
+          <div class="space-y-4">
+            <!-- Box Header -->
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-[#00C897]/15 border border-[#00C897]/30 flex items-center justify-center text-[#00C897]">
+                  <i data-lucide="globe" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold tracking-wider text-white uppercase">DIG RESOLVER</h3>
+                  <p class="text-[11px] text-slate-400">Authoritative DNS Record Analysis</p>
+                </div>
+              </div>
+              <span id="dns-badge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/15 text-[#00C897] border border-[#00C897]/40">
+                DNSSEC VALID
+              </span>
+            </div>
+
+            <!-- Input & Action -->
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <input
+                  id="dns-domain-input"
+                  type="text"
+                  value="cloudflare.com"
+                  placeholder="Domain (e.g. cloudflare.com)"
+                  class="w-full bg-[#070b14] border border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#00C897] transition-colors"
+                />
+              </div>
+              <button
+                id="btn-exec-dns"
+                type="button"
+                class="px-3.5 py-2 rounded-xl bg-[#00C897] hover:bg-[#00C897]/90 text-[#070b14] font-bold text-xs flex items-center gap-1.5 transition-all shadow-md shadow-[#00C897]/25 shrink-0"
+              >
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                <span>Resolve</span>
+              </button>
+            </div>
+
+            <!-- DNS Records Output Chips -->
+            <div id="dns-results-container" class="space-y-1.5 h-44 overflow-y-auto pr-1 scrollbar-none">
+              <!-- A Records -->
+              <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#00C897]/15 text-[#00C897] border border-[#00C897]/30">A</span>
+                <span class="text-white truncate mx-2">104.16.132.229</span>
+                <span class="text-[10px] text-slate-400">TTL 300</span>
+              </div>
+              <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#00C897]/15 text-[#00C897] border border-[#00C897]/30">A</span>
+                <span class="text-white truncate mx-2">104.16.133.229</span>
+                <span class="text-[10px] text-slate-400">TTL 300</span>
+              </div>
+              <!-- AAAA Records -->
+              <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#8950A8]/20 text-[#8950A8] border border-[#8950A8]/40">AAAA</span>
+                <span class="text-white truncate mx-2 text-[11px]">2606:4700::6810:84e5</span>
+                <span class="text-[10px] text-slate-400">TTL 300</span>
+              </div>
+              <!-- MX Records -->
+              <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#FFB7C5]/15 text-[#FFB7C5] border border-[#FFB7C5]/30">MX</span>
+                <span class="text-white truncate mx-2 text-[11px]">route1.mx.cloudflare.net</span>
+                <span class="text-[10px] text-slate-400">P:10</span>
+              </div>
+              <!-- NS Records -->
+              <div class="p-2 rounded-xl bg-[#070b14]/80 border border-slate-800/80 flex items-center justify-between text-xs font-mono">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30">NS</span>
+                <span class="text-white truncate mx-2 text-[11px]">ns3.cloudflare.com</span>
+                <span class="text-[10px] text-slate-400">TTL 86400</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Domain Examples: 3 Clickable, Uniform Buttons Centered Below Main Tools (image_5.png) -->
+      <div class="flex flex-col items-center justify-center gap-2.5 pt-2">
+        <div class="text-[11px] font-mono text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <i data-lucide="crosshair" class="w-3.5 h-3.5 text-[#00C897]"></i>
+          <span>QUICK RECON TARGETS</span>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <button
+            type="button"
+            class="domain-preset-btn active"
+            data-domain="cloudflare.com"
+            data-cidr="1.1.1.0/24"
+          >
+            <i data-lucide="shield" class="w-3.5 h-3.5 text-[#00C897]"></i>
+            <span>cloudflare.com</span>
+          </button>
+
+          <button
+            type="button"
+            class="domain-preset-btn"
+            data-domain="google.com"
+            data-cidr="8.8.8.0/24"
+          >
+            <i data-lucide="globe" class="w-3.5 h-3.5 text-[#8950A8]"></i>
+            <span>google.com</span>
+          </button>
+
+          <button
+            type="button"
+            class="domain-preset-btn"
+            data-domain="github.com"
+            data-cidr="140.82.112.0/20"
+          >
+            <i data-lucide="git-branch" class="w-3.5 h-3.5 text-[#FFB7C5]"></i>
+            <span>github.com</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  SECONDARY SECTION: PLAN & CALL-TO-ACTION (image_0, image_1)-->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <section class="max-w-3xl mx-auto space-y-6 pt-2 pb-6">
+
+      <!-- Main Box Containing "Annual Billing" and "SAVE 20%" Button -->
+      <div class="threat-tool-box p-6 sm:p-8 space-y-6 text-center">
+
+        <!-- Symmetric Billing Toggle Box (Fully Responsive, No Overlap) -->
+        <div class="inline-flex flex-wrap items-center justify-center gap-3 px-4 py-2 rounded-2xl bg-[#070b14]/90 border border-slate-800 shadow-inner">
+          <span class="text-xs font-semibold text-slate-300">Annual Billing</span>
+
+          <!-- Switch Toggle Button -->
+          <button
+            type="button"
+            id="billing-toggle-btn"
+            role="switch"
+            aria-checked="true"
+            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-[#00C897] transition-colors duration-200 ease-in-out focus:outline-none"
+          >
+            <span
+              id="billing-toggle-knob"
+              class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-[#070b14] shadow-lg ring-0 transition duration-200 ease-in-out translate-x-5"
+            ></span>
+          </button>
+
+          <span class="badge-save-20 px-2.5 py-0.5 rounded-full text-[11px] font-mono font-extrabold uppercase tracking-wide">
+            SAVE 20%
+          </span>
+        </div>
+
+        <!-- Plan Heading & Pricing -->
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#8950A8]/20 text-[#FFB7C5] border border-[#8950A8]/50">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#FFB7C5]"></i>
+            <span>PRACTITIONER SUITE</span>
+          </div>
+
+          <div class="flex items-baseline justify-center gap-1.5 pt-1">
+            <span id="plan-price-display" class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">$24</span>
+            <span class="text-sm font-medium text-slate-400">/ month</span>
+          </div>
+          <p id="plan-billing-subtext" class="text-xs text-slate-400">
+            Billed annually ($288/year). Ideal for SOC Analysts, Incident Responders &amp; Security Engineers.
+          </p>
+        </div>
+
+        <!-- Symmetric Features Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left max-w-xl mx-auto pt-2">
+          <div class="flex items-start gap-2.5 text-xs text-slate-200">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C897] shrink-0 mt-0.5"></i>
+            <span>Real-time Multi-source Threat Intelligence &amp; Reputation</span>
+          </div>
+          <div class="flex items-start gap-2.5 text-xs text-slate-200">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C897] shrink-0 mt-0.5"></i>
+            <span>Sub-millisecond ICMP Ping &amp; Live Telemetry Probes</span>
+          </div>
+          <div class="flex items-start gap-2.5 text-xs text-slate-200">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C897] shrink-0 mt-0.5"></i>
+            <span>CIDR Topological Decomposition &amp; Wildcard Matrices</span>
+          </div>
+          <div class="flex items-start gap-2.5 text-xs text-slate-200">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C897] shrink-0 mt-0.5"></i>
+            <span>Authoritative Dig DNSSEC Records (A, AAAA, MX, TXT, NS)</span>
+          </div>
+          <div class="flex items-start gap-2.5 text-xs text-slate-200">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C897] shrink-0 mt-0.5"></i>
+            <span>Heterogeneous Log Normalization &amp; SIEM Rule Generation</span>
+          </div>
+          <div class="flex items-start gap-2.5 text-xs text-slate-200">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#00C897] shrink-0 mt-0.5"></i>
+            <span>Anti-evasion Detection Regex Engine with Zero Backtracking Lag</span>
+          </div>
+        </div>
+
+        <!-- Large, Prominent Full-Width Rounded Call-To-Action Button (image_1.png) -->
+        <div class="pt-2">
+          <a
+            href="/pricing"
+            class="btn-cta-practitioners block w-full py-4 px-6 rounded-2xl text-center text-sm sm:text-base font-extrabold uppercase tracking-wider"
+          >
+            RECOMMENDED FOR PRACTITIONERS
+          </a>
+        </div>
+
+      </div>
+
+    </section>
 
     <!-- ── Hero Banner & Tabs Bar ──────────────────────────────── -->
-    <div class="border-b border-slate-800/80 pb-5 space-y-4">
+    <div class="border-b border-slate-800/80 pb-5 space-y-4 pt-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div class="flex items-center gap-2.5">
@@ -1598,16 +1762,16 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  FOOTER                                                    -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <footer class="border-t border-slate-800/80 mt-16 pt-6 pb-20 sm:pb-6 bg-surface-900">
+  <footer class="border-t border-slate-800/80 mt-16 pt-6 pb-20 sm:pb-6 bg-[#070b14]/90">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <div class="flex items-center gap-2 text-center sm:text-left flex-wrap justify-center sm:justify-start">
-        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400 shrink-0"></i>
-        <span>SudoDeck SIEM Suite &bull; Client-Side SOC Log Parsing &amp; Detection Workbench</span>
+      <div class="flex items-center gap-2 text-center sm:text-left flex-wrap justify-center sm:justify-start font-mono">
+        <i data-lucide="shield-check" class="w-4 h-4 text-[#00C897] shrink-0"></i>
+        <span>&copy; 2024 SudoDeck. All rights reserved. v1.0</span>
       </div>
       <div class="flex items-center justify-center sm:justify-end gap-x-3 gap-y-1.5 sm:gap-4 font-medium flex-wrap text-center">
-        <a href="/#about" class="text-slate-400 hover:text-emerald-400 transition-colors">About</a>
+        <a href="/#about" class="text-slate-400 hover:text-[#00C897] transition-colors">About</a>
         <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/#contact" class="text-slate-400 hover:text-cyan-400 transition-colors">Contact</a>
+        <a href="/#contact" class="text-slate-400 hover:text-[#FFB7C5] transition-colors">Contact</a>
         <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/" class="text-slate-400 hover:text-white transition-colors">OSINT Platform</a>
         <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
@@ -1619,10 +1783,21 @@
         <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
         <a href="/gtfobins" class="text-slate-400 hover:text-white transition-colors">GTFOBins</a>
         <span class="hidden sm:inline text-slate-700 select-none">&bull;</span>
-        <a href="/siem" class="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">SIEM Utilities</a>
+        <a href="/siem" class="text-[#00C897] hover:text-[#00C897]/80 font-semibold transition-colors">SIEM Utilities</a>
       </div>
     </div>
   </footer>
+
+  <!-- Floating Back to Top Arrow Button -->
+  <button
+    id="floating-back-to-top"
+    type="button"
+    aria-label="Back to top"
+    class="fixed bottom-6 right-6 z-40 hidden w-11 h-11 rounded-xl bg-surface-800/95 border border-[#00C897]/50 text-[#00C897] hover:text-[#070b14] hover:bg-[#00C897] hover:border-[#00C897] flex items-center justify-center transition-all duration-200 shadow-xl backdrop-blur-md cursor-pointer"
+    onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+  >
+    <i data-lucide="arrow-up" class="w-5 h-5"></i>
+  </button>
 
   <!-- Shared Navigation & Command Palette -->
   <script src="/js/shared-nav.js"></script>
