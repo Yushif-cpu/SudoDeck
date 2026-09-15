@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { Router } from 'express';
-import { parseEmailHeaders } from '../services/emailHeader.service.js';
+import { parseEmailHeaders, parseRfc2047Detailed } from '../services/emailHeader.service.js';
 import { asyncHandler, AppError } from '../middleware/errorHandler.js';
 
 const router = Router();
@@ -25,4 +25,22 @@ router.post(
   })
 );
 
+// ── POST /api/decode-subject ────────────────────────────────────
+router.post(
+  '/decode-subject',
+  asyncHandler(async (req, res) => {
+    const raw = req.body.subject || req.body.rawSubject || req.body.text || '';
+    if (typeof raw !== 'string') {
+      throw new AppError('Subject must be a string.', 400, 'INVALID_INPUT');
+    }
+
+    const result = parseRfc2047Detailed(raw);
+    res.json({
+      success: true,
+      data: result,
+    });
+  })
+);
+
 export default router;
+

@@ -48,7 +48,8 @@ export function parseEmailHeaders(rawHeader) {
   // 1. Core Metadata
   const from = getFirstHeader(headerMap, 'from');
   const to = getFirstHeader(headerMap, 'to');
-  const subject = getFirstHeader(headerMap, 'subject') || '(No Subject)';
+  const rawSubject = getFirstHeader(headerMap, 'subject') || '(No Subject)';
+  const subject = decodeRfc2047Subject(rawSubject);
   const date = getFirstHeader(headerMap, 'date');
   const messageId = getFirstHeader(headerMap, 'message-id');
   const returnPath = getFirstHeader(headerMap, 'return-path');
@@ -90,6 +91,8 @@ export function parseEmailHeaders(rawHeader) {
       fromDomain,
       to,
       subject,
+      rawSubject,
+      isSubjectDecoded: rawSubject !== subject,
       date,
       messageId,
       returnPath,
@@ -346,3 +349,234 @@ function performSecurityAssessment({ fromDomain, returnPathDomain, authStatus, h
     flags,
   };
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  RFC 2047 MIME EMAIL SUBJECT & HEADER DECODER ENGINE
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Decodes RFC 2047 MIME encoded words (=?charset?encoding?encoded-text?=)
+ * Supports 'B' (Base64) and 'Q' (Quoted-Printable) encodings and multiple charsets.
+ * Adheres to RFC 2047 Section 6.2: whitespace between adjacent encoded-words is deleted.
+ */
+export function decodeRfc2047Subject(raw) {
+  if (!raw || typeof raw !== 'string') return '';
+  const parsed = parseRfc2047Detailed(raw);
+  return parsed.decodedText;
+}
+
+/**
+ * Detailed parser returning full segment breakdown, detected charsets, and encoding types.
+ */
+export function parseRfc2047Detailed(raw) {
+  if (!raw || typeof raw !== 'string') {
+    return {
+      decodedText: '',
+      hasEncodedWords: false,
+      segments: [],
+      stats: {
+        totalSegments: 0,
+        encodedWordsCount: 0,
+        plainSegmentsCount: 0,
+        charsets: [],
+        encodings: [],
+        warnings: []
+      }
+    };
+  }
+
+  // 1. Unfold headers if multiline: folded lines start with whitespace (RFC 5322 / RFC 822)
+  const unfolded = raw.replace(/\r?\n[ \t]+/g, ' ');
+
+  // 2. Identify all encoded-word tokens: =?charset?encoding?encoded-text?=
+  const ewRegex = /=\?([a-zA-Z0-9_\-*]+)\?([bBqQ])\?([^\s?]*)\?=/g;
+  const words = [];
+  let match;
+
+  while ((match = ewRegex.exec(unfolded)) !== null) {
+    words.push({
+      start: match.index,
+      end: match.index + match[0].length,
+      raw: match[0],
+      charset: match[1],
+      encoding: match[2].toUpperCase(),
+      encodedText: match[3]
+    });
+  }
+
+  // If no encoded words found, return clean plain text
+  if (words.length === 0) {
+    return {
+      decodedText: unfolded,
+      hasEncodedWords: false,
+      segments: [{
+        index: 1,
+        type: 'plain',
+        raw: unfolded,
+        decoded: unfolded,
+        charset: 'US-ASCII / Plain',
+        encoding: 'None',
+        status: 'plain'
+      }],
+      stats: {
+        totalSegments: 1,
+        encodedWordsCount: 0,
+        plainSegmentsCount: 1,
+        charsets: [],
+        encodings: [],
+        warnings: []
+      }
+    };
+  }
+
+  // 3. Build token stream and delete linear whitespace between adjacent encoded-words (RFC 2047 Sec 6.2)
+  const segments = [];
+  const charsetsSet = new Set();
+  const encodingsSet = new Set();
+  const warnings = [];
+  let lastIndex = 0;
+  let segIndex = 1;
+
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+
+    // Intervening text between last position and current encoded word
+    if (w.start > lastIndex) {
+      const intervening = unfolded.substring(lastIndex, w.start);
+      // Is this intervening text ONLY linear whitespace between two consecutive encoded words?
+      const isWhitespaceBetweenEW = i > 0 && /^\s+$/.test(intervening) && words[i - 1].end === lastIndex;
+
+      if (!isWhitespaceBetweenEW) {
+        segments.push({
+          index: segIndex++,
+          type: 'plain',
+          raw: intervening,
+          decoded: intervening,
+          charset: 'Plain Text',
+          encoding: 'None',
+          status: 'plain'
+        });
+      } else {
+        segments.push({
+          index: segIndex++,
+          type: 'whitespace_deleted',
+          raw: intervening,
+          decoded: '',
+          charset: 'RFC 2047 LWS',
+          encoding: 'Deleted',
+          status: 'deleted_rfc2047',
+          description: 'Linear whitespace between adjacent encoded-words deleted per RFC 2047 Section 6.2'
+        });
+      }
+    }
+
+    charsetsSet.add(w.charset.toUpperCase());
+    encodingsSet.add(w.encoding === 'B' ? 'Base64 (B)' : 'Quoted-Printable (Q)');
+
+    let decodedWord = '';
+    let status = 'valid';
+    let errorMsg = null;
+
+    try {
+      decodedWord = decodeMimeWordNode(w.charset, w.encoding, w.encodedText);
+    } catch (err) {
+      decodedWord = w.raw;
+      status = 'fallback';
+      errorMsg = err.message;
+      warnings.push(`Segment ${segIndex}: ${err.message} (preserved raw token)`);
+    }
+
+    segments.push({
+      index: segIndex++,
+      type: 'encoded_word',
+      raw: w.raw,
+      charset: w.charset.toUpperCase(),
+      encoding: w.encoding === 'B' ? 'Base64' : 'Quoted-Printable',
+      encodedText: w.encodedText,
+      decoded: decodedWord,
+      status: status,
+      error: errorMsg
+    });
+
+    lastIndex = w.end;
+  }
+
+  // Trailing text
+  if (lastIndex < unfolded.length) {
+    const trailing = unfolded.substring(lastIndex);
+    segments.push({
+      index: segIndex++,
+      type: 'plain',
+      raw: trailing,
+      decoded: trailing,
+      charset: 'Plain Text',
+      encoding: 'None',
+      status: 'plain'
+    });
+  }
+
+  const decodedText = segments.map(s => s.decoded).join('');
+
+  return {
+    decodedText,
+    hasEncodedWords: true,
+    segments,
+    stats: {
+      totalSegments: segments.length,
+      encodedWordsCount: words.length,
+      plainSegmentsCount: segments.filter(s => s.type === 'plain').length,
+      charsets: Array.from(charsetsSet),
+      encodings: Array.from(encodingsSet),
+      warnings
+    }
+  };
+}
+
+function decodeMimeWordNode(charset, encoding, text) {
+  const enc = encoding.toUpperCase();
+  let bytes;
+
+  if (enc === 'B') {
+    let clean = text.replace(/\s+/g, '');
+    if (!/^[A-Za-z0-9+/=]+$/.test(clean)) {
+      throw new Error('Invalid Base64 sequence: contains non-base64 characters');
+    }
+    while (clean.length % 4 !== 0) clean += '=';
+    bytes = Buffer.from(clean, 'base64');
+  } else if (enc === 'Q') {
+    const arr = [];
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '_') {
+        arr.push(0x20); // RFC 2047: underscore represents space
+      } else if (ch === '=' && i + 2 < text.length && /^[0-9A-Fa-f]{2}$/.test(text.substring(i + 1, i + 3))) {
+        arr.push(parseInt(text.substring(i + 1, i + 3), 16));
+        i += 2;
+      } else {
+        arr.push(ch.charCodeAt(0) & 0xFF);
+      }
+    }
+    bytes = Buffer.from(arr);
+  } else {
+    return text;
+  }
+
+  // Normalize charset (RFC 2231 language specifiers e.g. UTF-8*en)
+  let cs = charset.split('*')[0].toLowerCase().trim();
+  if (cs === 'latin1' || cs === 'iso8859-1') cs = 'iso-8859-1';
+  if (cs.startsWith('iso_')) cs = cs.replace('iso_', 'iso-');
+  if (cs.startsWith('cp125')) cs = cs.replace('cp125', 'windows-125');
+
+  try {
+    const decoder = new TextDecoder(cs);
+    return decoder.decode(bytes);
+  } catch (err) {
+    // Fallback to UTF-8 or Latin-1
+    try {
+      return new TextDecoder('utf-8').decode(bytes);
+    } catch {
+      return bytes.toString('latin1');
+    }
+  }
+}
+

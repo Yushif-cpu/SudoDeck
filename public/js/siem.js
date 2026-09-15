@@ -138,9 +138,44 @@ const REGEX_PRESETS = {
   }
 };
 
+// ── Sample Subject Presets (RFC 2047 MIME) ───────────────────────
+const SUBJECT_PRESETS = {
+  'b64-utf8': {
+    name: 'Base64 UTF-8 (Security Incident)',
+    raw: 'Subject: =?UTF-8?B?8J+UkiBVTklDT0RFIFNlY3VyaXR5IEFsZXJ0OiBDcml0aWNhbCBJbmNpZGVudA==?=',
+    description: 'Unicode padlock emoji + Critical Incident Alert in Base64 UTF-8'
+  },
+  'qp-iso': {
+    name: 'Quoted-Printable (ISO-8859-1)',
+    raw: 'Subject: =?ISO-8859-1?Q?Re:_Reuni=E3o_de_Seguran=E7a_Cibern=E9tica?= for CIRT Team',
+    description: 'European accented characters (ã, ç, é) in Quoted-Printable format'
+  },
+  'qp-tr': {
+    name: 'Turkish (Windows-1254)',
+    raw: 'Subject: =?windows-1254?Q?SOC_G=FCnl=FCk_G=FCvenlik_Bildirimi_-_Acil_M=FCdahale?=',
+    description: 'Turkish letters (ü) encoded using Windows-1254 code page'
+  },
+  'multi-folded': {
+    name: 'Multi-Segment Folded Words',
+    raw: 'Subject: =?UTF-8?B?VXBkYXRlZCBJbmNpZGVudA==?= \r\n =?UTF-8?B?IFJlcG9ydCAjOTgyMTog?= \r\n =?UTF-8?B?TWFsd2FyZSBDb250YWlubWVudA==?=',
+    description: 'Consecutive encoded-words split across folded lines with linear whitespace deleted'
+  },
+  'mixed': {
+    name: 'Mixed Plain & Encoded Text',
+    raw: '[EXTERNAL-C2] Priority notice: =?UTF-8?B?U3VzcGljaW91cyBMb2dpbg==?= detected on host =?UTF-8?Q?srv-db-01?=',
+    description: 'Standard header text interspersed with both B and Q MIME tokens'
+  },
+  'malformed': {
+    name: 'Damaged / Corrupted Format',
+    raw: 'Alert: =?UTF-8?B?Corrupted%%%B64==?= and valid =?UTF-8?Q?Safe_Token?= test',
+    description: 'Corrupted Base64 token demonstrating graceful fallback without application crash'
+  }
+};
+window.SUBJECT_PRESETS = SUBJECT_PRESETS;
+
 // ── Application State ───────────────────────────────────────────
 const state = {
-  activeTab: 'formatter', // 'formatter' | 'regex' | 'headers'
+  activeTab: 'formatter', // 'formatter' | 'regex' | 'headers' | 'email' | 'subject-decoder' | 'file'
   rawLog: '',
   formattedData: null,
   detectedFormat: 'unknown',
@@ -155,7 +190,10 @@ const state = {
   parsedHeaders: [],
   headersSearchTerm: '',
   activeHeaderFilter: 'all',
-  securityAudit: null
+  securityAudit: null,
+  // Subject Decoder state
+  rawSubject: '',
+  parsedSubject: null
 };
 
 // ── Initialization ──────────────────────────────────────────────
@@ -165,6 +203,7 @@ function initSiemUtilities() {
   setupRegexTester();
   setupHeadersAnalyzer();
   setupEmailHeaderModule();
+  setupSubjectDecoderModule();
   setupFileHashModule();
   setupGlobalActions();
 
@@ -173,11 +212,12 @@ function initSiemUtilities() {
   loadRegexPreset('ipv4', true);
   loadSampleUA('win-chrome', true);
   loadHeadersPreset('hardened', true);
+  loadSubjectPreset('b64-utf8', true);
 
   // Restore active tab on page load (from URL hash or localStorage)
   const hash = window.location.hash ? window.location.hash.replace('#', '') : null;
   const savedTab = hash || localStorage.getItem('siem_active_tab') || 'formatter';
-  if (['formatter', 'regex', 'headers', 'email', 'file'].includes(savedTab)) {
+  if (['formatter', 'regex', 'headers', 'email', 'subject-decoder', 'file'].includes(savedTab)) {
     switchTab(savedTab);
   }
 }
@@ -187,6 +227,7 @@ function switchTab(tabName) {
   if (!tabName) return;
   state.activeTab = tabName;
   localStorage.setItem('siem_active_tab', tabName);
+window.switchTab = switchTab;
 
   const tabButtons = document.querySelectorAll('.siem-nav-tab');
   const sections = {
@@ -194,6 +235,7 @@ function switchTab(tabName) {
     regex: document.getElementById('section-regex'),
     headers: document.getElementById('section-headers'),
     email: document.getElementById('section-email'),
+    'subject-decoder': document.getElementById('section-subject-decoder'),
     file: document.getElementById('section-file')
   };
 
@@ -235,7 +277,7 @@ function setupTabs() {
 
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash.replace('#', '');
-    if (['formatter', 'regex', 'headers', 'email', 'file'].includes(hash)) {
+    if (['formatter', 'regex', 'headers', 'email', 'subject-decoder', 'file'].includes(hash)) {
       switchTab(hash);
     }
   });
@@ -2754,8 +2796,25 @@ function renderEmailHeaderResults(data) {
 
       <div class="space-y-2 text-xs">
         <div class="net-val-box !p-2.5">
-          <span class="text-[10px] uppercase font-bold text-slate-500 block">Subject</span>
+          <div class="flex items-center justify-between mb-0.5">
+            <span class="text-[10px] uppercase font-bold text-slate-500">Subject</span>
+            ${ov.isSubjectDecoded ? `
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">RFC 2047 DECODED</span>
+            ` : ''}
+          </div>
           <span class="font-semibold text-slate-200 text-sm break-words">${escapeHtml(ov.subject)}</span>
+          ${ov.isSubjectDecoded && ov.rawSubject ? `
+            <div class="mt-1.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+              <span class="font-mono text-[10px] text-slate-500 truncate mr-2" title="${escapeHtml(ov.rawSubject)}">Raw: ${escapeHtml(ov.rawSubject)}</span>
+              <button
+                type="button"
+                class="text-indigo-400 hover:text-indigo-300 font-semibold text-[10px] flex items-center gap-1 shrink-0"
+                onclick="inspectSubjectInDecoder('${escapeHtml(ov.rawSubject.replace(/'/g, "\\'"))}')"
+              >
+                <i data-lucide="binary" class="w-3 h-3"></i> Open in Decoder
+              </button>
+            </div>
+          ` : ''}
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -2778,28 +2837,28 @@ function renderEmailHeaderResults(data) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <div class="net-val-box !p-2.5">
             <span class="text-[10px] uppercase font-bold text-slate-500 block">Recipient (To)</span>
-            <span class="font-mono text-slate-300 break-all">${escapeHtml(ov.to || 'N/A')}</span>
+            <span class="font-mono text-slate-300 font-semibold break-all">${escapeHtml(ov.to || 'N/A')}</span>
           </div>
 
           <div class="net-val-box !p-2.5">
-            <span class="text-[10px] uppercase font-bold text-slate-500 block">Message Timestamp</span>
+            <span class="text-[10px] uppercase font-bold text-slate-500 block">Date Sent</span>
             <span class="font-mono text-slate-300">${escapeHtml(ov.date || 'N/A')}</span>
           </div>
         </div>
 
         <div class="net-val-box !p-2.5">
           <span class="text-[10px] uppercase font-bold text-slate-500 block">Message-ID</span>
-          <span class="font-mono text-slate-400 break-all">${escapeHtml(ov.messageId || 'N/A')}</span>
+          <span class="font-mono text-[11px] text-slate-400 break-all">${escapeHtml(ov.messageId || 'N/A')}</span>
         </div>
       </div>
     </div>
 
-    <!-- Hop-by-Hop Relay Table -->
+    <!-- Relay Hops Forensics Table -->
     ${hops.length > 0 ? `
       <div class="card p-5 animate-fade-in space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
           <h4 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <i data-lucide="git-commit" class="w-4 h-4 text-indigo-400"></i>
+            <i data-lucide="route" class="w-4 h-4 text-indigo-400"></i>
             Mail Transfer Agent (MTA) Relay Hops (${hops.length})
           </h4>
           <span class="text-[10px] font-mono text-slate-500">Chronological: First Hop → Final MX</span>
@@ -2849,6 +2908,666 @@ function renderEmailHeaderResults(data) {
   `;
 
   if (window.lucide) lucide.createIcons({ nodes: [container] });
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EMAIL SUBJECT DECODER MODULE (RFC 2047 MIME)
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Global helper to switch to the decoder and inspect an encoded subject from email header results
+ */
+function inspectSubjectInDecoder(rawSubject) {
+  switchTab('subject-decoder');
+  const inputEl = document.getElementById('subject-raw-input');
+  if (inputEl) {
+    inputEl.value = rawSubject;
+    runSubjectDecode(false);
+    inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+window.inspectSubjectInDecoder = inspectSubjectInDecoder;
+
+function setupSubjectDecoderModule() {
+  const inputEl = document.getElementById('subject-raw-input');
+  const decodeBtn = document.getElementById('btn-decode-subject');
+  const clearBtn = document.getElementById('btn-clear-subject');
+  const resetBtn = document.getElementById('btn-reset-subject');
+  const copyBtn = document.getElementById('btn-copy-subject');
+  const copyJsonBtn = document.getElementById('btn-copy-subject-json');
+
+  // Quick decoder elements in #section-email
+  const quickInput = document.getElementById('quick-subject-input');
+  const quickClearBtn = document.getElementById('btn-quick-subject-clear');
+  const quickCopyBtn = document.getElementById('btn-quick-subject-copy');
+
+  let debounceTimer = null;
+
+  // Real-time live decoding on standalone input (debounced 50ms)
+  if (inputEl) {
+    inputEl.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (quickInput) quickInput.value = inputEl.value;
+        runSubjectDecode(true); // Silent real-time decode
+      }, 50);
+    });
+  }
+
+  // Real-time live decoding on quick input in #section-email
+  if (quickInput) {
+    quickInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (inputEl) inputEl.value = quickInput.value;
+        runSubjectDecode(true);
+      }, 50);
+    });
+  }
+
+  // Explicit "Decode Subject" button click
+  if (decodeBtn) {
+    decodeBtn.addEventListener('click', () => {
+      runSubjectDecode(false); // User clicked: show toast feedback
+    });
+  }
+
+  // Clear text buttons
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (inputEl) inputEl.value = '';
+      if (quickInput) quickInput.value = '';
+      if (inputEl) inputEl.focus();
+      runSubjectDecode(true);
+      showToast('Subject input cleared', 'info');
+    });
+  }
+
+  if (quickClearBtn) {
+    quickClearBtn.addEventListener('click', () => {
+      if (quickInput) quickInput.value = '';
+      if (inputEl) inputEl.value = '';
+      if (quickInput) quickInput.focus();
+      runSubjectDecode(true);
+      showToast('Quick subject cleared', 'info');
+    });
+  }
+
+  // Reset button
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      loadSubjectPreset('b64-utf8', false);
+    });
+  }
+
+  // Copy Decoded Text
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const decoded = state.parsedSubject?.decodedText || '';
+      if (!decoded.trim()) {
+        showToast('Nothing to copy: subject output is empty', 'warning');
+        return;
+      }
+      copyToClipboard(decoded, copyBtn);
+    });
+  }
+
+  if (quickCopyBtn) {
+    quickCopyBtn.addEventListener('click', () => {
+      const decoded = state.parsedSubject?.decodedText || (quickInput ? quickInput.value : '');
+      if (!decoded.trim()) {
+        showToast('Nothing to copy: subject output is empty', 'warning');
+        return;
+      }
+      copyToClipboard(decoded, quickCopyBtn);
+    });
+  }
+
+  // Copy JSON Breakdown
+  if (copyJsonBtn) {
+    copyJsonBtn.addEventListener('click', () => {
+      if (!state.parsedSubject) {
+        showToast('Nothing to copy: subject output is empty', 'warning');
+        return;
+      }
+      const jsonStr = JSON.stringify(state.parsedSubject, null, 2);
+      copyToClipboard(jsonStr, copyJsonBtn);
+    });
+  }
+
+  // Standalone Preset Chips
+  document.querySelectorAll('.subject-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const presetKey = chip.dataset.preset;
+      if (presetKey) {
+        loadSubjectPreset(presetKey, false);
+      }
+    });
+  });
+
+  // Quick Preset Chips in #section-email
+  document.querySelectorAll('.quick-sub-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const presetKey = btn.dataset.quickPreset;
+      if (presetKey) {
+        loadSubjectPreset(presetKey, false);
+      }
+    });
+  });
+}
+window.setupSubjectDecoderModule = setupSubjectDecoderModule;
+
+function loadSubjectPreset(presetKey, silent = false) {
+  const preset = SUBJECT_PRESETS[presetKey];
+  if (!preset) return;
+
+  const inputEl = document.getElementById('subject-raw-input');
+  const quickInput = document.getElementById('quick-subject-input');
+
+  if (inputEl) inputEl.value = preset.raw;
+  if (quickInput) quickInput.value = preset.raw;
+
+  runSubjectDecode(silent);
+
+  // Highlight active standalone chip
+  document.querySelectorAll('.subject-chip').forEach(c => {
+    const isActive = c.dataset.preset === presetKey;
+    c.classList.toggle('border-indigo-500', isActive);
+    c.classList.toggle('bg-surface-800', isActive);
+    c.classList.toggle('text-white', isActive);
+  });
+
+  // Highlight active quick chip
+  document.querySelectorAll('.quick-sub-preset').forEach(c => {
+    const isActive = c.dataset.quickPreset === presetKey;
+    c.classList.toggle('border-indigo-500/50', isActive);
+    c.classList.toggle('bg-surface-800', isActive);
+    c.classList.toggle('text-white', isActive);
+  });
+}
+window.loadSubjectPreset = loadSubjectPreset;
+
+function runSubjectDecode(silent = false) {
+  const inputEl = document.getElementById('subject-raw-input');
+  const quickInput = document.getElementById('quick-subject-input');
+
+  const outputEl = document.getElementById('subject-decoded-output');
+  const quickOutput = document.getElementById('quick-subject-output');
+  const quickMeta = document.getElementById('quick-subject-meta');
+
+  const charCounter = document.getElementById('subject-char-counter');
+  const lineCounter = document.getElementById('subject-line-counter');
+  const decodedCharCounter = document.getElementById('decoded-char-counter');
+  const warningBanner = document.getElementById('subject-warning-banner');
+  const warningText = document.getElementById('subject-warning-text');
+  const statusBadge = document.getElementById('badge-decode-status');
+
+  const badgeTokens = document.getElementById('badge-token-count');
+  const badgeEncoding = document.getElementById('badge-encoding-type');
+  const badgeCharset = document.getElementById('badge-charset-name');
+  const segmentsTableCount = document.getElementById('segments-table-count');
+  const segmentsBody = document.getElementById('subject-segments-body');
+
+  const raw = (inputEl ? inputEl.value : (quickInput ? quickInput.value : '')) || '';
+  const chars = raw.length;
+  const lines = raw ? raw.split(/\r?\n/).length : 0;
+
+  if (charCounter) charCounter.textContent = `${chars} chars`;
+  if (lineCounter) lineCounter.textContent = `${lines} line${lines === 1 ? '' : 's'}`;
+
+  // Keep both inputs synchronized if they differ
+  if (inputEl && quickInput) {
+    if (inputEl.value !== raw) inputEl.value = raw;
+    if (quickInput.value !== raw) quickInput.value = raw;
+  }
+
+  if (!raw.trim()) {
+    const emptyMsg = '<span class="text-slate-500 italic">No subject entered. Type, paste, or pick a sample preset above to see instant de-obfuscation.</span>';
+    if (outputEl) outputEl.innerHTML = emptyMsg;
+    if (quickOutput) quickOutput.innerHTML = '<span class="text-slate-500 italic">No subject entered.</span>';
+    if (quickMeta) {
+      quickMeta.innerHTML = `
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-500 border border-slate-700">AWAITING INPUT</span>
+        <span class="text-slate-500 font-mono text-[10px]">0 tokens</span>
+      `;
+    }
+
+    if (decodedCharCounter) decodedCharCounter.textContent = '0 chars';
+    if (statusBadge) {
+      statusBadge.textContent = 'AWAITING INPUT';
+      statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-400 border border-slate-700';
+    }
+    if (badgeTokens) badgeTokens.textContent = '0';
+    if (badgeEncoding) {
+      badgeEncoding.textContent = 'None';
+      badgeEncoding.title = 'No encoding detected';
+    }
+    if (badgeCharset) {
+      badgeCharset.textContent = 'None';
+      badgeCharset.title = 'No charset detected';
+    }
+    if (warningBanner) warningBanner.classList.add('hidden');
+    if (segmentsTableCount) segmentsTableCount.textContent = '0 segments';
+    if (segmentsBody) {
+      segmentsBody.innerHTML = `
+        <tr>
+          <td colspan="6" class="p-6 text-center text-slate-500 font-sans">
+            No segments to inspect. Paste a subject or select a preset to analyze MIME tokens.
+          </td>
+        </tr>
+      `;
+    }
+    state.rawSubject = '';
+    state.parsedSubject = null;
+    return;
+  }
+
+  let result;
+  try {
+    result = decodeRfc2047(raw);
+  } catch (err) {
+    // Robust error handling: fallback ensures the application never crashes
+    result = {
+      decodedText: raw,
+      hasEncodedWords: false,
+      segments: [{
+        index: 1,
+        type: 'plain',
+        raw: raw,
+        decoded: raw,
+        charset: 'Fallback',
+        encoding: 'Error',
+        status: 'fallback',
+        error: err.message
+      }],
+      stats: {
+        totalSegments: 1,
+        encodedWordsCount: 0,
+        plainSegmentsCount: 1,
+        charsets: [],
+        encodings: [],
+        warnings: [err.message]
+      }
+    };
+  }
+
+  state.rawSubject = raw;
+  state.parsedSubject = result;
+
+  // Render decoded text in both output containers
+  if (outputEl) outputEl.textContent = result.decodedText;
+  if (quickOutput) quickOutput.textContent = result.decodedText;
+  if (decodedCharCounter) decodedCharCounter.textContent = `${result.decodedText.length} chars`;
+
+  // Update quickMeta in #section-email
+  if (quickMeta) {
+    if (result.hasEncodedWords) {
+      const enc = result.stats.encodings.join(', ') || 'MIME';
+      const cs = result.stats.charsets.join(', ') || 'UTF-8';
+      quickMeta.innerHTML = `
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">RFC 2047 VERIFIED</span>
+        <span class="text-slate-400 font-mono text-[10px]">${result.stats.encodedWordsCount} token(s) • ${escapeHtml(enc)} • ${escapeHtml(cs)}</span>
+      `;
+    } else {
+      quickMeta.innerHTML = `
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700">PLAIN TEXT</span>
+        <span class="text-slate-400 font-mono text-[10px]">No RFC 2047 MIME tokens</span>
+      `;
+    }
+  }
+
+  // Status Badge
+  if (statusBadge) {
+    if (result.hasEncodedWords) {
+      if (result.stats.warnings.length > 0) {
+        statusBadge.textContent = 'DECODED WITH WARNINGS';
+        statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/30';
+      } else {
+        statusBadge.textContent = 'RFC 2047 VERIFIED';
+        statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+      }
+    } else {
+      statusBadge.textContent = 'PLAIN TEXT (NO MIME)';
+      statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 text-slate-300 border border-slate-700';
+    }
+  }
+
+  // Warnings banner
+  if (warningBanner && warningText) {
+    if (result.stats.warnings.length > 0) {
+      warningText.innerHTML = `
+        <span class="font-bold">Format Anomaly Detected:</span> ${escapeHtml(result.stats.warnings.join(' • '))}. Corrupted segments preserved safely as raw fallback.
+      `;
+      warningBanner.classList.remove('hidden');
+    } else {
+      warningBanner.classList.add('hidden');
+    }
+  }
+
+  // Stats Badges
+  if (badgeTokens) badgeTokens.textContent = result.stats.encodedWordsCount;
+  if (badgeEncoding) {
+    const encList = result.stats.encodings;
+    badgeEncoding.textContent = encList.length ? encList.join(', ') : 'None';
+    badgeEncoding.title = encList.join(', ');
+  }
+  if (badgeCharset) {
+    const csList = result.stats.charsets;
+    badgeCharset.textContent = csList.length ? csList.join(', ') : 'None';
+    badgeCharset.title = csList.join(', ');
+  }
+
+  // Render Segments Breakdown Table
+  renderSubjectSegmentsTable(result.segments);
+
+  if (!silent) {
+    showToast('Email subject decoded successfully', 'success');
+  }
+}
+window.runSubjectDecode = runSubjectDecode;
+
+function renderSubjectSegmentsTable(segments) {
+  const segmentsBody = document.getElementById('subject-segments-body');
+  const countEl = document.getElementById('segments-table-count');
+  if (!segmentsBody) return;
+
+  if (countEl) countEl.textContent = `${segments.length} segment${segments.length === 1 ? '' : 's'}`;
+
+  if (!segments || segments.length === 0) {
+    segmentsBody.innerHTML = `
+      <tr>
+        <td colspan="6" class="p-6 text-center text-slate-500 font-sans">
+          No segments to inspect.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  segmentsBody.innerHTML = segments.map(seg => {
+    let typeBadge = '';
+    if (seg.type === 'encoded_word') {
+      if (seg.status === 'valid') {
+        typeBadge = '<span class="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span><span>MIME Word</span></span>';
+      } else {
+        typeBadge = '<span class="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-500/15 text-rose-300 border border-rose-500/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span><span>Corrupted</span></span>';
+      }
+    } else if (seg.type === 'whitespace_deleted') {
+      typeBadge = '<span class="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm" title="Linear whitespace between adjacent encoded-words deleted per RFC 2047 Section 6.2"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span><span>Deleted LWS</span></span>';
+    } else {
+      typeBadge = '<span class="whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0"></span><span>Plain Text</span></span>';
+    }
+
+    const charsetEncoding = seg.type === 'encoded_word'
+      ? `<span class="text-cyan-300 font-bold">${escapeHtml(seg.charset)}</span> <span class="text-indigo-300 font-bold">(${escapeHtml(seg.encoding)})</span>`
+      : seg.type === 'whitespace_deleted'
+        ? '<span class="text-slate-500 italic">RFC 2047 Sec 6.2</span>'
+        : '<span class="text-slate-500">—</span>';
+
+    const rawDisplay = seg.type === 'whitespace_deleted'
+      ? `<span class="text-slate-500 italic">[${seg.raw.length} whitespace char${seg.raw.length === 1 ? '' : 's'}]</span>`
+      : escapeHtml(seg.raw);
+
+    const decodedDisplay = seg.type === 'whitespace_deleted'
+      ? '<span class="text-slate-500 italic">[Deleted per spec]</span>'
+      : `<span class="text-white font-medium">${escapeHtml(seg.decoded)}</span>`;
+
+    const copyVal = seg.type === 'whitespace_deleted' ? '' : seg.decoded;
+
+    return `
+      <tr class="hover:bg-surface-800/40 transition-colors">
+        <td class="p-2.5 font-mono text-slate-500">${seg.index}</td>
+        <td class="p-2.5 whitespace-nowrap">${typeBadge}</td>
+        <td class="p-2.5 font-mono text-xs">${charsetEncoding}</td>
+        <td class="p-2.5 font-mono text-slate-300 max-w-[200px] truncate" title="${escapeHtml(seg.raw)}">${rawDisplay}</td>
+        <td class="p-2.5 font-sans max-w-[200px] truncate" title="${escapeHtml(seg.decoded)}">${decodedDisplay}</td>
+        <td class="p-2.5 text-right">
+          ${copyVal ? `
+            <button
+              type="button"
+              class="p-1 rounded hover:bg-surface-700 text-slate-400 hover:text-white transition-colors"
+              title="Copy Decoded Segment"
+              onclick="copyToClipboard('${escapeHtml(copyVal.replace(/'/g, "\\'"))}', this)"
+            >
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          ` : ''}
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons({ nodes: [segmentsBody] });
+}
+
+/**
+ * Pure JavaScript RFC 2047 MIME Header and Email Subject Decoder
+ * De-obfuscates both Base64 ('B') and Quoted-Printable ('Q') encoded-words
+ * Handles adjacent linear whitespace deletion per RFC 2047 section 6.2
+ */
+function decodeRfc2047(text) {
+  if (!text || typeof text !== 'string') {
+    return {
+      decodedText: '',
+      hasEncodedWords: false,
+      segments: [],
+      stats: {
+        totalSegments: 0,
+        encodedWordsCount: 0,
+        plainSegmentsCount: 0,
+        charsets: [],
+        encodings: [],
+        warnings: []
+      }
+    };
+  }
+
+  // 1. Unfold multiline RFC 822/5322 header folding (newline followed by space or tab)
+  const unfolded = text.replace(/\r?\n[ \t]+/g, ' ');
+
+  // 2. Identify all RFC 2047 encoded words: =?charset?encoding?encoded-text?=
+  const ewRegex = /=\?([a-zA-Z0-9_\-*]+)\?([bBqQ])\?([^\s?]*)\?=/g;
+  const words = [];
+  let match;
+
+  while ((match = ewRegex.exec(unfolded)) !== null) {
+    words.push({
+      start: match.index,
+      end: match.index + match[0].length,
+      raw: match[0],
+      charset: match[1],
+      encoding: match[2].toUpperCase(),
+      encodedText: match[3]
+    });
+  }
+
+  if (words.length === 0) {
+    return {
+      decodedText: unfolded,
+      hasEncodedWords: false,
+      segments: [{
+        index: 1,
+        type: 'plain',
+        raw: unfolded,
+        decoded: unfolded,
+        charset: 'US-ASCII / Plain',
+        encoding: 'None',
+        status: 'plain'
+      }],
+      stats: {
+        totalSegments: 1,
+        encodedWordsCount: 0,
+        plainSegmentsCount: 1,
+        charsets: [],
+        encodings: [],
+        warnings: []
+      }
+    };
+  }
+
+  const segments = [];
+  const charsetsSet = new Set();
+  const encodingsSet = new Set();
+  const warnings = [];
+  let lastIndex = 0;
+  let segIndex = 1;
+
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
+
+    // Intervening text between last position and current encoded word
+    if (w.start > lastIndex) {
+      const intervening = unfolded.substring(lastIndex, w.start);
+      // Check if this intervening text is ONLY linear whitespace between two consecutive encoded words
+      const isWhitespaceBetweenEW = i > 0 && /^\s+$/.test(intervening) && words[i - 1].end === lastIndex;
+
+      if (!isWhitespaceBetweenEW) {
+        segments.push({
+          index: segIndex++,
+          type: 'plain',
+          raw: intervening,
+          decoded: intervening,
+          charset: 'Plain Text',
+          encoding: 'None',
+          status: 'plain'
+        });
+      } else {
+        // Ignored linear whitespace per RFC 2047 Section 6.2
+        segments.push({
+          index: segIndex++,
+          type: 'whitespace_deleted',
+          raw: intervening,
+          decoded: '',
+          charset: 'RFC 2047 LWS',
+          encoding: 'Deleted',
+          status: 'deleted_rfc2047',
+          description: 'Linear whitespace between adjacent encoded-words deleted per RFC 2047 Section 6.2'
+        });
+      }
+    }
+
+    charsetsSet.add(w.charset.toUpperCase());
+    encodingsSet.add(w.encoding === 'B' ? 'Base64 (B)' : 'Quoted-Printable (Q)');
+
+    let decodedWord = '';
+    let status = 'valid';
+    let errorMsg = null;
+
+    try {
+      decodedWord = decodeMimeWordClient(w.charset, w.encoding, w.encodedText);
+    } catch (err) {
+      decodedWord = w.raw;
+      status = 'fallback';
+      errorMsg = err.message || 'Decoding error';
+      warnings.push(`Token #${segIndex}: ${errorMsg} (preserved raw token)`);
+    }
+
+    segments.push({
+      index: segIndex++,
+      type: 'encoded_word',
+      raw: w.raw,
+      charset: w.charset.toUpperCase(),
+      encoding: w.encoding === 'B' ? 'Base64' : 'Quoted-Printable',
+      encodedText: w.encodedText,
+      decoded: decodedWord,
+      status,
+      error: errorMsg
+    });
+
+    lastIndex = w.end;
+  }
+
+  // Trailing text
+  if (lastIndex < unfolded.length) {
+    const trailing = unfolded.substring(lastIndex);
+    segments.push({
+      index: segIndex++,
+      type: 'plain',
+      raw: trailing,
+      decoded: trailing,
+      charset: 'Plain Text',
+      encoding: 'None',
+      status: 'plain'
+    });
+  }
+
+  const decodedText = segments.map(s => s.decoded).join('');
+
+  return {
+    decodedText,
+    hasEncodedWords: true,
+    segments,
+    stats: {
+      totalSegments: segments.length,
+      encodedWordsCount: words.length,
+      plainSegmentsCount: segments.filter(s => s.type === 'plain').length,
+      charsets: Array.from(charsetsSet),
+      encodings: Array.from(encodingsSet),
+      warnings
+    }
+  };
+}
+
+function decodeMimeWordClient(charset, encoding, text) {
+  const enc = encoding.toUpperCase();
+  let bytes;
+
+  if (enc === 'B') {
+    let clean = text.replace(/\s+/g, '');
+    if (!/^[A-Za-z0-9+/=]+$/.test(clean)) {
+      throw new Error('Invalid Base64 sequence: contains non-base64 characters');
+    }
+    while (clean.length % 4 !== 0) clean += '=';
+    if (typeof atob === 'function') {
+      try {
+        const bin = atob(clean);
+        bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) {
+          bytes[i] = bin.charCodeAt(i);
+        }
+      } catch (e) {
+        throw new Error('Invalid Base64 sequence: ' + e.message);
+      }
+    } else if (typeof Buffer !== 'undefined') {
+      bytes = Buffer.from(clean, 'base64');
+    } else {
+      throw new Error('No Base64 decoder environment available');
+    }
+  } else if (enc === 'Q') {
+    const arr = [];
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === '_') {
+        arr.push(0x20); // RFC 2047: underscore represents space
+      } else if (ch === '=' && i + 2 < text.length && /^[0-9A-Fa-f]{2}$/.test(text.substring(i + 1, i + 3))) {
+        arr.push(parseInt(text.substring(i + 1, i + 3), 16));
+        i += 2;
+      } else {
+        arr.push(ch.charCodeAt(0) & 0xFF);
+      }
+    }
+    bytes = new Uint8Array(arr);
+  } else {
+    return text;
+  }
+
+  let cs = charset.split('*')[0].toLowerCase().trim();
+  if (cs === 'latin1' || cs === 'iso8859-1') cs = 'iso-8859-1';
+  if (cs.startsWith('iso_')) cs = cs.replace('iso_', 'iso-');
+  if (cs.startsWith('cp125')) cs = cs.replace('cp125', 'windows-125');
+
+  try {
+    const decoder = new TextDecoder(cs);
+    return decoder.decode(bytes);
+  } catch (err) {
+    try {
+      return new TextDecoder('utf-8').decode(bytes);
+    } catch {
+      let s = '';
+      for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+      return s;
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════

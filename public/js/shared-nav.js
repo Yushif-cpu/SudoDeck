@@ -120,6 +120,15 @@
       keywords: ['email', 'header', 'spf', 'dkim', 'dmarc', 'phishing', 'smtp', 'hops']
     },
     {
+      id: 'nav-siem-subject-decoder',
+      title: 'Email Subject Decoder (RFC 2047 MIME)',
+      desc: 'De-obfuscate Base64 and Quoted-Printable encoded email subject lines (=?charset?B/Q?...?=)',
+      category: 'SOC & SIEM',
+      icon: 'binary',
+      url: '/siem#subject-decoder',
+      keywords: ['subject', 'decoder', 'mime', 'rfc2047', 'email', 'base64', 'quoted-printable', 'utf-8', 'header']
+    },
+    {
       id: 'nav-siem-file',
       title: 'File Hash & Malware Analyzer',
       desc: 'VirusTotal multi-engine malware scans, SHA-256 integrity lookup, and threat scores',
@@ -700,7 +709,7 @@
                 </div>
                 <div>
                   <div class="text-xs font-bold text-white tracking-wide">SIEM Utilities</div>
-                  <div class="text-[10px] font-mono text-indigo-400/80">5 SOC tools & parsers</div>
+                  <div class="text-[10px] font-mono text-indigo-400/80">6 SOC tools & parsers</div>
                 </div>
               </div>
               <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
@@ -740,6 +749,15 @@
                 <div class="flex-1 min-w-0">
                   <div class="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">Email Header Analysis</div>
                   <div class="text-[10px] text-slate-400 truncate">SPF, DKIM, DMARC hop forensics</div>
+                </div>
+              </a>
+              <a href="/siem#subject-decoder" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                  <i data-lucide="binary" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-indigo-300 truncate">Email Subject Decoder</div>
+                  <div class="text-[10px] text-slate-400 truncate">RFC 2047 MIME B/Q de-obfuscation</div>
                 </div>
               </a>
               <a href="/siem#file" class="mobile-menu-item group">
@@ -820,7 +838,7 @@
           e.stopPropagation();
           const targetId = trigger.getAttribute('data-target');
           const content = document.getElementById(targetId);
-          const chevron = trigger.querySelector('[data-lucide="chevron-down"]');
+          const chevron = trigger.querySelector('[data-lucide="chevron-down"], .lucide-chevron-down');
           if (!content) return;
 
           const isHidden = content.classList.contains('hidden');
@@ -894,7 +912,7 @@
         closeAllDropdowns();
         if (!isOpen) {
           menu.classList.remove('hidden');
-          const chevron = toggle.querySelector('[data-lucide="chevron-down"]');
+          const chevron = toggle.querySelector('[data-lucide="chevron-down"], .lucide-chevron-down');
           if (chevron) chevron.classList.add('rotate-180');
           toggle.classList.add('dropdown-open');
         }
@@ -912,7 +930,7 @@
     });
     document.querySelectorAll('[data-dropdown-toggle]').forEach(btn => {
       btn.classList.remove('dropdown-open');
-      const chevron = btn.querySelector('[data-lucide="chevron-down"]');
+      const chevron = btn.querySelector('[data-lucide="chevron-down"], .lucide-chevron-down');
       if (chevron) chevron.classList.remove('rotate-180');
     });
   }
