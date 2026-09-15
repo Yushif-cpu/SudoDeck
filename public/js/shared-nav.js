@@ -323,7 +323,7 @@
 
     backdrop.classList.remove('hidden');
     backdrop.classList.add('flex');
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       backdrop.classList.remove('opacity-0');
       backdrop.classList.add('opacity-100');
       modal.classList.remove('scale-95');
@@ -331,7 +331,7 @@
       input.focus();
       input.value = '';
       renderPaletteResults('');
-    }, 10);
+    });
 
     paletteOpen = true;
   }
@@ -349,7 +349,7 @@
     setTimeout(() => {
       backdrop.classList.add('hidden');
       backdrop.classList.remove('flex');
-    }, 200);
+    }, 120);
 
     paletteOpen = false;
   }
@@ -572,7 +572,7 @@
           mobileBtn.setAttribute('aria-expanded', 'false');
           mobileBtn.innerHTML = '<i data-lucide="menu" class="w-5 h-5 text-slate-300"></i>';
         }
-        if (window.lucide) window.lucide.createIcons();
+        if (window.lucide) window.lucide.createIcons({ nodes: [mobileBtn] });
       });
 
       // Close mobile drawer when clicking any link inside it
@@ -582,7 +582,7 @@
           if (mobileBtn) {
             mobileBtn.setAttribute('aria-expanded', 'false');
             mobileBtn.innerHTML = '<i data-lucide="menu" class="w-5 h-5 text-slate-300"></i>';
-            if (window.lucide) window.lucide.createIcons();
+            if (window.lucide) window.lucide.createIcons({ nodes: [mobileBtn] });
           }
         });
       });
@@ -594,7 +594,7 @@
             mobileDrawer.classList.add('hidden');
             mobileBtn.setAttribute('aria-expanded', 'false');
             mobileBtn.innerHTML = '<i data-lucide="menu" class="w-5 h-5 text-slate-300"></i>';
-            if (window.lucide) window.lucide.createIcons();
+            if (window.lucide) window.lucide.createIcons({ nodes: [mobileBtn] });
           }
         }
       });
@@ -847,13 +847,13 @@
             if (mBtn) {
               mBtn.setAttribute('aria-expanded', 'false');
               mBtn.innerHTML = '<i data-lucide="menu" class="w-5 h-5 text-slate-300"></i>';
-              if (window.lucide) window.lucide.createIcons();
+              if (window.lucide) window.lucide.createIcons({ nodes: [mBtn] });
             }
           }
         });
       });
 
-      if (window.lucide) window.lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons({ nodes: [drawer] });
     }
 
     // Floating Back to Top Button (Mobile & Desktop)
@@ -864,7 +864,7 @@
       btt.setAttribute('aria-label', 'Scroll to top');
       btt.innerHTML = '<i data-lucide="arrow-up" class="w-4 h-4"></i>';
       document.body.appendChild(btt);
-      if (window.lucide) window.lucide.createIcons();
+      if (window.lucide) window.lucide.createIcons({ nodes: [btt] });
 
       window.addEventListener('scroll', () => {
         if (window.scrollY > 300) {
@@ -923,44 +923,9 @@
   }
 
   // ── 6. Automated Favicon & Page Route Synchronizer ────────────
-  // Silently warms page routes in background so Firefox & Chrome
-  // automatically update their omnibox / history suggestion icons to >_
+  // Lightweight no-op: prevents browser CPU thrashing caused by background iframes
   function syncAllPageFavicons() {
-    if (window._sudodeck_synced_favicons) return;
-    window._sudodeck_synced_favicons = true;
-
-    const routes = [
-      '/',
-      '/siem',
-      '/crypto',
-      '/gtfobins',
-      '/cve',
-      '/mac',
-      '/wordlist',
-      '/news',
-      '/pricing',
-      '/premium'
-    ];
-
-    setTimeout(() => {
-      const container = document.createElement('div');
-      container.style.cssText = 'position:absolute;width:1px;height:1px;top:-9999px;left:-9999px;opacity:0;pointer-events:none;overflow:hidden;';
-      document.body.appendChild(container);
-
-      let delay = 200;
-      routes.forEach(route => {
-        if (window.location.pathname === route) return;
-        setTimeout(() => {
-          const iframe = document.createElement('iframe');
-          iframe.src = route;
-          iframe.setAttribute('tabindex', '-1');
-          iframe.setAttribute('aria-hidden', 'true');
-          container.appendChild(iframe);
-          setTimeout(() => iframe.remove(), 4000);
-        }, delay);
-        delay += 350;
-      });
-    }, 1200);
+    return;
   }
 
   // ── 5. DOM Ready Bootstrap ─────────────────────────────────────

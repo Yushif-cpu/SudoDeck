@@ -139,8 +139,23 @@ function setButtonLoading(btn, loading) {
   }
 }
 
+// ── Client-side In-Memory API Cache (5-minute TTL for instant repeat lookups) ──
+const clientApiCache = new Map();
+const CLIENT_CACHE_TTL = 5 * 60 * 1000;
+
 // ── API request helper ──────────────────────────────────────────
 async function apiRequest(url, options = {}) {
+  const isGet = !options.method || options.method.toUpperCase() === 'GET';
+  const cacheKey = isGet && !options.body ? url : null;
+
+  if (cacheKey && clientApiCache.has(cacheKey)) {
+    const cached = clientApiCache.get(cacheKey);
+    if (Date.now() - cached.timestamp < CLIENT_CACHE_TTL) {
+      return cached.data;
+    }
+    clientApiCache.delete(cacheKey);
+  }
+
   const res = await fetch(url, {
     ...options,
     headers: {
@@ -154,6 +169,10 @@ async function apiRequest(url, options = {}) {
   if (!res.ok || !data.success) {
     const errMsg = data.error?.message || data.error || `Request failed (${res.status})`;
     throw new Error(errMsg);
+  }
+
+  if (cacheKey) {
+    clientApiCache.set(cacheKey, { data, timestamp: Date.now() });
   }
 
   return data;
@@ -190,7 +209,7 @@ function switchToTab(tabName) {
   if (panel) {
     panel.classList.remove('hidden');
     panel.classList.add('animate-fade-in');
-    if (window.lucide) lucide.createIcons();
+    if (window.lucide) lucide.createIcons({ nodes: [panel] });
   }
 
   // Isolate special modules from live threat feed (utils and email hide it, home and others show it)
@@ -203,7 +222,9 @@ function switchToTab(tabName) {
     }
   }
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (window.scrollY > 240) {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
 }
 window.switchToTab = switchToTab;
 
@@ -1418,7 +1439,7 @@ function initUtilSubtabs() {
       if (targetPanel) {
         targetPanel.classList.remove('hidden');
         targetPanel.classList.add('animate-fade-in');
-        if (window.lucide) lucide.createIcons();
+        if (window.lucide) lucide.createIcons({ nodes: [targetPanel] });
       }
     });
   });

@@ -9,6 +9,7 @@ import config from './config/env.js';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -50,32 +51,29 @@ app.use(helmet({
   },
 }));
 app.use(cors());
+app.use(compression());
 app.use(generalLimiter);
 app.use(express.json({ limit: '1mb' }));
 
-// ── Favicons & Root with strict cache busting ───────────────────
+// ── Favicons & Root ──────────────────────────────────────────────
 app.get('/favicon.ico', (req, res) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
   res.type('image/x-icon');
   res.sendFile(join(__dirname, 'public', 'favicon.ico'));
 });
 
 app.get('/', (req, res) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  res.setHeader('Cache-Control', 'no-cache');
   res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
-// ── Static files ────────────────────────────────────────────────
+// ── Static files with compression & caching ─────────────────────
 app.use(express.static(join(__dirname, 'public'), {
+  maxAge: '1h',
+  etag: true,
   setHeaders: (res, path) => {
     if (path.includes('favicon')) {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
     }
   }
 }));

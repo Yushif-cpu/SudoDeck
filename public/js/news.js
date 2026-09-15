@@ -209,6 +209,7 @@
                   src="${escapeHtml(imgSrc)}"
                   alt="${escapeHtml(item.title)}"
                   loading="lazy"
+                  decoding="async"
                   onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=600&q=80';"
                   class="w-full h-full object-cover"
                 />
@@ -268,9 +269,9 @@
 
     newsGrid.innerHTML = html;
 
-    // Re-initialize Lucide Icons
+    // Re-initialize Lucide Icons (scoped to newsGrid)
     if (window.lucide && typeof window.lucide.createIcons === 'function') {
-      window.lucide.createIcons();
+      window.lucide.createIcons({ nodes: [newsGrid] });
     }
   }
 
@@ -293,7 +294,7 @@
         </button>
       </div>
     `;
-    if (window.lucide) window.lucide.createIcons();
+    if (window.lucide) window.lucide.createIcons({ nodes: [newsGrid] });
   }
 
   // Periodic Relative Time Refresh (every 10s)

@@ -215,7 +215,8 @@ function switchTab(tabName) {
     }
   });
 
-  if (window.lucide) lucide.createIcons();
+  const activeSection = sections[tabName];
+  if (window.lucide && activeSection) lucide.createIcons({ nodes: [activeSection] });
 }
 
 function setupTabs() {
@@ -1737,7 +1738,8 @@ function renderUaResults(data) {
     }
   }
 
-  if (window.lucide) lucide.createIcons();
+  const uaSection = document.getElementById('section-regex');
+  if (window.lucide && uaSection) lucide.createIcons({ nodes: [uaSection] });
 }
 
 function resetUaCards() {
@@ -2319,7 +2321,8 @@ function renderSecurityAudit(audit) {
     }).join('');
   }
 
-  if (window.lucide) lucide.createIcons();
+  const recBox = document.getElementById('header-missing-recommendations');
+  if (window.lucide && recBox) lucide.createIcons({ nodes: [recBox] });
 }
 
 function renderHeadersTable() {
@@ -2408,7 +2411,7 @@ function renderHeadersTable() {
     `;
   }).join('');
 
-  if (window.lucide) lucide.createIcons();
+  if (window.lucide && tbody) lucide.createIcons({ nodes: [tbody] });
 }
 
 function resetHeadersResults() {
