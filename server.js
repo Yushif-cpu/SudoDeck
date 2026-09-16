@@ -28,6 +28,8 @@ import macRoutes from './routes/mac.routes.js';
 import cryptoRoutes from './routes/crypto.routes.js';
 import gtfobinsRoutes from './routes/gtfobins.routes.js';
 import newsRoutes from './routes/news.routes.js';
+import subdomainRoutes from './routes/subdomain.routes.js';
+import payloadsRoutes from './routes/payloads.routes.js';
 import { fetchRecentMaliciousIPs } from './services/threatfox.service.js';
 
 // ── Path setup ──────────────────────────────────────────────────
@@ -90,6 +92,9 @@ app.use('/api/crypto', cryptoRoutes);
 app.use('/api/gtfobins', gtfobinsRoutes);
 app.use('/api/utils', utilsRoutes);
 app.use('/api', newsRoutes);
+app.use('/api', subdomainRoutes);
+app.use('/api/subdomain', subdomainRoutes);
+app.use('/api/payloads', payloadsRoutes);
 
 // ── ThreatFox Live Malicious IPs Feed (Keyless & Free) ──────────
 app.get('/api/recent-malicious-ips', async (req, res) => {
@@ -197,6 +202,16 @@ app.get('/wordlist', (req, res) => {
 // ── Dedicated SIEM Utilities page route ─────────────────────
 app.get('/siem', (req, res) => {
   sendPage(res, 'siem.html');
+});
+
+// ── Dedicated Subdomain & Resource Discovery page route ───────────
+app.get(['/subdomain', '/discover', '/subdomains'], (req, res) => {
+  sendPage(res, 'subdomain.html');
+});
+
+// ── Dedicated Security Payload Manager page route ───────────
+app.get(['/payloads', '/payload-manager', '/payload'], (req, res) => {
+  sendPage(res, 'payloads.html');
 });
 
 // ── Dedicated Security News Live Feed page route ───────────

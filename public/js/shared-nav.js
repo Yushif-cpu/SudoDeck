@@ -138,6 +138,15 @@
       keywords: ['file', 'hash', 'sha256', 'md5', 'virustotal', 'malware', 'antivirus']
     },
     {
+      id: 'nav-payloads',
+      title: 'Payload Manager: Injection Vectors',
+      desc: 'Security test vectors for XSS, SQL Injection, Directory Traversal, CSRF, and Command Injection',
+      category: 'Attack Utilities',
+      icon: 'terminal',
+      url: '/payloads',
+      keywords: ['payload', 'xss', 'sqli', 'sql', 'traversal', 'csrf', 'command', 'injection', 'audit', 'vectors']
+    },
+    {
       id: 'nav-crypto-hash',
       title: 'Crypto Suite: Hash Generator & Analyzer',
       desc: 'Generate and inspect MD5, SHA-1, SHA-256, SHA-512, and file integrity checksums',
@@ -181,6 +190,24 @@
       icon: 'book-text',
       url: '/wordlist',
       keywords: ['wordlist', 'password', 'mutator', 'leet', 'bruteforce', 'dictionary', 'generator', 'mutation']
+    },
+    {
+      id: 'nav-payloads',
+      title: 'Security Payload Manager & Testing Suite',
+      desc: 'Curated defensive injection test vectors, XSS, SQLi & CSRF validation test strings',
+      category: 'Attack Utilities',
+      icon: 'terminal',
+      url: '/payloads',
+      keywords: ['payload', 'payloads', 'xss', 'sqli', 'csrf', 'injection', 'audit', 'seclists', 'fuzzing', 'attack']
+    },
+    {
+      id: 'nav-subdomain',
+      title: 'Subdomain & Resource Discovery (Passive Recon)',
+      desc: 'Discover subdomains, CT logs, and asset infrastructure via crt.sh & HackerTarget',
+      category: 'Attack Utilities',
+      icon: 'network',
+      url: '/subdomain',
+      keywords: ['subdomain', 'recon', 'crt.sh', 'hackertarget', 'dns', 'asset', 'discovery', 'osint', 'domains']
     },
     {
       id: 'nav-news',
@@ -781,12 +808,30 @@
                 </div>
                 <div>
                   <div class="text-xs font-bold text-white tracking-wide">Attack Utilities</div>
-                  <div class="text-[10px] font-mono text-amber-400/80">3 offensive security suites</div>
+                  <div class="text-[10px] font-mono text-amber-400/80">4 offensive security suites</div>
                 </div>
               </div>
               <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
             </button>
             <div id="mob-attack-group" class="mobile-accordion-content hidden border-t border-slate-800/80 bg-surface-900/60 p-2 space-y-1">
+              <a href="/payloads" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <i data-lucide="terminal" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-amber-300 truncate">Payload Manager</div>
+                  <div class="text-[10px] text-slate-400 truncate">XSS, SQLi & CSRF test vectors</div>
+                </div>
+              </a>
+              <a href="/subdomain" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                  <i data-lucide="network" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-amber-300 truncate">Subdomain Finder</div>
+                  <div class="text-[10px] text-slate-400 truncate">Passive recon, crt.sh & HackerTarget</div>
+                </div>
+              </a>
               <a href="/crypto" class="mobile-menu-item group">
                 <div class="mobile-menu-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
                   <i data-lucide="key-round" class="w-4 h-4"></i>
