@@ -214,6 +214,11 @@ app.get(['/payloads', '/payload-manager', '/payload'], (req, res) => {
   sendPage(res, 'payloads.html');
 });
 
+// ── Dedicated Visual Recon & Image Geolocation route ────────
+app.get(['/visual-recon', '/recon', '/image-recon', '/geolocation'], (req, res) => {
+  sendPage(res, 'visual-recon.html');
+});
+
 // ── Dedicated Security News Live Feed page route ───────────
 app.get('/news', (req, res) => {
   sendPage(res, 'news.html');

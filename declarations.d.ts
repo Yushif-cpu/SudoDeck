@@ -39,3 +39,29 @@ declare namespace JSX {
   }
   interface Element extends Record<string, any> {}
 }
+
+declare module 'exifr' {
+  const exifr: {
+    parse(input: any, options?: any): Promise<any>;
+    gps(input: any): Promise<{ latitude: number; longitude: number } | undefined>;
+    thumbnail(input: any): Promise<any>;
+  };
+  export default exifr;
+}
+
+declare module 'tesseract.js' {
+  export interface RecognizeResult {
+    data: {
+      text: string;
+      confidence: number;
+      lines?: Array<{ text: string; confidence: number }>;
+      words?: Array<{ text: string; confidence: number }>;
+    };
+  }
+  export const createWorker: any;
+  export function recognize(
+    image: any,
+    langs?: string,
+    options?: any
+  ): Promise<RecognizeResult>;
+}

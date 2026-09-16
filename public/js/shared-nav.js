@@ -39,6 +39,15 @@
   const COMMAND_ITEMS = [
     // Navigation items
     {
+      id: 'nav-visual-recon',
+      title: 'Visual Recon & Image Geolocation',
+      desc: 'Client-side EXIF GPS reader, Tesseract OCR landmark detection & reverse visual search',
+      category: 'Threat & Recon',
+      icon: 'camera',
+      url: '/visual-recon',
+      keywords: ['image', 'photo', 'exif', 'gps', 'geolocation', 'ocr', 'tesseract', 'visual', 'recon', 'coordinates', 'latitude', 'longitude', 'lens', 'landmark']
+    },
+    {
       id: 'nav-ip',
       title: 'IP Reputation & Threat Intel',
       desc: 'Analyze IP reputation, malicious reports, geolocation, and ASN data',
@@ -673,12 +682,24 @@
                 </div>
                 <div>
                   <div class="text-xs font-bold text-white tracking-wide">Threat & Recon</div>
-                  <div class="text-[10px] font-mono text-emerald-400/80">5 intelligence modules</div>
+                  <div class="text-[10px] font-mono text-emerald-400/80">6 intelligence modules</div>
                 </div>
               </div>
               <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
             </button>
             <div id="mob-threat-group" class="mobile-accordion-content hidden border-t border-slate-800/80 bg-surface-900/60 p-2 space-y-1">
+              <a href="/visual-recon" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
+                  <i data-lucide="camera" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-emerald-300 flex items-center gap-1.5 truncate">
+                    <span>Visual Recon & Geolocation</span>
+                    <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">NEW</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 truncate">EXIF GPS, OCR & image analysis</div>
+                </div>
+              </a>
               <a href="/#ip" data-switch-tab="ip" class="mobile-menu-item group">
                 <div class="mobile-menu-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
                   <i data-lucide="shield-check" class="w-4 h-4"></i>
