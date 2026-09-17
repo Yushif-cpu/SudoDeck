@@ -15,7 +15,7 @@
         return [];
       }
     },
-    add(key, value) {
+    add(key, value, extra = {}) {
       if (!value || typeof value !== 'string') return;
       const val = value.trim();
       if (!val) return;
@@ -24,6 +24,36 @@
         list = list.filter(item => item.toLowerCase() !== val.toLowerCase());
         list.unshift(val);
         localStorage.setItem(`threatintel_history_${key}`, JSON.stringify(list.slice(0, 10)));
+
+        // Automatically sync into SudoDeck unified dashboard investigation history
+        const toolMap = {
+          ip: { tool: 'IP Reputation', type: 'ip' },
+          domain: { tool: 'Domain Intelligence', type: 'domain' },
+          cve: { tool: 'CVE Vulnerability Scanner', type: 'cve' },
+          mac: { tool: 'MAC & OUI Lookup', type: 'mac' },
+          file: { tool: 'File Hash Analysis', type: 'file' },
+          traffic: { tool: 'Web Traffic & Analytics', type: 'traffic' },
+          social: { tool: 'Social Media Footprint', type: 'social' },
+          gtfobins: { tool: 'GTFOBins PrivEsc', type: 'gtfobins' },
+        };
+        const meta = toolMap[key] || { tool: 'Indicator Check', type: key };
+        const rawHistory = localStorage.getItem('sudodeck_investigation_history');
+        const unified = rawHistory ? JSON.parse(rawHistory) : [];
+        const exists = unified.some(u => u.type === meta.type && u.query.toLowerCase() === val.toLowerCase());
+        if (!exists) {
+          unified.unshift({
+            id: `inv_${Date.now().toString(36)}`,
+            tool: meta.tool,
+            type: meta.type,
+            query: val,
+            verdict: extra.verdict || 'Informational',
+            verdictScore: extra.score || 0,
+            badgeColor: extra.color || 'cyan',
+            details: extra.details || `Queried via SudoDeck ${meta.tool}`,
+            timestamp: new Date().toISOString(),
+          });
+          localStorage.setItem('sudodeck_investigation_history', JSON.stringify(unified.slice(0, 100)));
+        }
       } catch {
         // Ignore storage errors
       }
@@ -280,6 +310,33 @@
       icon: 'mail',
       url: '/#contact',
       keywords: ['contact', 'email', 'support', 'cirt', 'soc', 'pgp', 'incident', 'report', 'vulnerability']
+    },
+    {
+      id: 'nav-dashboard',
+      title: 'Analyst Operations Dashboard & History',
+      desc: 'Operations hub: past investigation history, threat monitors, API quota & billing profile',
+      category: 'Account & Operations',
+      icon: 'layout-dashboard',
+      url: '/dashboard',
+      keywords: ['dashboard', 'history', 'account', 'profile', 'investigations', 'billing', 'scans', 'logs', 'quota', 'records']
+    },
+    {
+      id: 'nav-billing',
+      title: 'Billing Coordinates, Email, Phone & Receipts',
+      desc: 'Manage Pro subscription tier, billing email, phone number & download tax receipts',
+      category: 'Account & Operations',
+      icon: 'credit-card',
+      url: '/dashboard#billing',
+      keywords: ['billing', 'invoices', 'phone', 'email', 'card', 'receipt', 'subscription', 'tax', 'receipts']
+    },
+    {
+      id: 'nav-login',
+      title: 'Terminal Sign In / User Authentication',
+      desc: 'Secure authentication gateway with Google SSO, credentials & session tokens',
+      category: 'Account & Operations',
+      icon: 'log-in',
+      url: '/login',
+      keywords: ['login', 'signin', 'signup', 'auth', 'google', 'password', 'session', 'token']
     }
   ];
 
@@ -669,8 +726,8 @@
 
       drawer.innerHTML = `
         <div class="p-3 space-y-3">
-          <!-- Quick Nav Header Pills: News, Premium, Pricing -->
-          <div class="grid grid-cols-3 gap-2 pb-1">
+          <!-- Quick Nav Header Pills: News, Premium, Pricing, Dashboard -->
+          <div class="grid grid-cols-4 gap-2 pb-1">
             <a href="/news" class="mobile-quick-pill group ${window.location.pathname === '/news' ? 'active' : ''}">
               <div class="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700/80 flex items-center justify-center text-slate-300 group-hover:text-emerald-400 group-hover:border-emerald-500/40 transition-colors">
                 <i data-lucide="newspaper" class="w-3.5 h-3.5"></i>
@@ -688,6 +745,12 @@
                 <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
               </div>
               <span class="text-[11px] font-semibold text-slate-300 group-hover:text-white">Pricing</span>
+            </a>
+            <a href="/dashboard" class="mobile-quick-pill group ${window.location.pathname === '/dashboard' ? 'active' : ''}">
+              <div class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:border-cyan-400 transition-colors">
+                <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+              </div>
+              <span class="text-[11px] font-semibold text-cyan-300 group-hover:text-white">Console</span>
             </a>
           </div>
 
@@ -1054,16 +1117,58 @@
     return;
   }
 
+  // ── 7. Dynamically Inject Auth / Profile Pill into Desktop Header ─
+  function injectAuthNavPill() {
+    if (document.getElementById('nav-auth-pill')) return;
+    const cmdBtn = document.getElementById('cmd-palette-btn') || document.querySelector('[data-action="open-command-palette"]');
+    if (!cmdBtn || !cmdBtn.parentElement) return;
+
+    let user = null;
+    try {
+      const raw = localStorage.getItem('sudodeck_auth_user');
+      if (raw) user = JSON.parse(raw);
+    } catch {}
+
+    const container = document.createElement('div');
+    container.id = 'nav-auth-pill';
+    container.className = 'flex items-center';
+
+    if (user) {
+      const initials = (user.name || 'AV').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      container.innerHTML = `
+        <a href="/dashboard" class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-emerald-500/30 text-white text-xs font-medium transition-all shadow-sm group cursor-pointer" title="Open Operations Dashboard">
+          <div class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold flex items-center justify-center border border-emerald-500/40">
+            ${initials}
+          </div>
+          <span class="hidden xl:inline text-slate-200 group-hover:text-emerald-400 font-semibold truncate max-w-[100px]">${user.name ? user.name.split(' ')[0] : 'Analyst'}</span>
+          <span class="hidden sm:inline text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-mono font-bold">PRO</span>
+        </a>
+      `;
+    } else {
+      container.innerHTML = `
+        <a href="/login" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-semibold transition-all shadow-sm group cursor-pointer" title="Terminal Sign In">
+          <i data-lucide="log-in" class="w-3.5 h-3.5 text-emerald-400 group-hover:translate-x-0.5 transition-transform"></i>
+          <span>Sign In</span>
+        </a>
+      `;
+    }
+
+    cmdBtn.parentElement.insertBefore(container, cmdBtn.nextSibling);
+    if (window.lucide) window.lucide.createIcons({ nodes: [container] });
+  }
+
   // ── 5. DOM Ready Bootstrap ─────────────────────────────────────
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       injectCommandPalette();
       initHeaderNavigation();
+      injectAuthNavPill();
       syncAllPageFavicons();
     });
   } else {
     injectCommandPalette();
     initHeaderNavigation();
+    injectAuthNavPill();
     syncAllPageFavicons();
   }
 

@@ -8,15 +8,16 @@
 [![Express](https://img.shields.io/badge/Express-v5.2-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-ISC-blue?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/Platform-Active-emerald?style=for-the-badge)]()
+[![Platform Status](https://img.shields.io/badge/Platform-Active_&_Secured-emerald?style=for-the-badge)]()
 
-**All-in-one OSINT, Threat Hunting, Indicator Analysis & Security Operations Platform.**
+**Enterprise-grade OSINT, Threat Hunting, Attack Simulation, Indicator Analysis & Security Operations Cockpit.**
 
-[Key Features](#-key-features) •
+[Key Modules](#-key-modules--capabilities) •
+[Analyst Dashboard](#-analyst-operations-dashboard--history) •
 [Architecture](#-tech-stack--architecture) •
 [Installation](#-installation--quickstart) •
 [Configuration](#-environment-variables) •
-[API Documentation](#-api-endpoints) •
+[API Documentation](#-complete-api-reference) •
 [Deployment](#-deployment-guide)
 
 </div>
@@ -25,53 +26,84 @@
 
 ## 📌 Overview
 
-**SudoDeck** is a modern, high-performance security workbench designed for SOC Analysts, Threat Hunters, Incident Responders, and Penetration Testers. It consolidates disparate threat intelligence lookups, Unix privilege escalation matrices, SIEM log parsing, cryptographic decoding, and hardware reconnaissance into a single, unified, dark-mode cockpit.
+**SudoDeck** is a high-performance, dark-theme security workbench designed for **SOC Incident Responders, Threat Hunters, Red Teamers, and OSINT Investigators**. It unifies disparate threat intelligence sources, web traffic telemetry, social footprint reconnaissance, Unix privilege escalation matrices, defensive payload vectors, SIEM log parsing, and cryptographic decoding into a single, cohesive terminal interface.
 
 ---
 
-## 🚀 Key Features
+## 🚀 Key Modules & Capabilities
 
-### 🔍 1. OSINT & Threat Intel Analysis
-* **IP Reputation & Geo-Lookup:** Live scoring via AbuseIPDB and ThreatFox (abuse.ch) with ASN, ISP, country metadata, and malicious confidence ratings.
-* **Domain & URL Intel:** Comprehensive domain reputation, resolution history, and categorization via VirusTotal.
-* **File & Hash Lookup:** Instant identification and verdict retrieval for MD5, SHA-1, and SHA-256 hashes against global threat telemetry.
-* **Email Header Security Inspector:** Deep-dive RFC parser detecting spoofing, SPF/DKIM/DMARC alignment, and parsing raw hop delivery chains.
+### 📊 1. Analyst Operations Dashboard & Activity History (`/dashboard`)
+* **Unified Investigation History:** Automatically records every IP check, domain query, file hash lookup, traffic inspection, and social recon event.
+* **Filter & Search:** Real-time search across historical investigations, filterable by tool type and verdict severity (Malicious, Suspicious, Clean, Informational).
+* **Investigation Inspector:** Modal inspector for viewing raw JSON responses, threat scores, and re-launching investigations with a single click.
+* **Export Capabilities:** One-click export of your complete activity history to structured **CSV** or **JSON** format.
+* **Billing & Contact Coordinates:** Manage subscription tiers (Free vs. Pro Analyst), save billing email address, contact telephone number for 2FA escalations, organization VAT/tax IDs, and download itemized tax receipts.
+* **Personal API Keys & Webhooks:** Generate, copy, and revoke personal access tokens (`sd_live_...`) for automated CI/CD and SIEM scripts.
+* **Security & Session Management:** Inspect active device sessions, monitor IP location, and manage multi-factor authentication (2FA).
 
-### ⚡ 2. GTFOBins Privilege Escalation Explorer
-* Offline-first Unix binary exploitation catalog.
-* Categorized bypasses: `Sudo`, `SUID`, `Capabilities`, `File Read/Write`, `Command Injection`, and `Reverse Shell`.
-* Instant one-click command generators tailored for pentesting and CTF challenges.
+### 🔐 2. Terminal Authentication & Access Gateway (`/login`)
+* **Single Sign-On (SSO):** "Continue with Google" OAuth integration and GitHub developer portal authentication.
+* **Credentials Gateway:** Secure sign-in and account registration with real-time password entropy scoring and visibility toggle.
+* **Mobile & Contact Registration:** Captures verified email and phone number for security telemetry and incident alerts.
+* **⚡ 1-Click Fast Analyst Access:** Instant demo login capability for rapid evaluation without manual credential entry.
 
-### 📜 3. SIEM Log Analysis & Workbench
-* Live multi-format parsing for Syslog, Apache/Nginx access logs, and Windows Security Event logs.
-* Automated IOC extraction engine (detects IPs, domains, hashes, and URLs from raw unformatted dumps).
-* Sigma & YARA rule templates for fast detection engineering.
+### 🌐 3. Web Traffic & Audience Intelligence (`/traffic`)
+* **Traffic & Engagement Telemetry:** Domain visit metrics, global and country rankings, bounce rates, visit duration, and page depth powered by Similarweb.
+* **Device & Geography Breakdown:** Desktop vs. mobile visitor splits and top demographic source countries.
+* **Traffic Acquisition Channels:** Detailed breakdown of Direct, Organic Search, Referral, Social, and Paid traffic flows.
+* **Supabase Edge Caching:** Database-backed persistent caching to prevent upstream rate-limiting and ensure sub-second response times.
 
-### 🔐 4. Cryptographic & Cipher Suite
-* Multi-algorithm hashing: MD5, SHA-1, SHA-256, SHA-512, Keccak-256.
-* Encodings & Transforms: Base64, Hexadecimal, URL encode/decode, Rot13, Binary.
-* JWT Inspector: Decodes headers, payloads, and checks token expiration timestamps client-side.
+### 🕵️ 4. Social Media Footprint Hunter (`/social-footprint`)
+* **Cross-Platform Reconnaissance:** OSINT username scanning across **35+ global platforms** (GitHub, Twitter/X, Instagram, Telegram, HackerOne, Keybase, Reddit, TikTok, LinkedIn, etc.) utilizing the Sherlock/Maigret methodology.
+* **Official SVG Brand Assets:** High-fidelity platform brand iconography, direct clickable profile links, and live availability verification.
 
-### 🌐 5. Hardware & OUI Reconnaissance
-* IEEE MAC address vendor lookup with hardware manufacturer resolution.
-* Address classification: Unicast vs. Multicast, Globally Unique (OUI) vs. Locally Administered (LAA).
+### 📷 5. Visual Recon & Image Geolocation (`/visual-recon`)
+* **Client-Side EXIF Forensic Analysis:** Reads camera make, lens model, shutter speed, and embedded GPS coordinates without uploading image binaries to external servers.
+* **Interactive Map Pinpoint:** Plots extracted GPS coordinates directly onto OpenStreetMap with latitude, longitude, and elevation.
+* **Tesseract OCR Landmark Detection:** Extracts embedded textual indicators, road signs, and watermarks from imagery.
+* **Multi-Engine Reverse Visual Search:** Generates one-click reverse search queries for Google Lens, Yandex Visual, and Bing Images.
 
-### 🛡️ 6. NVD Vulnerability Database (CVE)
-* Real-time search of the National Vulnerability Database (NVD v2.0 API).
-* CVSS v3.1 vector breakdown, severity scoring, and EPSS exploit probability.
+### 💣 6. Defensive Payload Testing Suite (`/payloads`)
+* **Curated Exploit Vectors:** Comprehensive library of defensive test vectors for `Cross-Site Scripting (XSS)`, `SQL Injection (SQLi)`, `Path Traversal / LFI`, and `CSRF`.
+* **Downloadable Wordlists:** Instant access to pre-built `.txt` payload lists served statically from `/downloads/payloads/` with in-browser preview modals.
+* **Developer Customization Guide:** Accompanied by [PAYLOAD_CUSTOMIZATION_GUIDE.md](PAYLOAD_CUSTOMIZATION_GUIDE.md) for adding custom test wordlists.
+
+### 🔍 7. Core OSINT & Indicator Reputation (`/` & `/#ip` / `/#domain`)
+* **IP Reputation & Geo-Lookup:** Multi-source scoring via AbuseIPDB and live ThreatFox (abuse.ch) with ASN, ISP, country metadata, and malicious confidence ratings.
+* **Domain & WHOIS Engine:** VirusTotal threat engine aggregation, DNS records (A, AAAA, MX, TXT, NS), and registration timeline analysis.
+* **File & Hash Verdict:** Instant lookup for MD5, SHA-1, and SHA-256 digests against global antivirus engines.
+* **Subdomain Discovery (`/subdomain`):** Passive infrastructure asset discovery powered by Certificate Transparency logs (crt.sh) and HackerTarget.
+
+### ⚡ 8. GTFOBins Privilege Escalation Explorer (`/gtfobins`)
+* **Offline-First Unix Exploitation Catalog:** Searchable database of Unix binaries exploitable for privilege escalation.
+* **Filter by Function:** `Sudo`, `SUID`, `Capabilities`, `File Read/Write`, `Command Injection`, and `Reverse Shell`.
+* **One-Click Command Generator:** Generates tailored bash one-liners ready for CTF competitions and authorized pentests.
+
+### 📜 9. SIEM Log Analysis & Email Forensics (`/siem`)
+* **Log Formatter & IOC Extractor:** Formats Syslog, Windows Event XML, Apache, and Nginx logs into structured JSON, auto-extracting IPs, domains, and hashes.
+* **RFC 822 Email Header Inspector:** Parses message hops, calculates transit latency, and verifies SPF, DKIM, and DMARC alignment.
+* **Detection Regex Sandbox:** Tests and validates detection engineering regular expressions against sample adversary logs.
+
+### 🔐 10. Cryptographic & Cipher Suite (`/crypto`)
+* **Smart Hash & Encoding Analyzer:** Automatically identifies cipher types, character sets, and probable hashing algorithms.
+* **Multi-Algorithm Operations:** MD5, SHA-1, SHA-256, SHA-512, Keccak-256, Base64, Hexadecimal, Rot13, and URL encoding.
+* **JWT Token Forensics:** Inspects and validates JSON Web Token headers, claims, issued-at, and expiration timestamps.
+
+### 🏷️ 11. Hardware OUI & CVE Vulnerability Search (`/mac` & `/cve`)
+* **IEEE MAC Vendor Resolver:** Resolves OUI prefixes to hardware manufacturers (Cisco, Apple, Intel, Raspberry Pi, etc.).
+* **NVD CVE Explorer:** Live search of the NIST National Vulnerability Database (NVD v2.0) with CVSS v3.1 vector breakdowns and EPSS exploit probability scores.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-* **Runtime:** Node.js (ES Modules, Express 5.x)
-* **Frontend:** Modern Vanilla JavaScript, HTML5, Tailwind CSS, Lucide Icons
-* **Security & Hardening:**
-  * `helmet` for secure HTTP headers (CSP, HSTS, XSS Protection)
-  * `express-rate-limit` for DDoS & API abuse mitigation
-  * `cors` for granular cross-origin resource policy
-* **HTTP Client:** `axios` with configured timeouts and custom user-agent headers
-* **Design Aesthetic:** High-density Glassmorphism, tailored cyberpunk HSL palette, dark theme, and keyboard command palette (`Ctrl + K`).
+| Layer | Technologies |
+| :--- | :--- |
+| **Backend Runtime** | Node.js (ES Modules), Express 5.x |
+| **Frontend UI** | Modern Vanilla JavaScript, HTML5, Tailwind CSS, Lucide Icons, Glassmorphism CSS |
+| **Database & Cache** | Supabase (PostgreSQL) edge caching + Browser LocalStorage persistence |
+| **Security & Hardening** | `helmet` (strict CSP, HSTS), `express-rate-limit` (DDoS mitigation), `cors` |
+| **Navigation & Palette** | Global keyboard command palette (`Ctrl + K`), dynamic auth status pills |
 
 ---
 
@@ -87,56 +119,81 @@ git clone https://github.com/Yushif-cpu/SudoDeck.git
 cd SudoDeck
 ```
 
-### 2. Install dependencies
+### 2. Navigate to the application directory and install dependencies
 ```bash
+cd threat-intel-node
 npm install
 ```
 
 ### 3. Setup Environment Variables
-Create a `.env` file in the root directory:
+Create your `.env` file based on the template:
 ```bash
-cp .env.example .env   # Or create .env manually
+cp .env.example .env
 ```
-Add your third-party API credentials (all keys are optional; platform operates in graceful degradation mode if keys are absent):
+
+Configure your optional third-party API credentials:
 ```env
 PORT=3000
 NODE_ENV=development
 
-# Threat Intelligence APIs (Optional)
-VIRUSTOTAL_API_KEY=your_virustotal_api_key_here
-ABUSEIPDB_API_KEY=your_abuseipdb_api_key_here
+# Threat Intelligence APIs (Optional — features operate with fallback demo data if absent)
+VIRUSTOTAL_API_KEY=your_virustotal_key_here
+ABUSEIPDB_API_KEY=your_abuseipdb_key_here
 NVD_API_KEY=your_nvd_api_key_here
+MACVENDORS_API_TOKEN=your_macvendors_token_here
+APIFY_API_TOKEN=your_apify_token_here
+
+# Supabase (Optional — for cloud traffic cache & persistence)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 ```
 
-### 4. Run the Development Server
+### 4. Start the Application
 ```bash
+# Development mode with hot-reloading:
 npm run dev
+
+# Production mode:
+npm start
 ```
 
 ### 5. Access the Platform
 Open your browser and navigate to:
-```
+```text
 http://localhost:3000
 ```
+* **Operations Dashboard:** `http://localhost:3000/dashboard`
+* **Sign In Gateway:** `http://localhost:3000/login`
+* **Billing & Contact Settings:** `http://localhost:3000/dashboard#billing`
 
 ---
 
-## 📡 API Endpoints
+## 📡 Complete API Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/recent-malicious-ips` | Fetches live ThreatFox malicious IP telemetry |
-| `POST` | `/api/check-ip` | Inspects IP address reputation & geolocation |
+| `GET` | `/api/recent-malicious-ips` | Live ThreatFox malicious IP feed (Keyless) |
+| `POST` | `/api/check-ip` | IP reputation, geolocation, ISP, and abuse scores |
 | `POST` | `/api/check-domain` | Evaluates domain safety score via VirusTotal |
 | `POST` | `/api/check-hash` | Queries VirusTotal for known file hash verdicts |
-| `POST` | `/api/check-file` | Computes client file hash & retrieves threat intel |
-| `POST` | `/api/analyze-email` | Parses raw RFC 822 email headers for spoofing/SPF/DKIM |
-| `GET` | `/api/gtfobins` | Retrieves GTFOBins catalog data |
-| `GET` | `/api/gtfobins/:binary` | Retrieves specific Unix binary privilege escalation methods |
-| `POST` | `/api/crypto/analyze` | Detects encoding/hash type automatically |
-| `POST` | `/api/crypto/process` | Executes cryptographic operations (hash/encode/decode) |
+| `POST` | `/api/check-file` | Computes file hash & retrieves threat intel |
+| `POST` | `/api/check-traffic` | Domain traffic volume, global rank & audience telemetry |
+| `POST` | `/api/sherlock/search` | Cross-network OSINT username hunting (35+ platforms) |
+| `POST` | `/api/subdomain/discover` | Discovers passive subdomains via CT logs |
+| `GET` | `/api/payloads` | Curated defensive injection vectors & wordlist metadata |
+| `GET` | `/api/gtfobins` | GTFOBins catalog data |
+| `GET` | `/api/gtfobins/:binary` | Specific Unix binary privilege escalation methods |
+| `POST` | `/api/analyze-email` | Parses RFC 822 email headers for spoofing & SPF/DKIM |
+| `POST` | `/api/crypto/analyze` | Detects encoding and hash algorithms |
+| `POST` | `/api/crypto/process` | Executes cryptographic hash/encode/decode operations |
 | `GET` | `/api/mac/:mac` | Resolves MAC address to hardware manufacturer |
 | `GET` | `/api/cve/search` | Queries NVD for CVE identifiers and keywords |
+| `POST` | `/api/auth/login` | Authenticates terminal user session |
+| `POST` | `/api/auth/signup` | Registers new operator profile with email & phone |
+| `POST` | `/api/auth/google` | Single Sign-On via Google OAuth token |
+| `GET` | `/api/auth/me` | Fetches active analyst profile & daily quota usage |
+| `POST` | `/api/user/billing` | Updates billing email, phone number & organization VAT |
+| `POST` | `/api/user/api-keys/generate` | Generates new Personal Access API token |
 | `POST` | `/api/contact` | Submits CIRT / dispatch feedback message |
 | `GET` | `/api/health` | System health check and uptime probe |
 
@@ -144,35 +201,34 @@ http://localhost:3000
 
 ## 🌐 Deployment Guide
 
-### Deploying to Render.com (Recommended)
+### Deploying to Render.com / Railway / Cloud Run
 
-1. Create a free account at [render.com](https://render.com).
-2. Click **New +** -> **Web Service**.
-3. Connect your GitHub account and select `Yushif-cpu/SudoDeck`.
-4. Configure service settings:
-   - **Environment:** `Node`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Instance Type:** `Free`
-5. Under **Environment Variables**, optionally paste your `VIRUSTOTAL_API_KEY`, `ABUSEIPDB_API_KEY`, etc.
-6. Click **Deploy Web Service**.
+1. Connect your GitHub repository: `Yushif-cpu/SudoDeck`.
+2. Set root directory to `threat-intel-node` (or repository root if deploying top-level).
+3. Configure build and start commands:
+   * **Build Command:** `npm install`
+   * **Start Command:** `npm start`
+   * **Port:** `3000` (or leave default `$PORT`)
+4. Add environment variables under **Environment** tab in your cloud dashboard.
+5. Deploy service.
 
 ---
 
 ## 🔒 Security & Privacy
 
-* **Zero Data Retention:** SudoDeck does not store or log uploaded file contents, sensitive query artifacts, or email bodies.
-* **Safe Secrets Handling:** Secret keys are loaded strictly from server-side environment variables and are never exposed to clients.
-* **Rate Limited:** Built-in safeguards protect all computational endpoints from automated brute-force attempts.
+* **Zero Sensitive Data Retention:** SudoDeck does not store or leak uploaded file binaries, private email bodies, or internal credentials.
+* **Safe Secrets Handling:** API keys are processed strictly on the server-side environment and are never transmitted to client browsers.
+* **Multi-Tier Rate Limiting:** Granular rate limiters protect compute-heavy scans (subdomain discovery, Sherlock search) from automated denial of service.
+* **Strict CSP & Headers:** Enforced via `helmet` with custom Content Security Policy and HTTP Strict Transport Security (HSTS).
 
 ---
 
 ## 📄 License
 
-This project is licensed under the [ISC License](LICENSE).
+This project is open source and licensed under the [ISC License](LICENSE).
 
 ---
 
 <div align="center">
-  <sub>Built with ❤️ for the Cybersecurity and Open-Source Intelligence Community.</sub>
+  <sub>Designed & engineered for the global Cybersecurity, Threat Intelligence, and OSINT community.</sub>
 </div>

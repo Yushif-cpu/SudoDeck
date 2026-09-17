@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SudoDeck — Analyst Intelligence Dashboard & Investigation History</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260914" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260914" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=20260914" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260914" />
+  <link rel="shortcut icon" href="/favicon.ico?v=20260914" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260914" />
+  <meta name="description" content="Personal Cyber Threat Intelligence Operations Hub. Review unified investigation history, manage billing profile, mobile contact, and API keys." />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              900: '#0a0e17',
+              850: '#0d1322',
+              800: '#0f1629',
+              750: '#151e36',
+              700: '#151d33',
+              600: '#1a2440',
+              500: '#212d4a',
+            },
+            neon: {
+              emerald: '#34d399',
+              cyan: '#22d3ee',
+              amber: '#fbbf24',
+              rose: '#fb7185',
+              violet: '#a78bfa',
+              blue: '#60a5fa',
+            },
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(6px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Shared App Styles -->
+  <link rel="stylesheet" href="/css/app.css" />
+
+  <style>
+    .cyber-grid-subtle {
+      background-image: linear-gradient(to right, rgba(30, 41, 59, 0.15) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(30, 41, 59, 0.15) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+  </style>
+</head>
+
+<body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased flex flex-col relative">
+
+  <div class="fixed inset-0 cyber-grid-subtle pointer-events-none z-0"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOP NAVIGATION BAR                                        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-surface-900/90 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Left: Logo & Brand -->
+        <div class="flex items-center gap-6">
+          <a href="/" class="flex items-center gap-2.5 group">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:border-emerald-400/60 transition-all shadow-[0_0_15px_rgba(52,211,153,0.2)]">
+              <i data-lucide="shield" class="w-4 h-4"></i>
+            </div>
+            <span class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">
+              Sudo<span class="text-emerald-400">Deck</span>
+            </span>
+          </a>
+
+          <!-- Quick Navigation Links -->
+          <nav class="hidden md:flex items-center gap-1.5 text-xs font-medium text-slate-400">
+            <a href="/" class="px-2.5 py-1.5 rounded-lg hover:text-white hover:bg-surface-800 transition-colors">Hub Home</a>
+            <a href="/traffic" class="px-2.5 py-1.5 rounded-lg hover:text-white hover:bg-surface-800 transition-colors">Web Traffic</a>
+            <a href="/social-footprint" class="px-2.5 py-1.5 rounded-lg hover:text-white hover:bg-surface-800 transition-colors">Social Footprint</a>
+            <a href="/cve" class="px-2.5 py-1.5 rounded-lg hover:text-white hover:bg-surface-800 transition-colors">CVE Scanner</a>
+            <a href="/pricing" class="px-2.5 py-1.5 rounded-lg hover:text-white hover:bg-surface-800 transition-colors">Pricing</a>
+          </nav>
+        </div>
+
+        <!-- Right: Command Palette Launcher & User Pill -->
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            data-action="open-command-palette"
+            class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-700/60 text-slate-400 hover:text-slate-200 text-xs font-medium transition-all"
+          >
+            <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500"></i>
+            <span>Search tools...</span>
+            <kbd class="px-1.5 py-0.5 text-[10px] font-mono bg-surface-900 border border-slate-700 text-slate-400 rounded">Ctrl+K</kbd>
+          </button>
+
+          <!-- User Pill Profile -->
+          <div class="flex items-center gap-2.5 pl-2 border-l border-slate-800">
+            <div class="relative">
+              <img id="user-avatar-img" src="" alt="Avatar" class="w-8 h-8 rounded-full border border-emerald-500/40 object-cover hidden" />
+              <div id="user-avatar-fallback" class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono text-xs font-bold flex items-center justify-center">
+                AV
+              </div>
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-surface-900"></span>
+            </div>
+
+            <div class="hidden lg:block text-left leading-tight">
+              <div id="user-display-name" class="text-xs font-bold text-white truncate max-w-[120px]">Alex Vance</div>
+              <div class="text-[10px] text-emerald-400 font-mono">PRO ANALYST</div>
+            </div>
+
+            <button
+              type="button"
+              id="dashboard-logout-btn"
+              class="p-2 rounded-xl bg-surface-800 hover:bg-rose-500/20 border border-slate-700/60 hover:border-rose-500/40 text-slate-400 hover:text-rose-400 transition-colors"
+              title="Terminate session & logout"
+            >
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  MAIN CONTENT CONTAINER                                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="relative z-10 flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- ── 1. Analyst Operations Header Banner ───────────────── -->
+    <div class="bg-gradient-to-r from-surface-850 via-surface-800 to-surface-850 border border-slate-700/70 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl relative overflow-hidden">
+      <!-- Glow Accent -->
+      <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+        <!-- Left: Identity & Badges -->
+        <div class="space-y-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-[11px] font-bold tracking-wider">
+              OPERATIONS DESK
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono text-[11px]">
+              TIER 3 CLEARANCE
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-mono text-[11px]">
+              SESSION: ACTIVE
+            </span>
+          </div>
+
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <span>Threat Intelligence Console</span>
+            <i data-lucide="sparkles" class="w-5 h-5 text-emerald-400"></i>
+          </h1>
+
+          <div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-400 font-mono">
+            <span class="flex items-center gap-1.5 text-slate-300">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <span id="user-role-badge">Lead Threat Hunter</span>
+            </span>
+            <span class="flex items-center gap-1.5 text-slate-400">
+              <i data-lucide="mail" class="w-3.5 h-3.5 text-cyan-400"></i>
+              <span id="user-email-badge">alex.vance@sudodeck.io</span>
+            </span>
+            <span class="flex items-center gap-1.5 text-slate-400">
+              <i data-lucide="phone" class="w-3.5 h-3.5 text-amber-400"></i>
+              <span id="user-phone-badge">+1 (555) 234-8901</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: Live Quota Progress Bar -->
+        <div class="w-full lg:w-72 p-4 rounded-xl bg-surface-900/80 border border-slate-700/60 backdrop-blur-md">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="text-slate-400 font-medium">Daily API Quota</span>
+            <span id="quota-percent" class="font-mono font-bold text-emerald-400">42%</span>
+          </div>
+          <div class="h-2 w-full bg-slate-800 rounded-full overflow-hidden mb-2">
+            <div id="quota-bar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-500" style="width: 42%;"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-mono text-slate-500">
+            <span id="quota-text">420 / 1,000 queries</span>
+            <span>Resets in 14h</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Counters -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-800/80">
+        <!-- Metric 1 -->
+        <div class="p-3 rounded-xl bg-surface-850/60 border border-slate-700/40">
+          <div class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <i data-lucide="scan" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Total Scans</span>
+          </div>
+          <div id="stat-total-scans" class="text-xl sm:text-2xl font-extrabold text-white font-mono">0</div>
+        </div>
+        <!-- Metric 2 -->
+        <div class="p-3 rounded-xl bg-surface-850/60 border border-slate-700/40">
+          <div class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <i data-lucide="shield-alert" class="w-3.5 h-3.5 text-rose-400"></i>
+            <span>Malicious IOCs</span>
+          </div>
+          <div id="stat-malicious-count" class="text-xl sm:text-2xl font-extrabold text-rose-400 font-mono">0</div>
+        </div>
+        <!-- Metric 3 -->
+        <div class="p-3 rounded-xl bg-surface-850/60 border border-slate-700/40">
+          <div class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span>Clean Inquiries</span>
+          </div>
+          <div id="stat-clean-count" class="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono">0</div>
+        </div>
+        <!-- Metric 4 -->
+        <div class="p-3 rounded-xl bg-surface-850/60 border border-slate-700/40">
+          <div class="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <i data-lucide="key" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Active API Keys</span>
+          </div>
+          <div id="stat-api-keys" class="text-xl sm:text-2xl font-extrabold text-cyan-400 font-mono">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. Tab Navigation ──────────────────────────────────── -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-slate-800">
+      <button
+        type="button"
+        data-dashboard-tab="history"
+        class="dashboard-tab-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-surface-800 border border-emerald-500/30 shadow-[0_0_15px_rgba(52,211,153,0.1)] transition-all cursor-pointer whitespace-nowrap"
+      >
+        <i data-lucide="history" class="w-4 h-4 text-emerald-400"></i>
+        <span>Investigation History</span>
+        <span id="history-count-badge" class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-900 text-emerald-400 border border-emerald-500/30">
+          Loading...
+        </span>
+      </button>
+
+      <button
+        type="button"
+        data-dashboard-tab="billing"
+        class="dashboard-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-surface-850 transition-all cursor-pointer whitespace-nowrap"
+      >
+        <i data-lucide="credit-card" class="w-4 h-4 text-cyan-400"></i>
+        <span>Billing & Contact Info</span>
+        <span class="ml-1 px-1.5 py-0.5 rounded text-[10px] font-mono bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+          PRO
+        </span>
+      </button>
+
+      <button
+        type="button"
+        data-dashboard-tab="quick-scan"
+        class="dashboard-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-surface-850 transition-all cursor-pointer whitespace-nowrap"
+      >
+        <i data-lucide="crosshair" class="w-4 h-4 text-amber-400"></i>
+        <span>Quick Threat Launcher</span>
+      </button>
+
+      <button
+        type="button"
+        data-dashboard-tab="api-keys"
+        class="dashboard-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-surface-850 transition-all cursor-pointer whitespace-nowrap"
+      >
+        <i data-lucide="code-2" class="w-4 h-4 text-violet-400"></i>
+        <span>API Tokens & Webhooks</span>
+      </button>
+
+      <button
+        type="button"
+        data-dashboard-tab="security"
+        class="dashboard-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-surface-850 transition-all cursor-pointer whitespace-nowrap"
+      >
+        <i data-lucide="lock" class="w-4 h-4 text-rose-400"></i>
+        <span>Security & 2FA</span>
+      </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  PANE 1: INVESTIGATION HISTORY (The Core Requested Feature) -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div data-tab-pane="history" class="space-y-6">
+
+      <!-- History Top Controls & Filter Bar -->
+      <div class="card p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Search Input -->
+        <div class="relative flex-1 min-w-[240px]">
+          <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input
+            type="text"
+            id="history-search"
+            placeholder="Search queries, IPs, domains, hashes, or CVEs in your history..."
+            class="input-field w-full pl-10 text-xs sm:text-sm font-mono"
+          />
+        </div>
+
+        <!-- Filter Selectors & Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Tool Filter -->
+          <select id="history-tool-filter" class="input-field text-xs py-2 pr-8 font-medium">
+            <option value="">All Tools</option>
+            <option value="ip">IP Reputation</option>
+            <option value="domain">Domain Intel</option>
+            <option value="traffic">Web Traffic</option>
+            <option value="social">Social Footprint</option>
+            <option value="file">File Hash</option>
+            <option value="cve">CVE Scanner</option>
+            <option value="mac">MAC / OUI</option>
+          </select>
+
+          <!-- Verdict Filter -->
+          <select id="history-verdict-filter" class="input-field text-xs py-2 pr-8 font-medium">
+            <option value="">All Verdicts</option>
+            <option value="malicious">Malicious / Critical</option>
+            <option value="suspicious">Suspicious</option>
+            <option value="clean">Clean / Safe</option>
+          </select>
+
+          <!-- Export Buttons -->
+          <button
+            type="button"
+            id="export-history-csv"
+            class="px-3 py-2 rounded-xl bg-surface-800 hover:bg-surface-750 text-slate-300 hover:text-white border border-slate-700/70 text-xs font-semibold flex items-center gap-1.5 transition-all"
+            title="Download CSV"
+          >
+            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-emerald-400"></i>
+            <span class="hidden sm:inline">CSV</span>
+          </button>
+
+          <button
+            type="button"
+            id="export-history-json"
+            class="px-3 py-2 rounded-xl bg-surface-800 hover:bg-surface-750 text-slate-300 hover:text-white border border-slate-700/70 text-xs font-semibold flex items-center gap-1.5 transition-all"
+            title="Download JSON"
+          >
+            <i data-lucide="file-json" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span class="hidden sm:inline">JSON</span>
+          </button>
+
+          <button
+            type="button"
+            id="clear-history-btn"
+            class="px-3 py-2 rounded-xl bg-surface-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-700/70 text-xs font-semibold flex items-center gap-1.5 transition-all"
+            title="Clear all stored logs"
+          >
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            <span>Clear</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- History Table Card -->
+      <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 bg-surface-850/80 text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-4">Investigation Target</th>
+                <th class="py-3 px-4">Verdict Status</th>
+                <th class="py-3 px-4 hidden md:table-cell">Findings Summary</th>
+                <th class="py-3 px-4">Recorded</th>
+                <th class="py-3 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Dynamically populated via dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="history-empty-state" class="p-12 text-center hidden">
+          <div class="w-12 h-12 rounded-2xl bg-surface-800 border border-slate-700 flex items-center justify-center mx-auto text-slate-500 mb-3">
+            <i data-lucide="inbox" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">No investigations matching criteria</h3>
+          <p class="text-xs text-slate-400 max-w-sm mx-auto">
+            Your terminal history is clear. Run scans via any tool (IP, Domain, Traffic, Social) to automatically record them here.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  PANE 2: BILLING & SUBSCRIPTION (The Requested Billing)    -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div data-tab-pane="billing" class="space-y-6 hidden">
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left: Subscription Plan Summary Card -->
+        <div class="card p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-xs font-bold">
+                ACTIVE PLAN
+              </span>
+              <i data-lucide="crown" class="w-5 h-5 text-amber-400"></i>
+            </div>
+            <h3 id="billing-plan-name" class="text-xl font-bold text-white">Pro Cyber Analyst</h3>
+            <div class="mt-2 text-2xl font-extrabold text-white font-mono" id="billing-plan-price">$29 / month</div>
+            <p class="text-xs text-slate-400 mt-1">
+              Next scheduled charge on <strong id="billing-renewal-date" class="text-slate-300">October 14, 2026</strong>.
+            </p>
+
+            <div class="mt-6 pt-6 border-t border-slate-800/80 space-y-2.5 text-xs text-slate-300">
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Unlimited IP & ThreatFox indicators</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Similarweb traffic & audience telemetry</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Sherlock 35+ platform OSINT hunter</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>1,000 API queries per day quota</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0"></i>
+                <span>Downloadable forensic reports & PDF export</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-4 border-t border-slate-800/80 flex items-center gap-3">
+            <a href="/pricing" class="btn-primary flex-1 py-2 text-xs font-bold text-center">
+              Manage / Upgrade Plan
+            </a>
+          </div>
+        </div>
+
+        <!-- Middle & Right: Billing Contact Information Form -->
+        <div class="card p-6 lg:col-span-2 space-y-6">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="contact" class="w-4 h-4 text-cyan-400"></i>
+              <span>Billing Contact & Notification Coordinates</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Configure billing emails, direct phone dispatch numbers, and VAT identification for tax invoices.
+            </p>
+          </div>
+
+          <form id="billing-form" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Billing Email -->
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="billing-input-email">
+                  Billing Email Address *
+                </label>
+                <div class="relative">
+                  <i data-lucide="mail" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input
+                    type="email"
+                    id="billing-input-email"
+                    required
+                    placeholder="billing@sudodeck.io"
+                    class="input-field w-full pl-10 text-xs font-mono"
+                  />
+                </div>
+                <span class="text-[10px] text-slate-500 mt-0.5 block">Invoices & receipt dispatches are transmitted here.</span>
+              </div>
+
+              <!-- Phone Number -->
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="billing-input-phone">
+                  Contact Mobile / Phone Number *
+                </label>
+                <div class="relative">
+                  <i data-lucide="phone" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input
+                    type="tel"
+                    id="billing-input-phone"
+                    required
+                    placeholder="+1 (555) 234-8901"
+                    class="input-field w-full pl-10 text-xs font-mono"
+                  />
+                </div>
+                <span class="text-[10px] text-slate-500 mt-0.5 block">Used for SMS 2FA and emergency security escalations.</span>
+              </div>
+
+              <!-- Company / Organization -->
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="billing-input-company">
+                  Company / Organization Entity
+                </label>
+                <div class="relative">
+                  <i data-lucide="building" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input
+                    type="text"
+                    id="billing-input-company"
+                    placeholder="SudoDeck Security Labs LLC"
+                    class="input-field w-full pl-10 text-xs"
+                  />
+                </div>
+              </div>
+
+              <!-- Tax / VAT ID -->
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1" for="billing-input-taxid">
+                  Tax / VAT ID (Optional)
+                </label>
+                <div class="relative">
+                  <i data-lucide="receipt" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input
+                    type="text"
+                    id="billing-input-taxid"
+                    placeholder="US-94827103 or EU8472910"
+                    class="input-field w-full pl-10 text-xs font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Billing Physical Address -->
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1" for="billing-input-address">
+                Registered Billing Address
+              </label>
+              <div class="relative">
+                <i data-lucide="map-pin" class="w-4 h-4 text-slate-500 absolute left-3.5 top-3"></i>
+                <textarea
+                  id="billing-input-address"
+                  rows="2"
+                  placeholder="100 Cyberway Blvd, Suite 400, Austin, TX 78701"
+                  class="input-field w-full pl-10 text-xs resize-none"
+                ></textarea>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2 flex justify-end">
+              <button
+                type="submit"
+                class="btn-primary py-2 px-5 text-xs font-bold"
+              >
+                <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                <span>Save Billing & Contact Details</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Payment Method & Invoices Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Payment Card Preview -->
+        <div class="card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-white uppercase tracking-wider font-mono">Payment Method</h4>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">DEFAULT</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-gradient-to-br from-surface-800 to-surface-750 border border-slate-700/80 shadow-lg relative overflow-hidden">
+            <div class="flex items-center justify-between mb-6">
+              <span id="card-brand-name" class="font-mono font-bold text-sm text-white">Mastercard</span>
+              <i data-lucide="credit-card" class="w-5 h-5 text-slate-400"></i>
+            </div>
+            <div id="card-last-digits" class="text-base sm:text-lg font-mono tracking-widest text-slate-200 mb-4">
+              •••• •••• •••• 4821
+            </div>
+            <div class="flex items-center justify-between text-[11px] font-mono text-slate-400">
+              <span>HOLDER: OPERATOR</span>
+              <span>EXP: <strong id="card-expiry" class="text-white">08/28</strong></span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            id="update-card-btn"
+            class="w-full py-2 rounded-xl bg-surface-800 hover:bg-surface-750 border border-slate-700/70 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+          >
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-cyan-400"></i>
+            <span>Update Credit Card</span>
+          </button>
+        </div>
+
+        <!-- Invoices Table -->
+        <div class="card p-6 lg:col-span-2 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+              <i data-lucide="receipt" class="w-4 h-4 text-emerald-400"></i>
+              <span>Invoices & Settlement History</span>
+            </h4>
+            <span class="text-xs text-slate-500">Auto-billed monthly</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-800 text-[10px] font-mono uppercase text-slate-400">
+                  <th class="py-2 px-4">Invoice ID</th>
+                  <th class="py-2 px-4">Date</th>
+                  <th class="py-2 px-4">Description</th>
+                  <th class="py-2 px-4">Amount</th>
+                  <th class="py-2 px-4">Status</th>
+                  <th class="py-2 px-4 text-right">Receipt</th>
+                </tr>
+              </thead>
+              <tbody id="invoices-table-body">
+                <!-- Populated via dashboard.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  PANE 3: QUICK THREAT LAUNCHER                             -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div data-tab-pane="quick-scan" class="space-y-6 hidden">
+      <div class="card p-6 sm:p-8 max-w-2xl mx-auto space-y-6">
+        <div class="text-center space-y-2">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto mb-2">
+            <i data-lucide="crosshair" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white">Instant IOC Investigation Launcher</h3>
+          <p class="text-xs text-slate-400">
+            Paste any Indicator of Compromise. SudoDeck will auto-detect the indicator type (IP, Domain, File Hash, CVE, MAC, or Username) and route directly into the intelligence engine.
+          </p>
+        </div>
+
+        <form id="quick-scan-form" class="space-y-3">
+          <div class="relative">
+            <input
+              type="text"
+              id="quick-scan-input"
+              placeholder="e.g. 185.220.101.5, example.com, sha256, CVE-2024-..., or @handle"
+              class="input-field w-full py-3 pl-4 pr-28 text-xs sm:text-sm font-mono"
+            />
+            <button
+              type="submit"
+              class="btn-primary absolute right-1.5 top-1/2 -translate-y-1/2 py-1.5 px-3 text-xs font-bold"
+            >
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+              <span>Launch</span>
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2 text-[11px] font-mono text-slate-500">
+            <span>Try:</span>
+            <button type="button" onclick="document.getElementById('quick-scan-input').value='185.220.101.5'" class="text-emerald-400 hover:underline">185.220.101.5</button>
+            <span>•</span>
+            <button type="button" onclick="document.getElementById('quick-scan-input').value='cloudflare.com'" class="text-cyan-400 hover:underline">cloudflare.com</button>
+            <span>•</span>
+            <button type="button" onclick="document.getElementById('quick-scan-input').value='CVE-2024-21413'" class="text-rose-400 hover:underline">CVE-2024-21413</button>
+            <span>•</span>
+            <button type="button" onclick="document.getElementById('quick-scan-input').value='@torvalds'" class="text-amber-400 hover:underline">@torvalds</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  PANE 4: API TOKENS & WEBHOOKS                             -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div data-tab-pane="api-keys" class="space-y-6 hidden">
+      <div class="card p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <i data-lucide="key" class="w-4 h-4 text-violet-400"></i>
+              <span>Personal Access API Keys</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">
+              Authenticate automated CI/CD pipelines, SIEM ingest connectors, and CLI tools with Bearer token authentication.
+            </p>
+          </div>
+          <button
+            type="button"
+            id="generate-api-key-btn"
+            class="btn-primary py-2 px-4 text-xs font-bold shrink-0"
+          >
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            <span>Generate New Token</span>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-[10px] font-mono uppercase text-slate-400">
+                <th class="py-2.5 px-4">Key Label</th>
+                <th class="py-2.5 px-4">Secret Token</th>
+                <th class="py-2.5 px-4">Created</th>
+                <th class="py-2.5 px-4">Last Ingestion</th>
+                <th class="py-2.5 px-4 text-right">Revoke</th>
+              </tr>
+            </thead>
+            <tbody id="api-keys-table-body">
+              <!-- Populated via dashboard.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!--  PANE 5: SECURITY & 2FA                                    -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div data-tab-pane="security" class="space-y-6 hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- 2FA Card -->
+        <div class="card p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="smartphone" class="w-4 h-4 text-emerald-400"></i>
+              <span>Two-Factor Authentication (2FA)</span>
+            </h3>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30">ENABLED</span>
+          </div>
+          <p class="text-xs text-slate-400">
+            Hardware security tokens (FIDO2/WebAuthn) and TOTP Authenticator apps (Google Authenticator, Yubico) are activated on this account.
+          </p>
+          <div class="p-3 rounded-xl bg-surface-850 border border-slate-800 font-mono text-xs text-slate-300 flex items-center justify-between">
+            <span>TOTP Authenticator: <strong>Active</strong></span>
+            <span class="text-emerald-400 text-[11px]">Sync OK</span>
+          </div>
+        </div>
+
+        <!-- Active Sessions Card -->
+        <div class="card p-6 space-y-4">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="monitor" class="w-4 h-4 text-cyan-400"></i>
+            <span>Active Terminal Sessions</span>
+          </h3>
+          <div class="space-y-2.5">
+            <div class="p-3 rounded-xl bg-surface-850 border border-slate-800 flex items-center justify-between text-xs">
+              <div class="space-y-0.5">
+                <div class="font-bold text-white flex items-center gap-1.5">
+                  <span>Windows 11 • Chrome 134</span>
+                  <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-mono">CURRENT</span>
+                </div>
+                <div class="text-[11px] font-mono text-slate-400">Baku, Azerbaijan (IP: Detected)</div>
+              </div>
+              <span class="text-[11px] font-mono text-emerald-400">Now</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  INSPECT RECORD MODAL                                      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="inspect-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-850 border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl animate-fade-in relative">
+      <button id="close-inspect-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 id="inspect-title" class="text-base font-bold text-white mb-2 font-mono truncate">Investigation Inspector</h3>
+      <div class="relative mt-3">
+        <pre id="inspect-json-view" class="bg-surface-900 border border-slate-800 p-4 rounded-xl text-xs font-mono text-emerald-300 max-h-96 overflow-y-auto"></pre>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <a id="inspect-rerun-btn" href="#" class="btn-primary py-2 px-4 text-xs font-bold">
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+          <span>Re-launch in Live Tool</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  UPDATE CARD MODAL                                         -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="card-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-850 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in relative">
+      <button id="close-card-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="text-base font-bold text-white mb-1">Update Payment Method</h3>
+      <p class="text-xs text-slate-400 mb-4">PCI-DSS Tier 1 encrypted tokenization via Stripe / Adyen secure gateway.</p>
+      
+      <form id="card-form" class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Cardholder Name</label>
+          <input type="text" id="new-card-holder" required placeholder="Alex Vance" class="input-field w-full text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Card Number</label>
+          <input type="text" id="new-card-number" required placeholder="4242 •••• •••• 4242" maxlength="19" class="input-field w-full text-xs font-mono" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Expires (MM/YY)</label>
+            <input type="text" id="new-card-exp" required placeholder="12/29" maxlength="5" class="input-field w-full text-xs font-mono" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">CVV Security Code</label>
+            <input type="password" id="new-card-cvv" required placeholder="•••" maxlength="4" class="input-field w-full text-xs font-mono" />
+          </div>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="btn-primary w-full py-2 text-xs font-bold">
+            Save & Encrypt Payment Method
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  RECEIPT MODAL                                             -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="receipt-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-surface-850 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in relative">
+      <button id="close-receipt-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+          <i data-lucide="receipt" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white">SudoDeck Official Tax Receipt</h3>
+          <span class="text-[10px] font-mono text-emerald-400">PAYMENT SETTLED</span>
+        </div>
+      </div>
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 space-y-2 text-xs font-mono text-slate-300">
+        <div class="flex justify-between"><span>Invoice:</span><strong id="receipt-id" class="text-emerald-400">INV-2026-091</strong></div>
+        <div class="flex justify-between"><span>Date:</span><span id="receipt-date">2026-09-01</span></div>
+        <div class="flex justify-between"><span>Customer:</span><span id="receipt-customer" class="truncate max-w-[180px]">SudoDeck Labs</span></div>
+        <div class="flex justify-between"><span>Service:</span><span>Pro Cyber Analyst Plan</span></div>
+        <div class="border-t border-slate-800 pt-2 flex justify-between font-bold text-sm text-white">
+          <span>Amount Paid:</span><span id="receipt-amount">$29.00 USD</span>
+        </div>
+      </div>
+      <div class="mt-4 flex justify-end gap-2">
+        <button type="button" onclick="window.print()" class="btn-primary py-1.5 px-4 text-xs font-semibold">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  DASHBOARD TOAST                                           -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div id="dashboard-toast" class="fixed bottom-6 right-6 z-50 max-w-sm px-4 py-3 rounded-xl border border-emerald-500/40 bg-surface-850/95 text-white text-xs font-medium backdrop-blur-xl shadow-xl flex items-center gap-3 translate-y-24 opacity-0 transition-all duration-300">
+    <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+      <i data-lucide="check-circle" class="w-4 h-4"></i>
+    </div>
+    <span id="dashboard-toast-text">Operation completed successfully.</span>
+  </div>
+
+  <!-- Core Scripts -->
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/shared-nav.js"></script>
+</body>
+</html>

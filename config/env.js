@@ -40,8 +40,8 @@ const config = Object.freeze({
   NVD_API_KEY: process.env.NVD_API_KEY || '',
   MACVENDORS_API_TOKEN: process.env.MACVENDORS_API_TOKEN || '',
   APIFY_API_TOKEN: process.env.APIFY_API_TOKEN || '',
-  SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ecoxglivjqhrzwtgwrim.supabase.co',
-  SUPABASE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_9Hy_lO637TmXg8xgQmuMkQ_Aia9Twwa',
+  SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '',
+  SUPABASE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || '',
   NODE_ENV: process.env.NODE_ENV || 'development',
   IS_DEV: (process.env.NODE_ENV || 'development') === 'development',
 });
