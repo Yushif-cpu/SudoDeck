@@ -298,6 +298,11 @@ app.get(['/payloads', '/payload-manager', '/payload'], (req, res) => {
   sendPage(res, 'payloads.html');
 });
 
+// ── Dedicated Social Media Footprint (Sherlock/Maigret) route ──
+app.get(['/social-footprint', '/social-recon', '/footprint', '/sherlock'], (req, res) => {
+  sendPage(res, 'social-footprint.html');
+});
+
 // ── Dedicated Visual Recon & Image Geolocation route ────────
 app.get(['/visual-recon', '/recon', '/image-recon', '/geolocation'], (req, res) => {
   sendPage(res, 'visual-recon.html');

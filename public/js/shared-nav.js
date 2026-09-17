@@ -39,6 +39,15 @@
   const COMMAND_ITEMS = [
     // Navigation items
     {
+      id: 'nav-social-footprint',
+      title: 'Social Media Footprint (Sherlock / Maigret)',
+      desc: 'OSINT search across 35+ global social networks, developer platforms & forums',
+      category: 'Threat & Recon',
+      icon: 'user-check',
+      url: '/social-footprint',
+      keywords: ['social', 'sherlock', 'maigret', 'footprint', 'username', 'handle', 'osint', 'instagram', 'github', 'twitter', 'tiktok', 'telegram']
+    },
+    {
       id: 'nav-visual-recon',
       title: 'Visual Recon & Image Geolocation',
       desc: 'Client-side EXIF GPS reader, Tesseract OCR landmark detection & reverse visual search',
@@ -682,12 +691,24 @@
                 </div>
                 <div>
                   <div class="text-xs font-bold text-white tracking-wide">Threat & Recon</div>
-                  <div class="text-[10px] font-mono text-emerald-400/80">6 intelligence modules</div>
+                  <div class="text-[10px] font-mono text-emerald-400/80">7 intelligence modules</div>
                 </div>
               </div>
               <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
             </button>
             <div id="mob-threat-group" class="mobile-accordion-content hidden border-t border-slate-800/80 bg-surface-900/60 p-2 space-y-1">
+              <a href="/social-footprint" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-cyan-500/20 border border-cyan-500/40 text-cyan-400">
+                  <i data-lucide="user-check" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-cyan-300 flex items-center gap-1.5 truncate">
+                    <span>Social Media Footprint</span>
+                    <span class="text-[9px] px-1 rounded bg-cyan-500/20 text-cyan-300 font-mono">NEW</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 truncate">Sherlock & Maigret OSINT engine</div>
+                </div>
+              </a>
               <a href="/visual-recon" class="mobile-menu-item group">
                 <div class="mobile-menu-icon bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
                   <i data-lucide="camera" class="w-4 h-4"></i>

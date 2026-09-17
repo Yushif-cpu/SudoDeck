@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SudoDeck — Social Media Footprint (Sherlock // Maigret OSINT)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260914" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260914" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=20260914" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260914" />
+  <link rel="shortcut icon" href="/favicon.ico?v=20260914" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260914" />
+  <meta name="description" content="Cross-platform Social Media Footprint & Username Reconnaissance Engine powered by Sherlock & Maigret OSINT methods." />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            surface: {
+              900: '#0a0e17',
+              850: '#0d1322',
+              800: '#0f1629',
+              750: '#151e36',
+              700: '#151d33',
+              600: '#1a2440',
+              500: '#212d4a',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+
+<body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased flex flex-col">
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  TOP NAV BAR                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <header class="sticky top-0 z-50 border-b border-slate-800/80 bg-surface-900/90 backdrop-blur-xl">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Left: Logo & Brand -->
+        <div class="flex items-center gap-6">
+          <a href="/" class="flex items-center group">
+            <h1 class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">Sudo<span class="text-emerald-400">Deck</span></h1>
+          </a>
+
+          <!-- Categorized Desktop Navigation -->
+          <nav class="hidden lg:flex items-center gap-2">
+
+            <!-- Category 1: Threat & Recon Dropdown (Active) -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-intel"
+                class="nav-pill active-emerald text-emerald-400 bg-emerald-500/10 border-emerald-500/40"
+              >
+                <i data-lucide="radar" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>Threat & Recon</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-intel"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/social-footprint" class="dropdown-card-item active">
+                  <div class="dropdown-card-icon bg-cyan-500/20 border border-cyan-500/40 text-cyan-400">
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>Social Media Footprint</span>
+                      <span class="text-[9px] px-1 rounded bg-cyan-500/20 text-cyan-300 font-mono">NEW</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 truncate">Sherlock & Maigret OSINT engine</div>
+                  </div>
+                </a>
+                <a href="/visual-recon" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
+                    <i data-lucide="camera" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>Visual Recon & Geolocation</span>
+                      <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">NEW</span>
+                    </div>
+                    <div class="text-[11px] text-slate-400 truncate">EXIF GPS, OCR & image analysis</div>
+                  </div>
+                </a>
+                <a href="/#ip" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP Reputation Check</div>
+                    <div class="text-[11px] text-slate-400 truncate">AbuseIPDB, Geolocation & ASN</div>
+                  </div>
+                </a>
+                <a href="/#domain" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-blue-500/15 border border-blue-500/30 text-blue-400">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Domain Intelligence</div>
+                    <div class="text-[11px] text-slate-400 truncate">VirusTotal, DNS & WHOIS Engine</div>
+                  </div>
+                </a>
+                <a href="/#utils" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-teal-500/15 border border-teal-500/30 text-teal-400">
+                    <i data-lucide="network" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP & Subnet Utilities</div>
+                    <div class="text-[11px] text-slate-400 truncate">CIDR, masks & network calculator</div>
+                  </div>
+                </a>
+                <a href="/cve" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-amber-500/15 border border-amber-500/30 text-amber-400">
+                    <i data-lucide="flame" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">CVE Vulnerability Feed</div>
+                    <div class="text-[11px] text-slate-400 truncate">NVD 2.0 real-time vulnerability lookup</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Other categories -->
+            <a href="/payloads" class="nav-pill">
+              <i data-lucide="terminal" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>Payloads</span>
+            </a>
+            <a href="/gtfobins" class="nav-pill">
+              <i data-lucide="terminal" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>GTFOBins</span>
+            </a>
+            <a href="/subdomain" class="nav-pill">
+              <i data-lucide="layers" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>Subdomains</span>
+            </a>
+            <a href="/siem" class="nav-pill">
+              <i data-lucide="activity" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span>SOC & SIEM</span>
+            </a>
+          </nav>
+        </div>
+
+        <!-- Right: Actions & Tools -->
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            data-command-palette-trigger
+            class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-700/80 text-xs text-slate-400 hover:text-white transition-all"
+          >
+            <i data-lucide="search" class="w-3.5 h-3.5"></i>
+            <span>Quick Command...</span>
+            <kbd class="px-1.5 py-0.5 rounded bg-surface-750 text-[10px] font-mono text-slate-300">Ctrl+K</kbd>
+          </button>
+          <a
+            href="/"
+            class="px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-700/80 text-xs font-mono text-slate-300 hover:text-white transition-colors"
+          >
+            ← Threat Intel Hub
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  MAIN CONTENT                                              -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Hero Header -->
+    <div class="text-center max-w-3xl mx-auto space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-medium">
+        <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+        <span>SHERLOCK // MAIGRET OSINT ENGINE</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+        Social Media <span class="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Footprint</span>
+      </h1>
+      <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
+        İstifadəçinin ləqəbini (username) daxil edin. Sistem dünyanın 35+ aparıcı sosial şəbəkəsində (Instagram, X, GitHub, Telegram, TikTok, Reddit və s.) həmin hesabın mövcudluğunu eyni vaxtda yoxlayır.
+      </p>
+    </div>
+
+    <!-- Main Search Card -->
+    <div class="max-w-4xl mx-auto rounded-2xl border border-slate-800 bg-surface-900 p-6 sm:p-8 space-y-5 shadow-2xl">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1">
+          <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 font-mono text-base">
+            @
+          </span>
+          <input
+            type="text"
+            id="sherlock-username-input"
+            placeholder="Hədəf ləqəb / username daxil edin (məs: by.orux, torvalds, elonmusk)..."
+            class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-surface-850 border border-slate-700 text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors shadow-inner"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+        <button
+          type="button"
+          id="btn-run-sherlock"
+          class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-mono font-bold text-sm transition-all shadow-[0_0_25px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 whitespace-nowrap active:scale-[0.98]"
+        >
+          <i data-lucide="search" class="w-4 h-4"></i>
+          <span>Footprint Axtar ⚡</span>
+        </button>
+      </div>
+
+      <!-- Quick Demo Badges -->
+      <div class="flex flex-wrap items-center gap-2 pt-1 text-xs font-mono text-slate-400">
+        <span class="text-slate-500 flex items-center gap-1">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Sürətli Sınaq Ləqəbləri:</span>
+        </span>
+        <button type="button" class="btn-demo-tag px-2.5 py-1 rounded-lg bg-surface-850 hover:bg-surface-800 border border-slate-800 hover:border-slate-700 text-cyan-300 transition-colors" data-user="by.orux">
+          @by.orux
+        </button>
+        <button type="button" class="btn-demo-tag px-2.5 py-1 rounded-lg bg-surface-850 hover:bg-surface-800 border border-slate-800 hover:border-slate-700 text-cyan-300 transition-colors" data-user="torvalds">
+          @torvalds
+        </button>
+        <button type="button" class="btn-demo-tag px-2.5 py-1 rounded-lg bg-surface-850 hover:bg-surface-800 border border-slate-800 hover:border-slate-700 text-cyan-300 transition-colors" data-user="elonmusk">
+          @elonmusk
+        </button>
+        <button type="button" class="btn-demo-tag px-2.5 py-1 rounded-lg bg-surface-850 hover:bg-surface-800 border border-slate-800 hover:border-slate-700 text-cyan-300 transition-colors" data-user="mrbeast">
+          @mrbeast
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats & Filters Container -->
+    <div id="sherlock-stats-container" class="hidden max-w-6xl mx-auto space-y-4">
+      
+      <!-- Statistics Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-surface-850 border border-slate-800 text-xs font-mono">
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Tapılan Hesablar:</span>
+            <span id="sherlock-found-count" class="text-sm bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">0</span>
+          </div>
+          <span class="text-slate-700">|</span>
+          <div class="text-slate-400">
+            <span>Yoxlanılan:</span>
+            <span id="sherlock-total-count" class="text-white font-bold">0</span> platforma
+          </div>
+          <span class="text-slate-700">|</span>
+          <div class="text-slate-400">
+            <span>Orta Cavab Müddəti:</span>
+            <span id="sherlock-avg-latency" class="text-cyan-300 font-bold">~0ms</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="btn-export-results"
+            class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5"
+          >
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Nəticələri Kopyala</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div id="sherlock-filters" class="flex flex-wrap items-center gap-2 border-b border-slate-800/80 pb-3 text-xs font-mono">
+        <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 transition-colors" data-filter="all">
+          Hamısı (<span id="tab-count-all">0</span>)
+        </button>
+        <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="found">
+          🟢 Yalnız Tapılanlar (<span id="tab-count-found">0</span>)
+        </button>
+        <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Social">
+          Sosial (<span id="tab-count-social">0</span>)
+        </button>
+        <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Developer">
+          Developer / Kod (<span id="tab-count-developer">0</span>)
+        </button>
+        <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Media">
+          Media & Musiqi (<span id="tab-count-media">0</span>)
+        </button>
+        <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Gaming">
+          Gaming (<span id="tab-count-gaming">0</span>)
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Loading HUD -->
+    <div id="sherlock-loading" class="hidden max-w-4xl mx-auto p-12 rounded-2xl bg-surface-900 border border-slate-800 text-center space-y-4 shadow-xl">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 animate-spin">
+        <i data-lucide="loader-2" class="w-6 h-6"></i>
+      </div>
+      <div class="text-sm font-mono text-white font-bold">
+        <span id="sherlock-loading-username" class="text-cyan-400">@target</span> üçün 35+ qlobal platforma sorğulanır...
+      </div>
+      <p class="text-xs text-slate-400 font-mono max-w-md mx-auto leading-relaxed">
+        GitHub, Telegram, Reddit, TikTok, Instagram, X, Spotify, Steam və s. serverləri real vaxtda yoxlanılır.
+      </p>
+    </div>
+
+    <!-- Empty State Prompt -->
+    <div id="sherlock-empty" class="max-w-4xl mx-auto p-12 rounded-2xl bg-surface-900/60 border border-slate-800 text-center text-xs font-mono text-slate-500 space-y-2">
+      <i data-lucide="user-search" class="w-10 h-10 text-slate-600 mx-auto mb-2"></i>
+      <div class="text-sm font-semibold text-slate-400">Kəşfiyyata başlamaq üçün hədəf ləqəbi daxil edin</div>
+      <div>və ya yuxarıdakı sınaq ləqəblərindən birinə klikləyin.</div>
+    </div>
+
+    <!-- Results Cards Grid -->
+    <div id="sherlock-results-grid" class="hidden max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!--  FOOTER                                                    -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <footer class="border-t border-slate-800/80 bg-surface-900/60 mt-auto py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 font-mono space-y-2">
+      <div>SUDODECK // THREAT & RECON // SOCIAL MEDIA FOOTPRINT ENGINE</div>
+      <div>Sherlock & Maigret Cross-Platform Intelligence • 35+ Global Endpoints</div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="/js/shared-nav.js"></script>
+  <script src="/js/social-footprint.js?v=1.0"></script>
+</body>
+</html>
