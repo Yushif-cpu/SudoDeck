@@ -82,10 +82,6 @@ export default function ResourceDiscovery() {
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-mono font-bold tracking-wider mb-3">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              OSINT RECON // ATTACK UTILITIES
-            </div>
             <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white flex items-center gap-3">
               Subdomain & Resource Finder
             </h1>

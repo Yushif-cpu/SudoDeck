@@ -108,10 +108,6 @@ export default function PayloadManager() {
 
       {/* Header Banner */}
       <div className="mb-8 border-b border-slate-800/80 pb-6">
-        <div className="flex items-center gap-2 text-xs font-mono text-amber-400 mb-2 tracking-wider uppercase">
-          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-          ATTACK UTILITIES // SECURITY PAYLOAD MANAGER
-        </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
           <span>Payload Catalogue & Testing Suite</span>
         </h1>
