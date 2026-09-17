@@ -71,13 +71,18 @@ app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
-// ── Static files with compression & caching ─────────────────────
+// ── Static files with dynamic cache control ─────────────────────
 app.use(express.static(join(__dirname, 'public'), {
-  maxAge: '1h',
-  etag: true,
+  etag: false,
   setHeaders: (res, path) => {
-    if (path.includes('favicon')) {
+    if (path.endsWith('.html') || path.endsWith('.js') || path.endsWith('.css')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    } else if (path.includes('favicon')) {
       res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=3600');
     }
   }
 }));
@@ -170,6 +175,43 @@ app.get('/api/geocode', async (req, res) => {
     return res.status(502).json({
       success: false,
       error: 'Nominatim geocoding xidməti müvəqqəti əlçatmazdır.',
+      details: err.message,
+    });
+  }
+});
+
+// ── OpenStreetMap (Nominatim) Reverse Geocoding Proxy ─────────────
+app.get('/api/reverse-geocode', async (req, res) => {
+  const lat = parseFloat(req.query.lat);
+  const lon = parseFloat(req.query.lon);
+  if (isNaN(lat) || isNaN(lon)) {
+    return res.status(400).json({ success: false, error: 'Düzgün lat və lon parametrləri mütləqdir.' });
+  }
+
+  try {
+    const osmResponse = await axios.get('https://nominatim.openstreetmap.org/reverse', {
+      params: {
+        lat,
+        lon,
+        format: 'json',
+        addressdetails: 1,
+      },
+      headers: {
+        'User-Agent': 'SudoDeck-OSINT-Platform/2.0 (threat-intel-visual-recon)',
+        'Accept-Language': 'az,en,ru',
+      },
+      timeout: 8000,
+    });
+
+    return res.json({
+      success: true,
+      data: osmResponse.data || {},
+    });
+  } catch (err) {
+    console.warn('Nominatim reverse geocode notice:', err.message);
+    return res.status(502).json({
+      success: false,
+      error: 'Nominatim reverse geocoding xidməti müvəqqəti əlçatmazdır.',
       details: err.message,
     });
   }

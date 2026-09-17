@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
 //  SudoDeck — Visual Recon & Image Geolocation Engine
-//  Bulletproof Zero-Freeze Architecture + AI Geo-Estimation Fallback
+//  Dynamic Zero-Persistence Reset + Real EXIF & OCR Geocoding
 // ══════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,16 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
     window.lucide.createIcons();
   }
 
-  // Safe DOM text helper (eliminates null pointer crashes)
+  // Safe DOM helpers
   const setText = (el, text) => {
     if (el) el.textContent = text;
   };
 
-  const setDisplay = (el, isVisible, displayClass = 'block') => {
+  const setHtml = (el, html) => {
+    if (el) el.innerHTML = html;
+  };
+
+  const setDisplay = (el, isVisible) => {
     if (!el) return;
     if (isVisible) {
       el.classList.remove('hidden');
-      if (displayClass !== 'block') el.classList.add(displayClass);
     } else {
       el.classList.add('hidden');
     }
@@ -49,12 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const gpsDetailsLocked = document.getElementById('gps-details-locked');
   const gpsDetailsNone = document.getElementById('gps-details-none');
   const coordsDisplay = document.getElementById('coords-display');
+  const coordsAddress = document.getElementById('coords-address');
   const btnCopyCoords = document.getElementById('btn-copy-coords');
   const btnGoogleMaps = document.getElementById('btn-google-maps');
   const btnOsmMaps = document.getElementById('btn-osm-maps');
   const mapFrame = document.getElementById('map-frame');
 
-  // Sun & Shadow Chronolocation elements
+  // Chronolocation elements
   const chronoContainer = document.getElementById('chrono-container');
   const chronoTime = document.getElementById('chrono-time');
   const chronoSunAzimuth = document.getElementById('chrono-sun-azimuth');
@@ -64,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const chronoGuidance = document.getElementById('chrono-guidance');
 
   // Nominatim Suggested Locations elements
-  const suggestedLocationsContainer = document.getElementById('suggested-locations-container');
   const locationsGrid = document.getElementById('locations-grid');
   const locationsEmptyMsg = document.getElementById('locations-empty-msg');
   const osmSearchInput = document.getElementById('osm-search-input');
@@ -96,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const demoGpsBtn = document.getElementById('demo-gps-btn');
   const demoOcrBtn = document.getElementById('demo-ocr-btn');
 
+  // Active state variables
   let originalImageSrc = '';
   let enhancedImageSrc = '';
   let currentGps = null;
@@ -103,7 +107,87 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentLandmarks = [];
   let suggestedLocationsList = [];
 
-  // Progress updater
+  // Complete Zero-Persistence State Reset on every upload
+  const resetAllState = () => {
+    // 1. Clean previous blobs
+    if (originalImageSrc && originalImageSrc.startsWith('blob:')) {
+      try { URL.revokeObjectURL(originalImageSrc); } catch (_) {}
+    }
+    if (enhancedImageSrc && enhancedImageSrc.startsWith('blob:')) {
+      try { URL.revokeObjectURL(enhancedImageSrc); } catch (_) {}
+    }
+
+    originalImageSrc = '';
+    enhancedImageSrc = '';
+    currentGps = null;
+    currentOcrText = '';
+    currentLandmarks = [];
+    suggestedLocationsList = [];
+
+    // 2. Reset Preview Card
+    if (imagePreview) imagePreview.src = '';
+    setText(previewFileName, 'target.jpg');
+    setText(previewFileSize, '0 KB');
+    setText(previewBadgeMode, '📷 Native View');
+
+    // 3. Reset GPS Telemetry Panel
+    setText(gpsBadge, 'ANALİZ EDİLİR...');
+    if (gpsBadge) {
+      gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700';
+    }
+    setDisplay(gpsDetailsLocked, false);
+    setDisplay(gpsDetailsNone, false);
+    setText(coordsDisplay, '—');
+    setText(coordsAddress, '');
+    setDisplay(coordsAddress, false);
+    if (mapFrame) mapFrame.src = 'about:blank';
+    if (btnGoogleMaps) btnGoogleMaps.href = '#';
+    if (btnOsmMaps) btnOsmMaps.href = '#';
+
+    // 4. Reset OCR & Landmarks
+    setText(ocrConfidence, '0%');
+    setText(ocrRawText, 'Şəkil analiz edilir...');
+    setDisplay(landmarksContainer, false);
+    setHtml(landmarksTags, '');
+    setDisplay(proximityContainer, false);
+    setHtml(proximityTags, '');
+    setDisplay(btnGoogleSearchText, false);
+
+    // 5. Reset Locations
+    setDisplay(locationsGrid, false);
+    setHtml(locationsGrid, '');
+    setDisplay(locationsEmptyMsg, true);
+
+    // 6. Reset Chronolocation
+    setDisplay(chronoContainer, false);
+    setText(chronoTime, '—');
+    setText(chronoSunAzimuth, '—');
+    setText(chronoShadowVector, '—');
+    setText(chronoShadowRatio, '—');
+
+    // 7. Reset Metadata Table
+    setText(metaMake, 'Məlumat yoxdur');
+    setText(metaModel, 'Məlumat yoxdur');
+    setText(metaDateTime, 'Məlumat yoxdur');
+    setText(metaDimensions, 'Məlumat yoxdur');
+    setText(metaFileSize, '0 Bytes');
+    setText(metaExposure, 'Məlumat yoxdur');
+    setText(metaFNumber, 'Məlumat yoxdur');
+    setText(metaIso, 'Məlumat yoxdur');
+    setText(metaFocal, 'Məlumat yoxdur');
+    setText(metaSoftware, 'Məlumat yoxdur');
+
+    // 8. Reset View Switcher
+    if (btnViewOriginal) {
+      btnViewOriginal.classList.add('bg-[#00C897]/20', 'text-[#00C897]', 'font-bold');
+      btnViewOriginal.classList.remove('text-slate-400');
+    }
+    if (btnViewEnhanced) {
+      btnViewEnhanced.classList.add('hidden', 'text-slate-400');
+      btnViewEnhanced.classList.remove('bg-[#00C897]/20', 'text-[#00C897]', 'font-bold');
+    }
+  };
+
   const updateProgress = (pct, msg) => {
     if (progressBar) progressBar.style.width = `${pct}%`;
     if (progressPercent) progressPercent.textContent = `${pct}%`;
@@ -119,6 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const copyToClipboard = (text, triggerBtn, successText = 'Kopyalandı!') => {
+    if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
       if (!triggerBtn) return;
       const original = triggerBtn.textContent;
@@ -134,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const KNOWN_STORE_PATTERNS = [
     /\b(Bravo|Bazarstore|Araz|Grandmart|Neptun|Oba|Almarket|Rahat|Bolmart|Spar|Carrefour)\b/gi,
     /\b(Aptek|Pharmacy|Apotheke|Eczane|Zeferan|Zeytun|Kanun)\b/gi,
-    /\b(Baku|Bakı|Ganja|Gəncə|Sumqayit|Sumqayıt|Quba|Sheki|Şəki|Lankaran|Lənkəran|Shusha|Şuşa|Khankendi|Xankəndi|Yasamal|Nasimi|Nəsimi|Sabayil|Səbail|Narimanov|Nərimanov|Badamdar|Bayil|Bayıl|Masazir|Masazır|Xirdalan|Xırdalan|Mardakan|Mərdəkan|Bilajari|Biləcəri)\b/gi,
+    /\b(Baku|Bakı|Ganja|Gəncə|Sumqayit|Sumqayıt|Quba|Sheki|Şəki|Lankaran|Lənkəran|Shusha|Şuşa|Khankendi|Xankəndi|Yasamal|Nasimi|Nəsimi|Sabayil|Səbail|Narimanov|Nərimanov|Badamdar|Bayil|Bayıl|Masazir|Masazır|Xirdalan|Xırdalan|Mardakan|Mərdəkan|Bilajari|Biləcəri|Nizami|Sahil|Koroğlu)\b/gi,
     /\b(Kuc|Kucesi|Küç|Küçəsi|Pr|Prospekti|Prospekt|Street|St|Ave|Avenue|Road|Rd|Bulvar|Boulevard|Yolu|Yol)\b/gi,
     /\b(Bank|Kapital|Pasha|Paşa|ABB|UniBank|AccessBank|ExpressBank|Yelo|Rabitabank|ATM)\b/gi,
     /\b(Metro|Stansiya|Vagzal|Vaqzal|Airport|Aeroport|Terminal)\b/gi,
@@ -152,17 +237,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    const capitalizedMatches = text.match(/\b[A-ZƏÖĞÇŞIİ][a-zəöğçşıi]{2,}(?:\s+[A-ZƏÖĞÇŞIİ][a-zəöğçşıi]{2,})*\b/g);
+    const capitalizedMatches = text.match(/\b[A-ZƏÖĞÇŞIİ][a-zəöğçşıi]{3,}(?:\s+[A-ZƏÖĞÇŞIİ][a-zəöğçşıi]{3,})*\b/g);
     if (capitalizedMatches) {
       capitalizedMatches.forEach((word) => {
         const clean = word.trim();
-        if (clean.length > 3 && !['This', 'With', 'From', 'Have', 'They', 'Date', 'Time'].includes(clean)) {
+        if (clean.length > 3 && !['This', 'With', 'From', 'Have', 'They', 'Date', 'Time', 'Text', 'Camera', 'Photo', 'Native'].includes(clean)) {
           landmarks.add(clean);
         }
       });
     }
 
-    return Array.from(landmarks).slice(0, 12);
+    return Array.from(landmarks).slice(0, 10);
   };
 
   function degreesToCardinal(deg) {
@@ -209,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Safe Canvas Image Enhancement
+  // Canvas Image Enhancement for sharper OCR
   const enhanceImageViaCanvas = (sourceUrl) => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -278,9 +363,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // Safe Nominatim Geocoding
+  // Reverse Geocode: GPS -> Exact Human Address
+  const queryReverseGeocode = async (lat, lon) => {
+    try {
+      const res = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lon}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data && json.data.display_name) {
+          return json.data.display_name;
+        }
+      }
+    } catch (_) {}
+
+    // Fallback direct OSM
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, {
+        headers: { 'Accept-Language': 'az,en,ru' },
+      });
+      if (res.ok) {
+        const d = await res.json();
+        return d.display_name || '';
+      }
+    } catch (_) {}
+    return '';
+  };
+
+  // Forward Geocode: Query String -> Coordinates
   const queryNominatimGeocode = async (queryPhrase) => {
-    if (!queryPhrase || !queryPhrase.trim()) return;
+    if (!queryPhrase || !queryPhrase.trim()) return [];
     const phrase = queryPhrase.trim();
 
     try {
@@ -310,23 +420,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const fresh = results.filter(item => !existingIds.has(item.place_id));
         suggestedLocationsList = [...fresh, ...suggestedLocationsList].slice(0, 10);
         renderSuggestedLocations();
+        return results;
       }
     } catch (e) {
       console.warn('Geocoding notice:', e);
     }
+    return [];
   };
 
   const renderSuggestedLocations = () => {
     if (!locationsGrid || !locationsEmptyMsg) return;
 
     if (suggestedLocationsList.length === 0) {
-      locationsGrid.classList.add('hidden');
-      locationsEmptyMsg.classList.remove('hidden');
+      setDisplay(locationsGrid, false);
+      setDisplay(locationsEmptyMsg, true);
       return;
     }
 
-    locationsEmptyMsg.classList.add('hidden');
-    locationsGrid.classList.remove('hidden');
+    setDisplay(locationsEmptyMsg, false);
+    setDisplay(locationsGrid, true);
     locationsGrid.innerHTML = '';
 
     suggestedLocationsList.forEach((loc) => {
@@ -343,17 +455,34 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         <div class="flex items-center gap-2 pt-1 font-mono text-xs">
-          <a href="https://www.google.com/maps?q=${loc.lat},${loc.lon}" target="_blank" rel="noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-[#00C897]/15 hover:bg-[#00C897]/25 text-[#00C897] font-bold transition-colors">
-            Google Maps ↗
-          </a>
-          <a href="https://www.openstreetmap.org/?mlat=${loc.lat}&mlon=${loc.lon}#map=16/${loc.lat}/${loc.lon}" target="_blank" rel="noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
-            OpenStreetMap ↗
+          <button type="button" class="btn-preview-map flex-1 text-center py-1.5 rounded-lg bg-[#00C897]/15 hover:bg-[#00C897]/25 text-[#00C897] font-bold transition-colors">
+            Xəritədə Bax 🗺️
+          </button>
+          <a href="https://www.google.com/maps?q=${loc.lat},${loc.lon}" target="_blank" rel="noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
+            GMaps ↗
           </a>
           <button type="button" class="btn-copy-loc px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" data-coords="${loc.lat}, ${loc.lon}">
             Kopya
           </button>
         </div>
       `;
+
+      card.querySelector('.btn-preview-map').addEventListener('click', () => {
+        const lat = parseFloat(loc.lat);
+        const lon = parseFloat(loc.lon);
+        setDisplay(gpsDetailsLocked, true);
+        setDisplay(gpsDetailsNone, false);
+        setText(coordsDisplay, `${lat.toFixed(6)}, ${lon.toFixed(6)}`);
+        if (coordsAddress) {
+          coordsAddress.textContent = `📍 Seçilmiş Məkan: ${loc.display_name}`;
+          coordsAddress.classList.remove('hidden');
+        }
+        if (btnGoogleMaps) btnGoogleMaps.href = `https://www.google.com/maps?q=${lat},${lon}`;
+        if (btnOsmMaps) btnOsmMaps.href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
+        if (mapFrame) {
+          mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.008}%2C${lat - 0.005}%2C${lon + 0.008}%2C${lat + 0.005}&layer=mapnik&marker=${lat}%2C${lon}`;
+        }
+      });
 
       card.querySelector('.btn-copy-loc').addEventListener('click', (e) => {
         copyToClipboard(e.currentTarget.getAttribute('data-coords'), e.currentTarget, '✓');
@@ -371,12 +500,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setText(chronoSunAzimuth, `${shadow.sunAzimuthDeg}° (${shadow.cardinalDirection})`);
     setText(chronoShadowVector, `${shadow.shadowAzimuthDeg}° (${shadow.shadowCardinalDirection})`);
     setText(chronoShadowRatio, shadow.isNight ? 'Gecə' : `~${shadow.shadowLengthRatio}x`);
-    setText(chronoReliability, hasGps ? 'High (GPS+EXIF)' : 'Geo-Estimated (Absheron Landscape)');
+    setText(chronoReliability, hasGps ? 'High (GPS+EXIF)' : 'Estimated by Time');
 
     if (chronoGuidance) {
-      chronoGuidance.innerHTML = `📐 <strong>OSINT İpucu:</strong> Saat ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} üçün şəkildəki dirək və hasarların kölgəsi <span class="text-[#00C897] font-semibold">${shadow.shadowCardinalDirection}</span> istiqamətinə yönəlir (1 m obyekt üçün kölgə ~${shadow.shadowLengthRatio} m).`;
+      chronoGuidance.innerHTML = `📐 <strong>OSINT İpucu:</strong> Saat ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} üçün şəkildəki dirək və hasarların kölgəsi <span class="text-[#00C897] font-semibold">${shadow.shadowCardinalDirection}</span> tərəfinə yönəlir (1 m obyekt üçün kölgə ~${shadow.shadowLengthRatio} m).`;
     }
-    chronoContainer.classList.remove('hidden');
+    setDisplay(chronoContainer, true);
   };
 
   // View Switchers
@@ -422,9 +551,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Fast & Bulletproof OCR with Timeout Race
+  // Fast & Bulletproof OCR
   const runOcrOnSource = async (src) => {
-    if (!src) return;
+    if (!src) {
+      updateProgress(100, 'Analiz tamamlandı.');
+      setTimeout(() => setDisplay(statusContainer, false), 1500);
+      return;
+    }
+
     updateProgress(50, 'Tesseract.js OCR mühərriki yazıları oxuyur...');
 
     try {
@@ -440,36 +574,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const result = await Promise.race([
           ocrPromise,
-          new Promise((_, reject) => setTimeout(() => reject(new Error('OCR Timeout')), 7500))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('OCR Timeout')), 8000))
         ]).catch(() => null);
 
         if (result && result.data) {
           currentOcrText = result.data.text || '';
           const confidence = Math.round(result.data.confidence || 0);
           setText(ocrConfidence, `${confidence}%`);
-          setText(ocrRawText, currentOcrText.trim() || 'Şəkildə aşkar edilən mətn tapılmadı.');
+          setText(ocrRawText, currentOcrText.trim() || 'Bu şəkildə aşkar edilən hər hansı mətn tapılmadı.');
 
           currentLandmarks = extractLandmarks(currentOcrText);
           renderLandmarksAndProximity(currentLandmarks);
 
+          // Geocode detected landmarks into OSM grid for user selection (without overriding real GPS)
           for (const lm of currentLandmarks.slice(0, 3)) {
             await queryNominatimGeocode(lm);
           }
+        } else {
+          setText(ocrConfidence, '0%');
+          setText(ocrRawText, 'Bu şəkildə oxunan mətn aşkar edilmədi.');
         }
+      } else {
+        setText(ocrRawText, 'OCR mühərriki hazır deyil.');
       }
     } catch (err) {
       console.warn('OCR notice:', err);
+      setText(ocrRawText, 'Mətn aşkar edilmədi.');
     }
 
-    updateProgress(100, 'Analiz tamamlandı. Bütün geolokasiya və telemetriya məlumatları hazırdır.');
+    updateProgress(100, 'Analiz tamamlandı.');
     setTimeout(() => {
-      if (statusContainer) statusContainer.classList.add('hidden');
-    }, 2500);
+      setDisplay(statusContainer, false);
+    }, 1500);
   };
 
   const renderLandmarksAndProximity = (landmarks) => {
     if (landmarks.length > 0) {
-      if (landmarksContainer) landmarksContainer.classList.remove('hidden');
+      setDisplay(landmarksContainer, true);
       if (landmarksTags) {
         landmarksTags.innerHTML = '';
         landmarks.forEach((lm) => {
@@ -481,7 +622,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (proximityContainer && proximityTags) {
-        proximityContainer.classList.remove('hidden');
+        setDisplay(proximityContainer, true);
         proximityTags.innerHTML = '';
         landmarks.forEach((lm) => {
           const item = document.createElement('div');
@@ -504,183 +645,180 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (btnGoogleSearchText) {
         btnGoogleSearchText.href = `https://www.google.com/search?q=${encodeURIComponent(landmarks.join(' '))}`;
-        btnGoogleSearchText.classList.remove('hidden');
+        setDisplay(btnGoogleSearchText, true);
       }
     } else {
-      if (landmarksContainer) landmarksContainer.classList.add('hidden');
-      if (proximityContainer) proximityContainer.classList.add('hidden');
-      if (btnGoogleSearchText) btnGoogleSearchText.classList.add('hidden');
+      setDisplay(landmarksContainer, false);
+      setDisplay(proximityContainer, false);
+      setDisplay(btnGoogleSearchText, false);
     }
   };
 
-  // ── Main File Processor (Bulletproof) ─────────────────────────────
+  // ── Main File Processor (Dynamic, Bulletproof & Zero Stale State) ─
   const processFile = async (file) => {
     if (!file) return;
 
-    if (errorAlert) errorAlert.classList.add('hidden');
-    if (resultsContainer) resultsContainer.classList.remove('hidden');
-    if (statusContainer) statusContainer.classList.remove('hidden');
-
-    updateProgress(15, 'Şəkil yüklənir və EXIF GPS oxunur...');
-
-    originalImageSrc = URL.createObjectURL(file);
-    if (imagePreview) imagePreview.src = originalImageSrc;
-    setText(previewFileName, file.name);
-    setText(previewFileSize, formatBytes(file.size));
-    setText(metaFileSize, `${formatBytes(file.size)} (${file.type || 'image/jpeg'})`);
-    setText(previewBadgeMode, '📷 Native View');
-
-    suggestedLocationsList = [];
-    renderSuggestedLocations();
-
-    let captureDate = new Date();
-    let hasExplicitGps = false;
-
-    // 1. EXIF via exifr (Guarded with timeout race so it never hangs)
-    updateProgress(25, 'EXIF sensor və peyk telemetriyası axtarılır...');
     try {
-      if (window.exifr) {
-        const exif = await Promise.race([
-          window.exifr.parse(file, { tiff: true, xmp: true, gps: true, jfif: true }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('EXIF timeout')), 2000))
-        ]).catch(() => null);
+      // STEP 1: ALWAYS RESET EVERYTHING TO ZERO FIRST!
+      resetAllState();
 
-        if (exif) {
-          setText(metaMake, exif.Make || exif.make || 'Tapılmadı');
-          setText(metaModel, exif.Model || exif.model || 'Tapılmadı');
-          setText(metaSoftware, exif.Software || exif.software || 'Standart Firmware');
+      setDisplay(errorAlert, false);
+      setDisplay(resultsContainer, true);
+      setDisplay(statusContainer, true);
 
-          if (exif.DateTimeOriginal || exif.CreateDate) {
-            captureDate = new Date(exif.DateTimeOriginal || exif.CreateDate);
-            setText(metaDateTime, captureDate.toLocaleString());
-          } else {
-            setText(metaDateTime, 'Məlumat yoxdur');
+      updateProgress(10, 'Şəkil yüklənir...');
+
+      originalImageSrc = URL.createObjectURL(file);
+      if (imagePreview) imagePreview.src = originalImageSrc;
+      setText(previewFileName, file.name);
+      setText(previewFileSize, formatBytes(file.size));
+      setText(metaFileSize, `${formatBytes(file.size)} (${file.type || 'image/jpeg'})`);
+
+      let captureDate = null;
+      let hasExactGps = false;
+
+      // STEP 2: Read EXIF & GPS
+      updateProgress(25, 'EXIF kamera və peyk sensoru oxunur...');
+      try {
+        if (window.exifr) {
+          const exif = await Promise.race([
+            window.exifr.parse(file, { tiff: true, xmp: true, gps: true, jfif: true }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('EXIF timeout')), 6000))
+          ]).catch(() => null);
+
+          if (exif) {
+            setText(metaMake, exif.Make || exif.make || 'Tapılmadı');
+            setText(metaModel, exif.Model || exif.model || 'Tapılmadı');
+            setText(metaSoftware, exif.Software || exif.software || 'Tapılmadı');
+
+            if (exif.DateTimeOriginal || exif.CreateDate) {
+              captureDate = new Date(exif.DateTimeOriginal || exif.CreateDate);
+              setText(metaDateTime, captureDate.toLocaleString());
+            } else {
+              setText(metaDateTime, 'Məlumat yoxdur');
+            }
+
+            if (exif.ExifImageWidth && exif.ExifImageHeight) {
+              setText(metaDimensions, `${exif.ExifImageWidth} × ${exif.ExifImageHeight} px`);
+            }
+            if (exif.ExposureTime) {
+              setText(metaExposure, exif.ExposureTime < 1 ? `1/${Math.round(1 / exif.ExposureTime)}s` : `${exif.ExposureTime}s`);
+            }
+            if (exif.FNumber) {
+              setText(metaFNumber, `f/${exif.FNumber}`);
+            }
+            if (exif.ISO) {
+              setText(metaIso, `ISO ${exif.ISO}`);
+            }
+            if (exif.FocalLength) {
+              setText(metaFocal, `${exif.FocalLength} mm`);
+            }
           }
 
-          if (exif.ExifImageWidth && exif.ExifImageHeight) {
-            setText(metaDimensions, `${exif.ExifImageWidth} × ${exif.ExifImageHeight} px`);
+          // Check GPS coordinates
+          let gps = null;
+          try {
+            gps = await Promise.race([
+              window.exifr.gps(file),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('GPS timeout')), 5000))
+            ]).catch(() => null);
+          } catch (_) {}
+
+          let rawLat = null;
+          let rawLon = null;
+
+          if (gps && typeof gps.latitude === 'number' && typeof gps.longitude === 'number') {
+            rawLat = gps.latitude;
+            rawLon = gps.longitude;
+          } else if (exif && typeof exif.latitude === 'number' && typeof exif.longitude === 'number') {
+            rawLat = exif.latitude;
+            rawLon = exif.longitude;
           }
-          if (exif.ExposureTime) {
-            setText(metaExposure, exif.ExposureTime < 1 ? `1/${Math.round(1 / exif.ExposureTime)}s` : `${exif.ExposureTime}s`);
-          }
-          if (exif.FNumber) {
-            setText(metaFNumber, `f/${exif.FNumber}`);
-          }
-          if (exif.ISO) {
-            setText(metaIso, `ISO ${exif.ISO}`);
-          }
-          if (exif.FocalLength) {
-            setText(metaFocal, `${exif.FocalLength} mm`);
+
+          if (rawLat !== null && rawLon !== null && !isNaN(rawLat) && !isNaN(rawLon) && !(rawLat === 0 && rawLon === 0)) {
+            hasExactGps = true;
+            const lat = Number(rawLat.toFixed(6));
+            const lon = Number(rawLon.toFixed(6));
+            currentGps = { latitude: lat, longitude: lon, isExactGps: true };
+
+            setText(coordsDisplay, `${lat}, ${lon}`);
+            setText(gpsBadge, '🟢 GPS VERIFIED (100% EXIF SENSOR)');
+            if (gpsBadge) {
+              gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/20 text-[#00C897] border border-[#00C897]/40';
+            }
+            setDisplay(gpsDetailsLocked, true);
+            setDisplay(gpsDetailsNone, false);
+
+            if (btnGoogleMaps) btnGoogleMaps.href = `https://www.google.com/maps?q=${lat},${lon}`;
+            if (btnOsmMaps) btnOsmMaps.href = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
+            if (mapFrame) {
+              mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - 0.008}%2C${lat - 0.005}%2C${lon + 0.008}%2C${lat + 0.005}&layer=mapnik&marker=${lat}%2C${lon}`;
+            }
+
+            // Reverse geocode to exact street and building address
+            queryReverseGeocode(lat, lon).then((addr) => {
+              if (addr && coordsAddress) {
+                coordsAddress.textContent = `📍 Dəqiq Ünvan: ${addr}`;
+                coordsAddress.classList.remove('hidden');
+              }
+            });
+
+            suggestedLocationsList = [{
+              place_id: 1,
+              display_name: `EXIF Dəqiq Məkan: ${lat}, ${lon}`,
+              lat: lat.toString(),
+              lon: lon.toString(),
+              type: 'sensor_gps',
+              category: 'satellite',
+            }];
+            renderSuggestedLocations();
           }
         }
+      } catch (exifErr) {
+        console.warn('EXIF read notice:', exifErr);
+      }
 
-        const gps = await Promise.race([
-          window.exifr.gps(file),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('GPS timeout')), 1500))
-        ]).catch(() => null);
-
-        if (gps && typeof gps.latitude === 'number' && typeof gps.longitude === 'number') {
-          hasExplicitGps = true;
-          currentGps = {
-            latitude: Number(gps.latitude.toFixed(6)),
-            longitude: Number(gps.longitude.toFixed(6)),
-            isEstimated: false,
-          };
+      // STEP 3: If NO exact EXIF GPS:
+      if (!hasExactGps) {
+        setText(gpsBadge, '🟡 EXIF GPS TAPILMADI');
+        if (gpsBadge) {
+          gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
         }
+        setDisplay(gpsDetailsLocked, false);
+        setDisplay(gpsDetailsNone, true);
+        setText(coordsDisplay, 'Mövcud Deyil (EXIF GPS yoxdur)');
+        if (coordsAddress) {
+          coordsAddress.textContent = '';
+          coordsAddress.classList.add('hidden');
+        }
+        if (mapFrame) mapFrame.src = 'about:blank';
       }
-    } catch (exifErr) {
-      console.warn('EXIF read notice:', exifErr);
+
+      // STEP 4: Chronolocation
+      if (hasExactGps && currentGps && captureDate) {
+        renderChronolocation(captureDate, currentGps.latitude, currentGps.longitude, true);
+      }
+
+      // STEP 5: Canvas Enhancement
+      updateProgress(40, 'Canvas API ilə şəklin kontrastı və kənarları kəskinləşdirilir...');
+      let ocrInput = originalImageSrc;
+      try {
+        const enhanced = await enhanceImageViaCanvas(originalImageSrc);
+        if (enhanced) {
+          enhancedImageSrc = enhanced.dataUrl;
+          ocrInput = enhanced.blob;
+          setDisplay(btnViewEnhanced, true);
+        }
+      } catch (_) {}
+
+      // STEP 6: OCR Processing
+      await runOcrOnSource(ocrInput);
+
+    } catch (criticalErr) {
+      console.error('Critical processFile error:', criticalErr);
+      updateProgress(100, 'Analiz tamamlandı.');
+      setTimeout(() => setDisplay(statusContainer, false), 1500);
     }
-
-    // 2. CONCRETE GEOLOCATION RESOLUTION:
-    // If photo has EXIF GPS -> display it directly.
-    // If photo is a screenshot / Telegram / Instagram without EXIF ->
-    // INFER CONCRETE GEO-SPATIAL ABSHERON / BAKU COORDINATES!
-    if (hasExplicitGps && currentGps) {
-      setText(coordsDisplay, `${currentGps.latitude}, ${currentGps.longitude}`);
-      setText(gpsBadge, 'GPS VERIFIED (EXIF)');
-      if (gpsBadge) gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/20 text-[#00C897] border border-[#00C897]/40';
-      setDisplay(gpsDetailsLocked, true);
-      setDisplay(gpsDetailsNone, false);
-
-      if (btnGoogleMaps) btnGoogleMaps.href = `https://www.google.com/maps?q=${currentGps.latitude},${currentGps.longitude}`;
-      if (btnOsmMaps) btnOsmMaps.href = `https://www.openstreetmap.org/?mlat=${currentGps.latitude}&mlon=${currentGps.longitude}#map=16/${currentGps.latitude}/${currentGps.longitude}`;
-      if (mapFrame) {
-        mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${currentGps.longitude - 0.008}%2C${currentGps.latitude - 0.005}%2C${currentGps.longitude + 0.008}%2C${currentGps.latitude + 0.005}&layer=mapnik&marker=${currentGps.latitude}%2C${currentGps.longitude}`;
-      }
-    } else {
-      // Concrete AI Geo-Spatial Inference:
-      // Phone screenshot with street, limestone fence, hill settlements:
-      // Candidate: Baku - Badamdar / Bayıl Yamacları
-      const estLat = 40.354210;
-      const estLon = 49.815320;
-      currentGps = {
-        latitude: estLat,
-        longitude: estLon,
-        isEstimated: true,
-      };
-
-      setText(coordsDisplay, `${estLat.toFixed(6)}, ${estLon.toFixed(6)} (Təxmini Məkan: Badamdar/Bakı)`);
-      setText(gpsBadge, 'GEO-ESTIMATED (BAKU)');
-      if (gpsBadge) gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40';
-      setDisplay(gpsDetailsLocked, true);
-      setDisplay(gpsDetailsNone, false);
-
-      if (btnGoogleMaps) btnGoogleMaps.href = `https://www.google.com/maps?q=${estLat},${estLon}`;
-      if (btnOsmMaps) btnOsmMaps.href = `https://www.openstreetmap.org/?mlat=${estLat}&mlon=${estLon}#map=15/${estLat}/${estLon}`;
-      if (mapFrame) {
-        mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${estLon - 0.01}%2C${estLat - 0.006}%2C${estLon + 0.01}%2C${estLat + 0.006}&layer=mapnik&marker=${estLat}%2C${estLon}`;
-      }
-
-      // Add suggested candidate locations to list
-      suggestedLocationsList = [
-        {
-          place_id: 101,
-          display_name: 'Badamdar qəsəbəsi, Səbail rayonu, Bakı şəhəri, Azərbaycan (Landşaft Uyğunluğu: 92%)',
-          lat: '40.35421',
-          lon: '49.81532',
-          type: 'suburb',
-          category: 'residential',
-        },
-        {
-          place_id: 102,
-          display_name: 'Bayıl yamacları, Səbail, Bakı, Azərbaycan (Dənizkənarı Hündürlük Massivi)',
-          lat: '40.34210',
-          lon: '49.82450',
-          type: 'neighbourhood',
-          category: 'residential',
-        },
-        {
-          place_id: 103,
-          display_name: 'Yeni Yasamal massivi, Yasamal rayonu, Bakı, Azərbaycan',
-          lat: '40.38450',
-          lon: '49.79540',
-          type: 'suburb',
-          category: 'residential',
-        },
-      ];
-      renderSuggestedLocations();
-    }
-
-    // 3. Chronolocation
-    const targetLat = currentGps ? currentGps.latitude : 40.4093;
-    const targetLon = currentGps ? currentGps.longitude : 49.8671;
-    renderChronolocation(captureDate, targetLat, targetLon, hasExplicitGps);
-
-    // 4. Canvas Enhancement
-    updateProgress(35, 'Canvas API ilə şəklin kontrastı və kənarları kəskinləşdirilir...');
-    let ocrInput = originalImageSrc;
-    try {
-      const enhanced = await enhanceImageViaCanvas(originalImageSrc);
-      if (enhanced) {
-        enhancedImageSrc = enhanced.dataUrl;
-        ocrInput = enhanced.blob;
-        setDisplay(btnViewEnhanced, true, 'inline-block');
-      }
-    } catch (_) {}
-
-    // 5. OCR Processing
-    await runOcrOnSource(ocrInput);
   };
 
   // Copy Buttons
@@ -703,12 +841,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (selectFileBtn && fileInput) {
     selectFileBtn.addEventListener('click', (e) => {
       e.stopPropagation();
+      fileInput.value = ''; // Clean reset on click
       fileInput.click();
     });
   }
 
   if (dropzone && fileInput) {
-    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('click', () => {
+      fileInput.value = '';
+      fileInput.click();
+    });
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
       dropzone.classList.add('border-[#00C897]', 'bg-[#00C897]/10');
@@ -721,6 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       dropzone.classList.remove('border-[#00C897]', 'bg-[#00C897]/10');
       if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        fileInput.value = '';
         processFile(e.dataTransfer.files[0]);
       }
     });
@@ -729,7 +872,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (fileInput) {
     fileInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
-        processFile(e.target.files[0]);
+        const file = e.target.files[0];
+        fileInput.value = ''; // Reset so selecting the same or new file always triggers
+        processFile(file);
       }
     });
   }
@@ -737,7 +882,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Demo Loaders
   if (demoGpsBtn) {
     demoGpsBtn.addEventListener('click', () => {
-      if (resultsContainer) resultsContainer.classList.remove('hidden');
+      resetAllState();
+      setDisplay(resultsContainer, true);
       originalImageSrc = 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=1200&auto=format&fit=crop';
       if (imagePreview) imagePreview.src = originalImageSrc;
       setText(previewFileName, 'DJI_MAVIC3_BAKU_BAYIL.JPG');
@@ -757,8 +903,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       currentGps = { latitude: 40.358211, longitude: 49.832944 };
       setText(coordsDisplay, '40.358211, 49.832944');
-      setText(gpsBadge, 'GPS VERIFIED (EXIF)');
-      if (gpsBadge) gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/20 text-[#00C897] border border-[#00C897]/40';
+      if (coordsAddress) {
+        coordsAddress.textContent = '📍 Dəqiq Ünvan: Dənizkənarı küçəsi, Bayıl, Səbail rayonu, Bakı, Azərbaycan';
+        coordsAddress.classList.remove('hidden');
+      }
+      setText(gpsBadge, '🟢 GPS VERIFIED (100% EXIF SENSOR)');
+      if (gpsBadge) {
+        gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#00C897]/20 text-[#00C897] border border-[#00C897]/40';
+      }
       setDisplay(gpsDetailsLocked, true);
       setDisplay(gpsDetailsNone, false);
 
@@ -800,7 +952,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (demoOcrBtn) {
     demoOcrBtn.addEventListener('click', () => {
-      if (resultsContainer) resultsContainer.classList.remove('hidden');
+      resetAllState();
+      setDisplay(resultsContainer, true);
       originalImageSrc = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop';
       if (imagePreview) imagePreview.src = originalImageSrc;
       setText(previewFileName, 'IMG_20240810_STORE_FRONT.JPG');
@@ -812,26 +965,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const demoDate = new Date('2024-08-10T11:15:00');
       setText(metaDateTime, demoDate.toLocaleString());
       setText(metaDimensions, '3840 × 2160 px');
-      setText(metaExposure, '1/250s');
+      setText(metaExposure, '1/800s');
       setText(metaFNumber, 'f/1.78');
       setText(metaIso, 'ISO 64');
       setText(metaFocal, '24.0 mm');
       setText(metaFileSize, '3.05 MB (image/jpeg)');
 
-      currentGps = { latitude: 40.3789, longitude: 49.8521 };
-      setText(coordsDisplay, '40.378900, 49.852100 (Nizami küçəsi)');
-      setText(gpsBadge, 'LANDMARK GEO-LOCKED');
-      if (gpsBadge) gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40';
-      setDisplay(gpsDetailsLocked, true);
-      setDisplay(gpsDetailsNone, false);
-
-      if (btnGoogleMaps) btnGoogleMaps.href = 'https://www.google.com/maps?q=40.3789,49.8521';
-      if (btnOsmMaps) btnOsmMaps.href = 'https://www.openstreetmap.org/?mlat=40.3789&mlon=49.8521#map=16/40.3789/49.8521';
-      if (mapFrame) {
-        mapFrame.src = `https://www.openstreetmap.org/export/embed.html?bbox=49.8421%2C40.3739%2C49.8621%2C40.3839&layer=mapnik&marker=40.3789%2C49.8521`;
+      setText(gpsBadge, '🟡 EXIF GPS TAPILMADI');
+      if (gpsBadge) {
+        gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
       }
-
-      renderChronolocation(demoDate, 40.4093, 49.8671, false);
+      setDisplay(gpsDetailsLocked, false);
+      setDisplay(gpsDetailsNone, true);
+      setText(coordsDisplay, 'Mövcud Deyil (EXIF GPS yoxdur)');
 
       currentOcrText = 'BRAVO SUPERMARKET // 24 SAAT APTEK ZEFERAN // NIZAMI KUCESI 142';
       setText(ocrConfidence, '89%');
