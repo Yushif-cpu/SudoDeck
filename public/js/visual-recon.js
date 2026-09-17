@@ -1,6 +1,7 @@
 // ══════════════════════════════════════════════════════════════════
 //  SudoDeck — Visual Recon & Image Geolocation Engine
 //  Dynamic Zero-Persistence Reset + Real EXIF & OCR Geocoding
+//  + Social Media Footprint (Sherlock / Maigret OSINT Engine)
 // ══════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -95,6 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const metaFocal = document.getElementById('meta-focal');
   const metaSoftware = document.getElementById('meta-software');
 
+  // Sherlock / Maigret Social Footprint elements
+  const sherlockUsernameInput = document.getElementById('sherlock-username-input');
+  const btnRunSherlock = document.getElementById('btn-run-sherlock');
+  const sherlockStatsBadge = document.getElementById('sherlock-stats-badge');
+  const sherlockFoundCount = document.getElementById('sherlock-found-count');
+  const sherlockTotalCount = document.getElementById('sherlock-total-count');
+  const sherlockFilters = document.getElementById('sherlock-filters');
+  const sherlockLoading = document.getElementById('sherlock-loading');
+  const sherlockLoadingUsername = document.getElementById('sherlock-loading-username');
+  const sherlockEmpty = document.getElementById('sherlock-empty');
+  const sherlockResultsGrid = document.getElementById('sherlock-results-grid');
+  const sherlockSuggestionsWrapper = document.getElementById('sherlock-suggestions-wrapper');
+  const sherlockSuggestions = document.getElementById('sherlock-suggestions');
+
   // Demo buttons
   const demoGpsBtn = document.getElementById('demo-gps-btn');
   const demoOcrBtn = document.getElementById('demo-ocr-btn');
@@ -106,6 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentOcrText = '';
   let currentLandmarks = [];
   let suggestedLocationsList = [];
+  let currentSherlockResults = [];
+  let currentSherlockFilter = 'all';
 
   // Complete Zero-Persistence State Reset on every upload
   const resetAllState = () => {
@@ -177,7 +194,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setText(metaFocal, 'Məlumat yoxdur');
     setText(metaSoftware, 'Məlumat yoxdur');
 
-    // 8. Reset View Switcher
+    // 8. Reset Sherlock suggestions
+    if (sherlockSuggestions) sherlockSuggestions.innerHTML = '';
+    setDisplay(sherlockSuggestionsWrapper, false);
+
+    // 9. Reset View Switcher
     if (btnViewOriginal) {
       btnViewOriginal.classList.add('bg-[#00C897]/20', 'text-[#00C897]', 'font-bold');
       btnViewOriginal.classList.remove('text-slate-400');
@@ -248,6 +269,64 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return Array.from(landmarks).slice(0, 10);
+  };
+
+  // Extract Usernames and Social Handles from OCR (e.g. by.orux, @johndoe)
+  const extractUsernamesFromOcr = (text) => {
+    if (!text) return [];
+    const usernames = new Set();
+
+    // 1. Matches @handle
+    const atMatches = text.match(/@([a-zA-Z0-9_\.]{3,24})/g);
+    if (atMatches) {
+      atMatches.forEach(m => usernames.add(m.replace(/^@/, '').trim()));
+    }
+
+    // 2. Matches by.handle or by_handle (e.g. by.orux)
+    const byMatches = text.match(/\b(by[\._][a-zA-Z0-9_]{2,20})\b/gi);
+    if (byMatches) {
+      byMatches.forEach(m => usernames.add(m.trim()));
+    }
+
+    // 3. Matches handles with dots or underscores in social screenshots
+    const handleMatches = text.match(/\b([a-zA-Z0-9_\.]{4,20})\b/g);
+    if (handleMatches) {
+      handleMatches.forEach(word => {
+        if (word.includes('.') || word.includes('_')) {
+          const lower = word.toLowerCase();
+          if (!['jpg', 'jpeg', 'png', 'webp', 'mp4', 'www', 'com', 'org', 'net', 'http', 'https'].includes(lower)) {
+            usernames.add(word);
+          }
+        }
+      });
+    }
+
+    return Array.from(usernames).slice(0, 6);
+  };
+
+  const renderSherlockSuggestions = (usernames) => {
+    if (!sherlockSuggestions || !sherlockSuggestionsWrapper) return;
+    if (!usernames || usernames.length === 0) {
+      setDisplay(sherlockSuggestionsWrapper, false);
+      return;
+    }
+
+    sherlockSuggestions.innerHTML = '';
+    setDisplay(sherlockSuggestionsWrapper, true);
+
+    usernames.forEach(user => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'px-2.5 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-mono font-semibold transition-colors flex items-center gap-1.5';
+      chip.innerHTML = `<span>@${user}</span> <span class="text-[10px] text-cyan-400 font-bold">⚡ Footprint Yoxla</span>`;
+      chip.addEventListener('click', () => {
+        if (sherlockUsernameInput) {
+          sherlockUsernameInput.value = user;
+          executeSherlockScan(user);
+        }
+      });
+      sherlockSuggestions.appendChild(chip);
+    });
   };
 
   function degreesToCardinal(deg) {
@@ -586,6 +665,12 @@ document.addEventListener('DOMContentLoaded', () => {
           currentLandmarks = extractLandmarks(currentOcrText);
           renderLandmarksAndProximity(currentLandmarks);
 
+          // Extract potential social handles / usernames from image (e.g. by.orux)
+          const foundUsernames = extractUsernamesFromOcr(currentOcrText);
+          if (foundUsernames.length > 0) {
+            renderSherlockSuggestions(foundUsernames);
+          }
+
           // Geocode detected landmarks into OSM grid for user selection (without overriding real GPS)
           for (const lm of currentLandmarks.slice(0, 3)) {
             await queryNominatimGeocode(lm);
@@ -821,6 +906,198 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // ── Sherlock / Maigret Engine Runner ─────────────────────────────
+  const executeSherlockScan = async (rawUsername) => {
+    const user = (rawUsername || '').trim().replace(/^@/, '');
+    if (!user || user.length < 2) {
+      if (sherlockUsernameInput) sherlockUsernameInput.focus();
+      return;
+    }
+
+    // Smooth scroll to sherlock section
+    const sherlockSec = document.getElementById('sherlock-section');
+    if (sherlockSec) {
+      sherlockSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    setDisplay(sherlockEmpty, false);
+    setDisplay(sherlockResultsGrid, false);
+    setDisplay(sherlockFilters, false);
+    setDisplay(sherlockStatsBadge, false);
+    setDisplay(sherlockLoading, true);
+    setText(sherlockLoadingUsername, `@${user}`);
+
+    try {
+      const res = await fetch(`/api/sherlock?username=${encodeURIComponent(user)}`);
+      const json = await res.json();
+
+      if (json.success && json.data) {
+        currentSherlockResults = json.data.results || [];
+        setText(sherlockFoundCount, json.data.totalFound || 0);
+        setText(sherlockTotalCount, json.data.totalScanned || 0);
+        setDisplay(sherlockStatsBadge, true);
+
+        // Update Tab Counts
+        updateSherlockTabCounts(currentSherlockResults);
+        setDisplay(sherlockFilters, true);
+
+        // Default to 'found' if any found, else 'all'
+        currentSherlockFilter = json.data.totalFound > 0 ? 'found' : 'all';
+        updateTabActiveState(currentSherlockFilter);
+        renderSherlockResults(currentSherlockFilter);
+      } else {
+        setDisplay(sherlockEmpty, true);
+        setText(sherlockEmpty, json.message || 'Sorğu zamanı xəta baş verdi.');
+      }
+    } catch (err) {
+      console.error('Sherlock scan error:', err);
+      setDisplay(sherlockEmpty, true);
+    } finally {
+      setDisplay(sherlockLoading, false);
+    }
+  };
+
+  const updateSherlockTabCounts = (results) => {
+    const counts = {
+      all: results.length,
+      found: results.filter(r => r.exists).length,
+      Social: results.filter(r => r.category === 'Social').length,
+      Developer: results.filter(r => r.category === 'Developer').length,
+      Media: results.filter(r => r.category === 'Media').length,
+      Gaming: results.filter(r => r.category === 'Gaming').length,
+    };
+
+    setText(document.getElementById('tab-count-all'), counts.all);
+    setText(document.getElementById('tab-count-found'), counts.found);
+    setText(document.getElementById('tab-count-social'), counts.Social);
+    setText(document.getElementById('tab-count-developer'), counts.Developer);
+    setText(document.getElementById('tab-count-media'), counts.Media);
+    setText(document.getElementById('tab-count-gaming'), counts.Gaming);
+  };
+
+  const updateTabActiveState = (activeFilter) => {
+    document.querySelectorAll('.sherlock-tab').forEach(tab => {
+      if (tab.getAttribute('data-filter') === activeFilter) {
+        tab.className = 'sherlock-tab px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 transition-colors';
+      } else {
+        tab.className = 'sherlock-tab px-3 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors';
+      }
+    });
+  };
+
+  const renderSherlockResults = (filter) => {
+    if (!sherlockResultsGrid) return;
+    sherlockResultsGrid.innerHTML = '';
+    setDisplay(sherlockResultsGrid, true);
+
+    let filtered = currentSherlockResults;
+    if (filter === 'found') {
+      filtered = currentSherlockResults.filter(r => r.exists);
+    } else if (filter !== 'all') {
+      filtered = currentSherlockResults.filter(r => r.category === filter);
+    }
+
+    if (filtered.length === 0) {
+      sherlockResultsGrid.innerHTML = `
+        <div class="col-span-full p-8 rounded-xl bg-surface-850/50 border border-slate-800 text-center text-xs font-mono text-slate-400">
+          Bu filtr üzrə nəticə tapılmadı.
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      const isFound = item.exists;
+
+      card.className = `p-4 rounded-xl border transition-all duration-200 space-y-3 ${
+        isFound
+          ? 'bg-gradient-to-b from-surface-850 to-surface-900 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.12)]'
+          : 'bg-surface-850/60 border-slate-800/80 opacity-75 hover:opacity-100'
+      }`;
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center ${
+              isFound ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-slate-800 text-slate-500'
+            }">
+              <i data-lucide="${item.icon || 'globe'}" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-white font-mono">${item.platform}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${item.category}</div>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold ${
+            isFound
+              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse'
+              : 'bg-slate-800 text-slate-500 border border-slate-700'
+          }">
+            ${isFound ? '🟢 FOUND' : 'NOT FOUND'}
+          </span>
+        </div>
+
+        <div class="text-[11px] font-mono text-slate-400 truncate break-all">
+          ${item.url}
+        </div>
+
+        <div class="flex items-center gap-2 pt-1 font-mono text-xs">
+          <a
+            href="${item.url}"
+            target="_blank"
+            rel="noreferrer"
+            class="flex-1 text-center py-1.5 px-2 rounded-lg font-bold transition-all text-xs flex items-center justify-center gap-1 ${
+              isFound
+                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                : 'bg-slate-800 hover:bg-slate-750 text-slate-400 hover:text-slate-200'
+            }"
+          >
+            <span>Profil ↗</span>
+          </a>
+          <button
+            type="button"
+            class="btn-copy-sherlock-url px-2.5 py-1.5 rounded-lg bg-surface-800 hover:bg-surface-750 text-slate-400 hover:text-white border border-slate-700 text-xs transition-colors"
+            data-url="${item.url}"
+          >
+            Kopya
+          </button>
+        </div>
+      `;
+
+      card.querySelector('.btn-copy-sherlock-url').addEventListener('click', (e) => {
+        copyToClipboard(e.currentTarget.getAttribute('data-url'), e.currentTarget, '✓');
+      });
+
+      sherlockResultsGrid.appendChild(card);
+    });
+
+    if (window.lucide) {
+      window.lucide.createIcons({ root: sherlockResultsGrid });
+    }
+  };
+
+  // Sherlock UI event listeners
+  if (btnRunSherlock && sherlockUsernameInput) {
+    btnRunSherlock.addEventListener('click', () => {
+      executeSherlockScan(sherlockUsernameInput.value);
+    });
+    sherlockUsernameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        executeSherlockScan(sherlockUsernameInput.value);
+      }
+    });
+  }
+
+  document.querySelectorAll('.sherlock-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const filter = e.currentTarget.getAttribute('data-filter');
+      currentSherlockFilter = filter;
+      updateTabActiveState(filter);
+      renderSherlockResults(filter);
+    });
+  });
+
   // Copy Buttons
   if (btnCopyCoords) {
     btnCopyCoords.addEventListener('click', () => {
@@ -928,6 +1205,8 @@ document.addEventListener('DOMContentLoaded', () => {
       currentLandmarks = ['Baku', 'Caspian', 'Crystal Hall', 'Neftchilar Ave'];
       renderLandmarksAndProximity(currentLandmarks);
 
+      renderSherlockSuggestions(['baku_crystal_hall', 'caspian_sea']);
+
       suggestedLocationsList = [
         {
           place_id: 991,
@@ -979,11 +1258,13 @@ document.addEventListener('DOMContentLoaded', () => {
       setDisplay(gpsDetailsNone, true);
       setText(coordsDisplay, 'Mövcud Deyil (EXIF GPS yoxdur)');
 
-      currentOcrText = 'BRAVO SUPERMARKET // 24 SAAT APTEK ZEFERAN // NIZAMI KUCESI 142';
+      currentOcrText = 'BRAVO SUPERMARKET // 24 SAAT APTEK ZEFERAN // NIZAMI KUCESI 142 // @by.orux';
       setText(ocrConfidence, '89%');
       setText(ocrRawText, currentOcrText);
       currentLandmarks = ['Bravo', 'Bazarstore', 'Aptek', 'Zeferan', 'Nizami Kucesi', 'Baku'];
       renderLandmarksAndProximity(currentLandmarks);
+
+      renderSherlockSuggestions(['by.orux', 'zeferan_aptek', 'bravo_supermarket']);
 
       suggestedLocationsList = [
         {

@@ -31,6 +31,7 @@ import gtfobinsRoutes from './routes/gtfobins.routes.js';
 import newsRoutes from './routes/news.routes.js';
 import subdomainRoutes from './routes/subdomain.routes.js';
 import payloadsRoutes from './routes/payloads.routes.js';
+import sherlockRoutes from './routes/sherlock.routes.js';
 import { fetchRecentMaliciousIPs } from './services/threatfox.service.js';
 
 // ── Path setup ──────────────────────────────────────────────────
@@ -102,6 +103,7 @@ app.use('/api', newsRoutes);
 app.use('/api', subdomainRoutes);
 app.use('/api/subdomain', subdomainRoutes);
 app.use('/api/payloads', payloadsRoutes);
+app.use('/api/sherlock', sherlockRoutes);
 
 // ── ThreatFox Live Malicious IPs Feed (Keyless & Free) ──────────
 app.get('/api/recent-malicious-ips', async (req, res) => {
