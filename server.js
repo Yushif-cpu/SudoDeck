@@ -39,7 +39,6 @@ import subdomainRoutes from './routes/subdomain.routes.js';
 import payloadsRoutes from './routes/payloads.routes.js';
 import sherlockRoutes from './routes/sherlock.routes.js';
 import trafficRoutes from './routes/traffic.routes.js';
-import authRoutes from './routes/auth.routes.js';
 import { fetchRecentMaliciousIPs } from './services/threatfox.service.js';
 
 // ── Path setup ──────────────────────────────────────────────────
@@ -148,7 +147,6 @@ app.use('/api', subdomainRoutes);
 app.use('/api/subdomain', subdomainRoutes);
 app.use('/api/payloads', payloadsRoutes);
 app.use('/api', trafficRoutes);
-app.use('/api', authRoutes);
 
 // ── ThreatFox Live Malicious IPs Feed (Keyless & Free) ──────────
 app.get('/api/recent-malicious-ips', async (req, res) => {
@@ -445,15 +443,6 @@ app.get('/pricing', (req, res) => {
   sendPage(res, 'pricing.html');
 });
 
-// ── Dedicated Authentication (Login / Signup) page route ───
-app.get(['/login', '/signin', '/signup', '/auth'], (req, res) => {
-  sendPage(res, 'login.html');
-});
-
-// ── Dedicated Operations Dashboard & History page route ────
-app.get(['/dashboard', '/account', '/history', '/billing'], (req, res) => {
-  sendPage(res, 'dashboard.html');
-});
 
 // ── SPA fallback ────────────────────────────────────────────────
 app.get('{*path}', (req, res) => {

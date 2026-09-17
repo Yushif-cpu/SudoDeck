@@ -13,7 +13,6 @@
 **Enterprise-grade OSINT, Threat Hunting, Attack Simulation, Indicator Analysis & Security Operations Cockpit.**
 
 [Key Modules](#-key-modules--capabilities) •
-[Analyst Dashboard](#-analyst-operations-dashboard--history) •
 [Architecture](#-tech-stack--architecture) •
 [Installation](#-installation--quickstart) •
 [Configuration](#-environment-variables) •
@@ -32,22 +31,7 @@
 
 ## 🚀 Key Modules & Capabilities
 
-### 📊 1. Analyst Operations Dashboard & Activity History (`/dashboard`)
-* **Unified Investigation History:** Automatically records every IP check, domain query, file hash lookup, traffic inspection, and social recon event.
-* **Filter & Search:** Real-time search across historical investigations, filterable by tool type and verdict severity (Malicious, Suspicious, Clean, Informational).
-* **Investigation Inspector:** Modal inspector for viewing raw JSON responses, threat scores, and re-launching investigations with a single click.
-* **Export Capabilities:** One-click export of your complete activity history to structured **CSV** or **JSON** format.
-* **Billing & Contact Coordinates:** Manage subscription tiers (Free vs. Pro Analyst), save billing email address, contact telephone number for 2FA escalations, organization VAT/tax IDs, and download itemized tax receipts.
-* **Personal API Keys & Webhooks:** Generate, copy, and revoke personal access tokens (`sd_live_...`) for automated CI/CD and SIEM scripts.
-* **Security & Session Management:** Inspect active device sessions, monitor IP location, and manage multi-factor authentication (2FA).
-
-### 🔐 2. Terminal Authentication & Access Gateway (`/login`)
-* **Single Sign-On (SSO):** "Continue with Google" OAuth integration and GitHub developer portal authentication.
-* **Credentials Gateway:** Secure sign-in and account registration with real-time password entropy scoring and visibility toggle.
-* **Mobile & Contact Registration:** Captures verified email and phone number for security telemetry and incident alerts.
-* **⚡ 1-Click Fast Analyst Access:** Instant demo login capability for rapid evaluation without manual credential entry.
-
-### 🌐 3. Web Traffic & Audience Intelligence (`/traffic`)
+### 🌐 1. Web Traffic & Audience Intelligence (`/traffic`)
 * **Traffic & Engagement Telemetry:** Domain visit metrics, global and country rankings, bounce rates, visit duration, and page depth powered by Similarweb.
 * **Device & Geography Breakdown:** Desktop vs. mobile visitor splits and top demographic source countries.
 * **Traffic Acquisition Channels:** Detailed breakdown of Direct, Organic Search, Referral, Social, and Paid traffic flows.
@@ -162,9 +146,6 @@ Open your browser and navigate to:
 ```text
 http://localhost:3000
 ```
-* **Operations Dashboard:** `http://localhost:3000/dashboard`
-* **Sign In Gateway:** `http://localhost:3000/login`
-* **Billing & Contact Settings:** `http://localhost:3000/dashboard#billing`
 
 ---
 
@@ -188,12 +169,6 @@ http://localhost:3000
 | `POST` | `/api/crypto/process` | Executes cryptographic hash/encode/decode operations |
 | `GET` | `/api/mac/:mac` | Resolves MAC address to hardware manufacturer |
 | `GET` | `/api/cve/search` | Queries NVD for CVE identifiers and keywords |
-| `POST` | `/api/auth/login` | Authenticates terminal user session |
-| `POST` | `/api/auth/signup` | Registers new operator profile with email & phone |
-| `POST` | `/api/auth/google` | Single Sign-On via Google OAuth token |
-| `GET` | `/api/auth/me` | Fetches active analyst profile & daily quota usage |
-| `POST` | `/api/user/billing` | Updates billing email, phone number & organization VAT |
-| `POST` | `/api/user/api-keys/generate` | Generates new Personal Access API token |
 | `POST` | `/api/contact` | Submits CIRT / dispatch feedback message |
 | `GET` | `/api/health` | System health check and uptime probe |
 
