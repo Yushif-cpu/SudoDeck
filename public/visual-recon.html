@@ -133,59 +133,22 @@
                     <div class="text-[11px] text-slate-400 truncate">VirusTotal, DNS & WHOIS Engine</div>
                   </div>
                 </a>
-                <a href="/#url" class="dropdown-card-item">
+                <a href="/#utils" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-teal-500/15 border border-teal-500/30 text-teal-400">
+                    <i data-lucide="network" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">IP & Subnet Utilities</div>
+                    <div class="text-[11px] text-slate-400 truncate">CIDR calculator & network masks</div>
+                  </div>
+                </a>
+                <a href="/mac" class="dropdown-card-item">
                   <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
-                    <i data-lucide="link" class="w-4 h-4"></i>
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">URL Scanner</div>
-                    <div class="text-[11px] text-slate-400 truncate">Phishing & malicious redirect scan</div>
-                  </div>
-                </a>
-                <a href="/#hash" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-purple-500/15 border border-purple-500/30 text-purple-400">
-                    <i data-lucide="file-search" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Hash & File Analysis</div>
-                    <div class="text-[11px] text-slate-400 truncate">SHA-256 multi-engine sandbox</div>
-                  </div>
-                </a>
-                <a href="/#actor" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-rose-500/15 border border-rose-500/30 text-rose-400">
-                    <i data-lucide="skull" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">Threat Actor Intel</div>
-                    <div class="text-[11px] text-slate-400 truncate">APT profiles, MITRE ATT&CK TTPs</div>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-            <!-- Category 2: SOC & Detection Dropdown -->
-            <div class="relative">
-              <button
-                type="button"
-                data-dropdown-toggle="menu-soc"
-                class="nav-pill"
-              >
-                <i data-lucide="cpu" class="w-3.5 h-3.5 text-cyan-400"></i>
-                <span>SOC & Detection</span>
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
-              </button>
-              <div
-                id="menu-soc"
-                data-dropdown-menu
-                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
-              >
-                <a href="/siem" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
-                    <i data-lucide="layers" class="w-4 h-4"></i>
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">SIEM Utilities</div>
-                    <div class="text-[11px] text-slate-400 truncate">Rule engine, log parser & regex</div>
+                    <div class="text-xs font-bold text-white">MAC & OUI Lookup</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor & IEEE block</div>
                   </div>
                 </a>
                 <a href="/cve" class="dropdown-card-item">
@@ -194,16 +157,80 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="text-xs font-bold text-white">CVE Scanner</div>
-                    <div class="text-[11px] text-slate-400 truncate">NIST NVD v2.0 CVSS advisories</div>
+                    <div class="text-[11px] text-slate-400 truncate">NVD v2.0 CVSS advisories</div>
                   </div>
                 </a>
-                <a href="/mac" class="dropdown-card-item">
-                  <div class="dropdown-card-icon bg-cyan-500/15 border border-cyan-500/30 text-cyan-400">
-                    <i data-lucide="network" class="w-4 h-4"></i>
+              </div>
+            </div>
+
+            <!-- Category 2: SIEM Utilities Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                data-dropdown-toggle="menu-siem"
+                class="nav-pill"
+              >
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i>
+                <span>SIEM Utilities</span>
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+              </button>
+              <div
+                id="menu-siem"
+                data-dropdown-menu
+                class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
+              >
+                <a href="/siem#formatter" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="file-code" class="w-4 h-4"></i>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold text-white">MAC OUI Lookup</div>
-                    <div class="text-[11px] text-slate-400 truncate">Hardware vendor identification</div>
+                    <div class="text-xs font-bold text-white">Log & Alert Formatter</div>
+                    <div class="text-[11px] text-slate-400 truncate">Windows Event & Syslog to JSON</div>
+                  </div>
+                </a>
+                <a href="/siem#regex" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="search-code" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Detection Regex Tester</div>
+                    <div class="text-[11px] text-slate-400 truncate">Test regex against threat logs</div>
+                  </div>
+                </a>
+                <a href="/siem#headers" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="scan-face" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">User-Agent & HTTP Headers</div>
+                    <div class="text-[11px] text-slate-400 truncate">Analyze web client anomalies</div>
+                  </div>
+                </a>
+                <a href="/siem#email" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="mail-search" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Email Header Analysis</div>
+                    <div class="text-[11px] text-slate-400 truncate">SPF, DKIM, DMARC & hop forensics</div>
+                  </div>
+                </a>
+                <a href="/siem#subject-decoder" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="binary" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">Email Subject Decoder</div>
+                    <div class="text-[11px] text-slate-400 truncate">RFC 2047 MIME B/Q de-obfuscation</div>
+                  </div>
+                </a>
+                <a href="/siem#file" class="dropdown-card-item">
+                  <div class="dropdown-card-icon bg-indigo-500/15 border border-indigo-500/30 text-indigo-400">
+                    <i data-lucide="file-search" class="w-4 h-4"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold text-white">File Hash Analysis</div>
+                    <div class="text-[11px] text-slate-400 truncate">VirusTotal multi-engine hash verdict</div>
                   </div>
                 </a>
               </div>
@@ -884,10 +911,27 @@
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  FOOTER                                                    -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <footer class="border-t border-slate-800/80 bg-surface-900/60 mt-auto py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500 font-mono space-y-2">
-      <div>SUDODECK // THREAT & RECON // VISUAL GEOLOCATION ENGINE</div>
-      <div>Client-Side EXIF Interrogation & Tesseract Neural OCR • 100% Zero-Cloud Browser Extraction</div>
+  <footer class="border-t border-slate-800/80 bg-surface-900 py-8 text-xs text-slate-500 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center space-y-3">
+      <div>
+        <a href="/" class="text-sm font-bold text-white font-mono tracking-tight hover:opacity-90 transition-opacity">
+          Sudo<span class="text-emerald-400">Deck</span>
+        </a>
+      </div>
+      <p class="text-xs text-slate-400 font-normal">
+        &copy; 2026 SudoDeck OSINT Platform
+      </p>
+      <div class="flex items-center justify-center gap-x-5 gap-y-2 flex-wrap font-medium text-slate-400">
+        <a href="/premium" class="hover:text-purple-400 transition-colors">Premium Tools</a>
+        <a href="/pricing" class="hover:text-emerald-400 transition-colors">Pricing</a>
+        <a href="/#about" class="hover:text-emerald-400 transition-colors">About</a>
+        <a href="/#contact" class="hover:text-cyan-400 transition-colors">Contact</a>
+        <a href="/api/health" target="_blank" class="hover:text-white transition-colors">Health</a>
+      </div>
+      <div class="flex items-center justify-center gap-2 pt-0.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-xs font-medium text-slate-300">Operational</span>
+      </div>
     </div>
   </footer>
 
