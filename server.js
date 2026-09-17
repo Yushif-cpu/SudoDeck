@@ -49,6 +49,9 @@ const __dirname = dirname(__filename);
 // ── Express app ─────────────────────────────────────────────────
 const app = express();
 
+// Enable reverse proxy support (Crucial for Coolify, Traefik, Docker, Cloudflare, Nginx)
+app.set('trust proxy', 1);
+
 // ── Security middleware ─────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {
@@ -59,32 +62,40 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.tailwindcss.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "blob:", "https:"],
-      connectSrc: ["'self'", "https://nominatim.openstreetmap.org", "https://tessdata.projectnaptha.com", "https://cdn.jsdelivr.net", "blob:", "data:"],
+      connectSrc: ["'self'", "https://nominatim.openstreetmap.org", "https://tessdata.projectnaptha.com", "https://cdn.jsdelivr.net", "blob:", "data:", "https:"],
     },
   },
 }));
+
 const corsOptions = {
   origin: (origin, callback) => {
+    // Allow non-browser agents (cURL, Postman, automated monitors, internal health checks)
     if (!origin) return callback(null, true);
+
     const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
     const envOrigins = process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
-    // If specific ALLOWED_ORIGINS are set in .env, only allow localhost and those origins
+
+    // If wildcard or explicit whitelist is defined
+    if (envOrigins.includes('*')) {
+      return callback(null, true);
+    }
+
     if (envOrigins.length > 0) {
       if (isLocal || envOrigins.includes(origin)) {
         return callback(null, true);
       }
       return callback(new Error('Cross-Origin Request Blocked by ThreatIntel CORS Policy'));
     }
-    // Default fallback for development when no ALLOWED_ORIGINS specified
-    if (isLocal) {
-      return callback(null, true);
-    }
-    return callback(new Error('Cross-Origin Request Blocked by ThreatIntel CORS Policy'));
+
+    // Default for cloud & container deployments (Coolify, Render, VPS, local):
+    // Allow the request origin so that frontend API calls from the assigned domain succeed
+    return callback(null, true);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  credentials: true,
 };
 app.use(cors(corsOptions));
 app.use(compression());

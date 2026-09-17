@@ -1,11 +1,17 @@
 import rateLimit from 'express-rate-limit';
 
-// ── General rate limiter (all routes) ───────────────────────────
-export const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1500,
+// Base options for reverse proxies (Coolify, Docker, Traefik, Cloudflare, Nginx)
+const baseProxyOptions = {
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false, default: true },
+};
+
+// ── General rate limiter (all routes) ───────────────────────────
+export const generalLimiter = rateLimit({
+  ...baseProxyOptions,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1500,
   message: {
     success: false,
     error: {
@@ -17,10 +23,9 @@ export const generalLimiter = rateLimit({
 
 // ── Standard API limiter ────────────────────────────────────────
 export const apiLimiter = rateLimit({
+  ...baseProxyOptions,
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 500,
-  standardHeaders: true,
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -32,10 +37,9 @@ export const apiLimiter = rateLimit({
 
 // ── Heavy Recon & Multi-Query limiter (/api/sherlock, /api/discover) ──
 export const heavyScanLimiter = rateLimit({
+  ...baseProxyOptions,
   windowMs: 60 * 1000, // 1 minute
   max: 20, // 20 deep scans per minute per IP
-  standardHeaders: true,
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -47,10 +51,9 @@ export const heavyScanLimiter = rateLimit({
 
 // ── Geocoding Proxy limiter (Complies with OSM Nominatim 1 req/sec policy) ──
 export const geocodeLimiter = rateLimit({
+  ...baseProxyOptions,
   windowMs: 60 * 1000, // 1 minute
   max: 60, // 60 geocode queries per minute per IP
-  standardHeaders: true,
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -62,10 +65,9 @@ export const geocodeLimiter = rateLimit({
 
 // ── Contact Form anti-spam limiter ──────────────────────────────
 export const contactLimiter = rateLimit({
+  ...baseProxyOptions,
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 6, // 6 submissions per 15 minutes per IP
-  standardHeaders: true,
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -77,10 +79,9 @@ export const contactLimiter = rateLimit({
 
 // ── Web Traffic & Similarweb Apify Limiter (Protects paid compute units) ──
 export const trafficLimiter = rateLimit({
+  ...baseProxyOptions,
   windowMs: 5 * 60 * 1000, // 5 minutes
   max: 15, // Max 15 traffic queries per 5 minutes per IP
-  standardHeaders: true,
-  legacyHeaders: false,
   message: {
     success: false,
     error: {
@@ -89,6 +90,3 @@ export const trafficLimiter = rateLimit({
     },
   },
 });
-
-
-
