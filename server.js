@@ -7,6 +7,7 @@ dotenv.config();
 
 import config from './config/env.js';
 import express from 'express';
+import axios from 'axios';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -44,11 +45,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://unpkg.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://unpkg.com", "https://cdn.jsdelivr.net"],
+      workerSrc: ["'self'", "blob:", "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.tailwindcss.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      connectSrc: ["'self'", "https://nominatim.openstreetmap.org", "https://tessdata.projectnaptha.com", "https://cdn.jsdelivr.net", "blob:", "data:"],
     },
   },
 }));
@@ -131,6 +133,44 @@ app.get('/api/reported-ips', async (req, res) => {
     return res.status(502).json({
       success: false,
       error: 'Failed to retrieve live ThreatFox feed',
+    });
+  }
+});
+
+// ── OpenStreetMap (Nominatim) Geocoding Free Proxy ───────────────
+app.get('/api/geocode', async (req, res) => {
+  const query = (req.query.q || '').trim();
+  if (!query) {
+    return res.status(400).json({ success: false, error: 'Axtarış sorğusu (q parametri) mütləqdir.' });
+  }
+
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 5, 10);
+    const osmResponse = await axios.get('https://nominatim.openstreetmap.org/search', {
+      params: {
+        q: query,
+        format: 'json',
+        addressdetails: 1,
+        limit,
+      },
+      headers: {
+        'User-Agent': 'SudoDeck-OSINT-Platform/2.0 (threat-intel-visual-recon)',
+        'Accept-Language': 'az,en,ru',
+      },
+      timeout: 8000,
+    });
+
+    return res.json({
+      success: true,
+      query,
+      results: osmResponse.data || [],
+    });
+  } catch (err) {
+    console.warn('Nominatim geocode proxy notice:', err.message);
+    return res.status(502).json({
+      success: false,
+      error: 'Nominatim geocoding xidməti müvəqqəti əlçatmazdır.',
+      details: err.message,
     });
   }
 });
