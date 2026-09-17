@@ -304,11 +304,64 @@ export const PLATFORMS = [
   },
 ];
 
+export const PLATFORM_LOGOS = {
+  'github': 'github',
+  'telegram': 'telegram',
+  'reddit': 'reddit',
+  'instagram': 'instagram',
+  'x (twitter)': 'x',
+  'twitter': 'x',
+  'x': 'x',
+  'tiktok': 'tiktok',
+  'youtube': 'youtube',
+  'pinterest': 'pinterest',
+  'threads': 'threads',
+  'vk (vkontakte)': 'vk',
+  'vk': 'vk',
+  'mastodon': 'mastodon',
+  'bluesky': 'bluesky',
+  'gitlab': 'gitlab',
+  'bitbucket': 'bitbucket',
+  'dockerhub': 'docker',
+  'docker': 'docker',
+  'npm': 'npm',
+  'pypi': 'pypi',
+  'dev.to': 'devdotto',
+  'hackernews': 'ycombinator',
+  'codeforces': 'codeforces',
+  'replit': 'replit',
+  'leetcode': 'leetcode',
+  'medium': 'medium',
+  'soundcloud': 'soundcloud',
+  'spotify': 'spotify',
+  'behance': 'behance',
+  'dribbble': 'dribbble',
+  'vimeo': 'vimeo',
+  'flickr': 'flickr',
+  'twitch': 'twitch',
+  'steam': 'steam',
+  'chess.com': 'chessdotcom',
+  'lichess': 'lichess',
+  'linktree': 'linktree',
+  'patreon': 'patreon',
+  'roblox': 'roblox',
+};
+
+export function getPlatformLogo(name) {
+  const key = (name || '').toLowerCase().trim();
+  const slug = PLATFORM_LOGOS[key] || 'globe';
+  return {
+    slug,
+    iconUrl: `/img/brands/${slug}.svg`,
+  };
+}
+
 export async function checkSinglePlatform(platform, username) {
   const cleanUser = username.trim().toLowerCase();
   const profileUrl = platform.url.replace(/\{u\}/g, cleanUser);
   const checkUrl = platform.checkUrl.replace(/\{u\}/g, cleanUser);
   const startTime = Date.now();
+  const { slug: logoSlug, iconUrl } = getPlatformLogo(platform.name);
 
   const client = axios.create({
     timeout: 4500,
@@ -328,6 +381,8 @@ export async function checkSinglePlatform(platform, username) {
         platform: platform.name,
         category: platform.category,
         icon: platform.icon,
+        logoSlug,
+        iconUrl,
         url: profileUrl,
         exists,
         status: exists ? 'FOUND' : 'NOT_FOUND',
@@ -343,6 +398,8 @@ export async function checkSinglePlatform(platform, username) {
         platform: platform.name,
         category: platform.category,
         icon: platform.icon,
+        logoSlug,
+        iconUrl,
         url: profileUrl,
         exists,
         status: exists ? 'FOUND' : 'NOT_FOUND',
@@ -358,6 +415,8 @@ export async function checkSinglePlatform(platform, username) {
         platform: platform.name,
         category: platform.category,
         icon: platform.icon,
+        logoSlug,
+        iconUrl,
         url: profileUrl,
         exists: !!exists,
         status: exists ? 'FOUND' : 'NOT_FOUND',
@@ -373,6 +432,8 @@ export async function checkSinglePlatform(platform, username) {
         platform: platform.name,
         category: platform.category,
         icon: platform.icon,
+        logoSlug,
+        iconUrl,
         url: profileUrl,
         exists,
         status: exists ? 'FOUND' : 'NOT_FOUND',
@@ -390,6 +451,8 @@ export async function checkSinglePlatform(platform, username) {
         platform: platform.name,
         category: platform.category,
         icon: platform.icon,
+        logoSlug,
+        iconUrl,
         url: profileUrl,
         exists,
         status: exists ? 'FOUND' : 'NOT_FOUND',
@@ -407,6 +470,8 @@ export async function checkSinglePlatform(platform, username) {
         platform: platform.name,
         category: platform.category,
         icon: platform.icon,
+        logoSlug,
+        iconUrl,
         url: profileUrl,
         exists,
         status: exists ? 'FOUND' : 'NOT_FOUND',
@@ -422,6 +487,8 @@ export async function checkSinglePlatform(platform, username) {
       platform: platform.name,
       category: platform.category,
       icon: platform.icon,
+      logoSlug,
+      iconUrl,
       url: profileUrl,
       exists,
       status: exists ? 'FOUND' : (res.status === 404 ? 'NOT_FOUND' : 'UNKNOWN'),
@@ -433,6 +500,8 @@ export async function checkSinglePlatform(platform, username) {
       platform: platform.name,
       category: platform.category,
       icon: platform.icon,
+      logoSlug,
+      iconUrl,
       url: profileUrl,
       exists: false,
       status: 'TIMEOUT',

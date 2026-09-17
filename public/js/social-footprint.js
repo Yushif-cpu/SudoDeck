@@ -137,6 +137,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  const BRAND_SLUGS = {
+    'github': 'github',
+    'telegram': 'telegram',
+    'reddit': 'reddit',
+    'instagram': 'instagram',
+    'x (twitter)': 'x',
+    'twitter': 'x',
+    'x': 'x',
+    'tiktok': 'tiktok',
+    'youtube': 'youtube',
+    'pinterest': 'pinterest',
+    'threads': 'threads',
+    'vk (vkontakte)': 'vk',
+    'vk': 'vk',
+    'mastodon': 'mastodon',
+    'bluesky': 'bluesky',
+    'gitlab': 'gitlab',
+    'bitbucket': 'bitbucket',
+    'dockerhub': 'docker',
+    'docker': 'docker',
+    'npm': 'npm',
+    'pypi': 'pypi',
+    'dev.to': 'devdotto',
+    'hackernews': 'ycombinator',
+    'codeforces': 'codeforces',
+    'replit': 'replit',
+    'leetcode': 'leetcode',
+    'medium': 'medium',
+    'soundcloud': 'soundcloud',
+    'spotify': 'spotify',
+    'behance': 'behance',
+    'dribbble': 'dribbble',
+    'vimeo': 'vimeo',
+    'flickr': 'flickr',
+    'twitch': 'twitch',
+    'steam': 'steam',
+    'chess.com': 'chessdotcom',
+    'lichess': 'lichess',
+    'linktree': 'linktree',
+    'patreon': 'patreon',
+    'roblox': 'roblox',
+  };
+
+  const getBrandLogo = (item) => {
+    const rawKey = (item.platform || '').toLowerCase().trim();
+    const slug = item.logoSlug || BRAND_SLUGS[rawKey] || item.icon || 'globe';
+    return {
+      src: item.iconUrl || `/img/brands/${slug}.svg`,
+      fallbackSrc: `https://cdn.simpleicons.org/${slug}`,
+      name: item.platform,
+    };
+  };
+
   const renderCards = (filter) => {
     if (!resultsGrid) return;
     resultsGrid.innerHTML = '';
@@ -163,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     filtered.forEach(item => {
       const card = document.createElement('div');
       const isFound = item.exists;
+      const brand = getBrandLogo(item);
 
       card.className = `p-4 rounded-xl border transition-all duration-200 space-y-3 ${
         isFound
@@ -173,13 +227,23 @@ document.addEventListener('DOMContentLoaded', () => {
       card.innerHTML = `
         <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center ${
-              isFound ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-slate-800 text-slate-500'
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center p-1.5 transition-transform hover:scale-105 shrink-0 ${
+              isFound 
+                ? 'bg-emerald-500/10 border border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.2)]' 
+                : 'bg-surface-800/90 border border-slate-700/70'
             }">
-              <i data-lucide="${item.icon || 'globe'}" class="w-4 h-4"></i>
+              <img 
+                src="${brand.src}" 
+                alt="${item.platform} logo" 
+                class="w-5 h-5 object-contain select-none" 
+                loading="lazy"
+                onerror="this.onerror=null; this.src='${brand.fallbackSrc}';" 
+              />
             </div>
             <div>
-              <div class="text-xs font-bold text-white font-mono">${item.platform}</div>
+              <div class="text-xs font-bold text-white font-mono flex items-center gap-1.5">
+                <span>${item.platform}</span>
+              </div>
               <div class="text-[10px] text-slate-400 font-mono">${item.category}</div>
             </div>
           </div>
