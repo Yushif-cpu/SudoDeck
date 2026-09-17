@@ -1,3 +1,4 @@
+import fs from 'fs';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
@@ -5,31 +6,26 @@ import { dirname, resolve } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load .env reliably from project root, current working directory, or parent directory
+// Load .env reliably ONLY if file actually exists on disk (suppresses noisy container warnings)
 const possibleEnvPaths = [
-  resolve(__dirname, '..', '.env'),
   resolve(process.cwd(), '.env'),
+  resolve(__dirname, '..', '.env'),
   resolve(process.cwd(), 'threat-intel-node', '.env'),
   resolve(__dirname, '..', '..', '.env'),
 ];
-for (const p of possibleEnvPaths) {
-  dotenv.config({ path: p });
-}
 
+for (const p of possibleEnvPaths) {
+  if (fs.existsSync(p)) {
+    dotenv.config({ path: p, quiet: true });
+    break; // First match is loaded, prevent multiple redundant injections
+  }
+}
 
 // ── Environment variables check (Graceful degradation) ───────────
 const RECOMMENDED_VARS = ['ABUSEIPDB_API_KEY', 'VIRUSTOTAL_API_KEY'];
 const missing = RECOMMENDED_VARS.filter((key) => !process.env[key]);
-if (missing.length > 0) {
-  console.warn('╔══════════════════════════════════════════════════════════╗');
-  console.warn('║  NOTICE: Running with partial/missing API keys           ║');
-  console.warn('╠══════════════════════════════════════════════════════════╣');
-  missing.forEach((key) => {
-    console.warn(`║  !  ${key.padEnd(50)}║`);
-  });
-  console.warn('╠══════════════════════════════════════════════════════════╣');
-  console.warn('║  Add keys in environment variables for live VT/AbuseIPDB ║');
-  console.warn('╚══════════════════════════════════════════════════════════╝');
+if (missing.length > 0 && process.env.NODE_ENV === 'development') {
+  console.info(`[Config] Operating in community feed mode (Optional keys not set: ${missing.join(', ')})`);
 }
 
 // ── Export validated config ──────────────────────────────────────

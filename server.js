@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ quiet: true });
 
 import config from './config/env.js';
 import express from 'express';
