@@ -148,7 +148,7 @@ app.get('/api/reported-ips', async (req, res) => {
 app.get('/api/geocode', async (req, res) => {
   const query = (req.query.q || '').trim();
   if (!query) {
-    return res.status(400).json({ success: false, error: 'Axtarış sorğusu (q parametri) mütləqdir.' });
+    return res.status(400).json({ success: false, error: 'Search query (q parameter) is required.' });
   }
 
   try {
@@ -162,7 +162,7 @@ app.get('/api/geocode', async (req, res) => {
       },
       headers: {
         'User-Agent': 'SudoDeck-OSINT-Platform/2.0 (threat-intel-visual-recon)',
-        'Accept-Language': 'az,en,ru',
+        'Accept-Language': 'en,az,ru',
       },
       timeout: 8000,
     });
@@ -176,7 +176,7 @@ app.get('/api/geocode', async (req, res) => {
     console.warn('Nominatim geocode proxy notice:', err.message);
     return res.status(502).json({
       success: false,
-      error: 'Nominatim geocoding xidməti müvəqqəti əlçatmazdır.',
+      error: 'Nominatim geocoding service is temporarily unavailable.',
       details: err.message,
     });
   }
@@ -187,7 +187,7 @@ app.get('/api/reverse-geocode', async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lon = parseFloat(req.query.lon);
   if (isNaN(lat) || isNaN(lon)) {
-    return res.status(400).json({ success: false, error: 'Düzgün lat və lon parametrləri mütləqdir.' });
+    return res.status(400).json({ success: false, error: 'Valid lat and lon parameters are required.' });
   }
 
   try {
@@ -200,7 +200,7 @@ app.get('/api/reverse-geocode', async (req, res) => {
       },
       headers: {
         'User-Agent': 'SudoDeck-OSINT-Platform/2.0 (threat-intel-visual-recon)',
-        'Accept-Language': 'az,en,ru',
+        'Accept-Language': 'en,az,ru',
       },
       timeout: 8000,
     });
@@ -213,7 +213,7 @@ app.get('/api/reverse-geocode', async (req, res) => {
     console.warn('Nominatim reverse geocode notice:', err.message);
     return res.status(502).json({
       success: false,
-      error: 'Nominatim reverse geocoding xidməti müvəqqəti əlçatmazdır.',
+      error: 'Nominatim reverse geocoding service is temporarily unavailable.',
       details: err.message,
     });
   }

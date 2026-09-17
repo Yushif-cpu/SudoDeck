@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setText(previewBadgeMode, '📷 Native View');
 
     // 3. Reset GPS Telemetry Panel
-    setText(gpsBadge, 'ANALİZ EDİLİR...');
+    setText(gpsBadge, 'ANALYZING...');
     if (gpsBadge) {
       gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700';
     }
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Reset OCR & Landmarks
     setText(ocrConfidence, '0%');
-    setText(ocrRawText, 'Şəkil analiz edilir...');
+    setText(ocrRawText, 'Analyzing image...');
     setDisplay(landmarksContainer, false);
     setHtml(landmarksTags, '');
     setDisplay(proximityContainer, false);
@@ -171,16 +171,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setText(chronoShadowRatio, '—');
 
     // 7. Reset Metadata Table
-    setText(metaMake, 'Məlumat yoxdur');
-    setText(metaModel, 'Məlumat yoxdur');
-    setText(metaDateTime, 'Məlumat yoxdur');
-    setText(metaDimensions, 'Məlumat yoxdur');
+    setText(metaMake, 'N/A');
+    setText(metaModel, 'N/A');
+    setText(metaDateTime, 'N/A');
+    setText(metaDimensions, 'N/A');
     setText(metaFileSize, '0 Bytes');
-    setText(metaExposure, 'Məlumat yoxdur');
-    setText(metaFNumber, 'Məlumat yoxdur');
-    setText(metaIso, 'Məlumat yoxdur');
-    setText(metaFocal, 'Məlumat yoxdur');
-    setText(metaSoftware, 'Məlumat yoxdur');
+    setText(metaExposure, 'N/A');
+    setText(metaFNumber, 'N/A');
+    setText(metaIso, 'N/A');
+    setText(metaFocal, 'N/A');
+    setText(metaSoftware, 'N/A');
 
     // 8. Reset Username Lead
     setDisplay(ocrUsernameLead, false);
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const copyToClipboard = (text, triggerBtn, successText = 'Kopyalandı!') => {
+  const copyToClipboard = (text, triggerBtn, successText = 'Copied!') => {
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
       if (!triggerBtn) return;
@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function degreesToCardinal(deg) {
-    const directions = ['Şimal (N)', 'Şimal-Şərq (NE)', 'Şərq (E)', 'Cənub-Şərq (SE)', 'Cənub (S)', 'Cənub-Qərb (SW)', 'Qərb (W)', 'Şimal-Qərb (NW)'];
+    const directions = ['North (N)', 'North-East (NE)', 'East (E)', 'South-East (SE)', 'South (S)', 'South-West (SW)', 'West (W)', 'North-West (NW)'];
     const index = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
     return directions[index];
   }
@@ -494,13 +494,13 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="flex items-center gap-2 pt-1 font-mono text-xs">
           <button type="button" class="btn-preview-map flex-1 text-center py-1.5 rounded-lg bg-[#00C897]/15 hover:bg-[#00C897]/25 text-[#00C897] font-bold transition-colors">
-            Xəritədə Bax 🗺️
+            View on Map 🗺️
           </button>
           <a href="https://www.google.com/maps?q=${loc.lat},${loc.lon}" target="_blank" rel="noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
             GMaps ↗
           </a>
           <button type="button" class="btn-copy-loc px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" data-coords="${loc.lat}, ${loc.lon}">
-            Kopya
+            Copy
           </button>
         </div>
       `;
@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setDisplay(gpsDetailsNone, false);
         setText(coordsDisplay, `${lat.toFixed(6)}, ${lon.toFixed(6)}`);
         if (coordsAddress) {
-          coordsAddress.textContent = `📍 Seçilmiş Məkan: ${loc.display_name}`;
+          coordsAddress.textContent = `📍 Selected Location: ${loc.display_name}`;
           coordsAddress.classList.remove('hidden');
         }
         if (btnGoogleMaps) btnGoogleMaps.href = `https://www.google.com/maps?q=${lat},${lon}`;
@@ -537,11 +537,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setText(chronoTime, date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     setText(chronoSunAzimuth, `${shadow.sunAzimuthDeg}° (${shadow.cardinalDirection})`);
     setText(chronoShadowVector, `${shadow.shadowAzimuthDeg}° (${shadow.shadowCardinalDirection})`);
-    setText(chronoShadowRatio, shadow.isNight ? 'Gecə' : `~${shadow.shadowLengthRatio}x`);
+    setText(chronoShadowRatio, shadow.isNight ? 'Night' : `~${shadow.shadowLengthRatio}x`);
     setText(chronoReliability, hasGps ? 'High (GPS+EXIF)' : 'Estimated by Time');
 
     if (chronoGuidance) {
-      chronoGuidance.innerHTML = `📐 <strong>OSINT İpucu:</strong> Saat ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} üçün şəkildəki dirək və hasarların kölgəsi <span class="text-[#00C897] font-semibold">${shadow.shadowCardinalDirection}</span> tərəfinə yönəlir (1 m obyekt üçün kölgə ~${shadow.shadowLengthRatio} m).`;
+      chronoGuidance.innerHTML = `📐 <strong>OSINT Tip:</strong> At ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}, shadows cast toward <span class="text-[#00C897] font-semibold">${shadow.shadowCardinalDirection}</span> (shadow length ~${shadow.shadowLengthRatio}m per 1m object height).`;
     }
     setDisplay(chronoContainer, true);
   };
@@ -592,12 +592,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fast & Bulletproof OCR
   const runOcrOnSource = async (src) => {
     if (!src) {
-      updateProgress(100, 'Analiz tamamlandı.');
+      updateProgress(100, 'Analysis completed.');
       setTimeout(() => setDisplay(statusContainer, false), 1500);
       return;
     }
 
-    updateProgress(50, 'Tesseract.js OCR mühərriki yazıları oxuyur...');
+    updateProgress(50, 'Tesseract.js OCR engine extracting text...');
 
     try {
       if (window.Tesseract) {
@@ -605,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
           logger: (m) => {
             if (m.status === 'recognizing text' && typeof m.progress === 'number') {
               const p = Math.min(Math.round(m.progress * 100), 95);
-              updateProgress(Math.max(50, p), `Mətnlər və lövhələr oxunur: ${p}%`);
+              updateProgress(Math.max(50, p), `Extracting text & signs: ${p}%`);
             }
           },
         });
@@ -619,7 +619,7 @@ document.addEventListener('DOMContentLoaded', () => {
           currentOcrText = result.data.text || '';
           const confidence = Math.round(result.data.confidence || 0);
           setText(ocrConfidence, `${confidence}%`);
-          setText(ocrRawText, currentOcrText.trim() || 'Bu şəkildə aşkar edilən hər hansı mətn tapılmadı.');
+          setText(ocrRawText, currentOcrText.trim() || 'No text detected in this image.');
 
           currentLandmarks = extractLandmarks(currentOcrText);
           renderLandmarksAndProximity(currentLandmarks);
@@ -639,17 +639,17 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         } else {
           setText(ocrConfidence, '0%');
-          setText(ocrRawText, 'Bu şəkildə oxunan mətn aşkar edilmədi.');
+          setText(ocrRawText, 'No readable text detected in this image.');
         }
       } else {
-        setText(ocrRawText, 'OCR mühərriki hazır deyil.');
+        setText(ocrRawText, 'OCR engine not ready.');
       }
     } catch (err) {
       console.warn('OCR notice:', err);
-      setText(ocrRawText, 'Mətn aşkar edilmədi.');
+      setText(ocrRawText, 'No text detected.');
     }
 
-    updateProgress(100, 'Analiz tamamlandı.');
+    updateProgress(100, 'Analysis completed.');
     setTimeout(() => {
       setDisplay(statusContainer, false);
     }, 1500);
@@ -713,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setDisplay(resultsContainer, true);
       setDisplay(statusContainer, true);
 
-      updateProgress(10, 'Şəkil yüklənir...');
+      updateProgress(10, 'Loading image...');
 
       originalImageSrc = URL.createObjectURL(file);
       if (imagePreview) imagePreview.src = originalImageSrc;
@@ -725,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let hasExactGps = false;
 
       // STEP 2: Read EXIF & GPS
-      updateProgress(25, 'EXIF kamera və peyk sensoru oxunur...');
+      updateProgress(25, 'Reading EXIF camera & GPS sensors...');
       try {
         if (window.exifr) {
           const exif = await Promise.race([
@@ -734,15 +734,15 @@ document.addEventListener('DOMContentLoaded', () => {
           ]).catch(() => null);
 
           if (exif) {
-            setText(metaMake, exif.Make || exif.make || 'Tapılmadı');
-            setText(metaModel, exif.Model || exif.model || 'Tapılmadı');
-            setText(metaSoftware, exif.Software || exif.software || 'Tapılmadı');
+            setText(metaMake, exif.Make || exif.make || 'Not found');
+            setText(metaModel, exif.Model || exif.model || 'Not found');
+            setText(metaSoftware, exif.Software || exif.software || 'Not found');
 
             if (exif.DateTimeOriginal || exif.CreateDate) {
               captureDate = new Date(exif.DateTimeOriginal || exif.CreateDate);
               setText(metaDateTime, captureDate.toLocaleString());
             } else {
-              setText(metaDateTime, 'Məlumat yoxdur');
+              setText(metaDateTime, 'N/A');
             }
 
             if (exif.ExifImageWidth && exif.ExifImageHeight) {
@@ -805,14 +805,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Reverse geocode to exact street and building address
             queryReverseGeocode(lat, lon).then((addr) => {
               if (addr && coordsAddress) {
-                coordsAddress.textContent = `📍 Dəqiq Ünvan: ${addr}`;
+                coordsAddress.textContent = `📍 Exact Address: ${addr}`;
                 coordsAddress.classList.remove('hidden');
               }
             });
 
             suggestedLocationsList = [{
               place_id: 1,
-              display_name: `EXIF Dəqiq Məkan: ${lat}, ${lon}`,
+              display_name: `EXIF Exact Coordinates: ${lat}, ${lon}`,
               lat: lat.toString(),
               lon: lon.toString(),
               type: 'sensor_gps',
@@ -827,13 +827,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // STEP 3: If NO exact EXIF GPS:
       if (!hasExactGps) {
-        setText(gpsBadge, '🟡 EXIF GPS TAPILMADI');
+        setText(gpsBadge, '🟡 EXIF GPS NOT FOUND');
         if (gpsBadge) {
           gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
         }
         setDisplay(gpsDetailsLocked, false);
         setDisplay(gpsDetailsNone, true);
-        setText(coordsDisplay, 'Mövcud Deyil (EXIF GPS yoxdur)');
+        setText(coordsDisplay, 'Unavailable (No EXIF GPS)');
         if (coordsAddress) {
           coordsAddress.textContent = '';
           coordsAddress.classList.add('hidden');
@@ -847,7 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // STEP 5: Canvas Enhancement
-      updateProgress(40, 'Canvas API ilə şəklin kontrastı və kənarları kəskinləşdirilir...');
+      updateProgress(40, 'Enhancing contrast and edge sharpness via Canvas API...');
       let ocrInput = originalImageSrc;
       try {
         const enhanced = await enhanceImageViaCanvas(originalImageSrc);
@@ -863,7 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (criticalErr) {
       console.error('Critical processFile error:', criticalErr);
-      updateProgress(100, 'Analiz tamamlandı.');
+      updateProgress(100, 'Analysis completed.');
       setTimeout(() => setDisplay(statusContainer, false), 1500);
     }
   };
@@ -951,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentGps = { latitude: 40.358211, longitude: 49.832944 };
       setText(coordsDisplay, '40.358211, 49.832944');
       if (coordsAddress) {
-        coordsAddress.textContent = '📍 Dəqiq Ünvan: Dənizkənarı küçəsi, Bayıl, Səbail rayonu, Bakı, Azərbaycan';
+        coordsAddress.textContent = '📍 Exact Address: Seaside Promenade, Bayil, Sabayil, Baku, Azerbaijan';
         coordsAddress.classList.remove('hidden');
       }
       setText(gpsBadge, '🟢 GPS VERIFIED (100% EXIF SENSOR)');
@@ -978,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
       suggestedLocationsList = [
         {
           place_id: 991,
-          display_name: 'Bakı Kristal Zalı, Dövlət Bayrağı Meydanı, Səbail, Bakı, Azərbaycan',
+          display_name: 'Baku Crystal Hall, National Flag Square, Sabayil, Baku, Azerbaijan',
           lat: '40.3475',
           lon: '49.8519',
           type: 'amenity',
@@ -986,7 +986,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
           place_id: 992,
-          display_name: 'Neftçilər Prospekti, Səbail, Bakı, AZ1000, Azərbaycan',
+          display_name: 'Neftchilar Avenue, Sabayil, Baku, AZ1000, Azerbaijan',
           lat: '40.3667',
           lon: '49.8389',
           type: 'highway',
@@ -1018,13 +1018,13 @@ document.addEventListener('DOMContentLoaded', () => {
       setText(metaFocal, '24.0 mm');
       setText(metaFileSize, '3.05 MB (image/jpeg)');
 
-      setText(gpsBadge, '🟡 EXIF GPS TAPILMADI');
+      setText(gpsBadge, '🟡 EXIF GPS NOT FOUND');
       if (gpsBadge) {
         gpsBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40';
       }
       setDisplay(gpsDetailsLocked, false);
       setDisplay(gpsDetailsNone, true);
-      setText(coordsDisplay, 'Mövcud Deyil (EXIF GPS yoxdur)');
+      setText(coordsDisplay, 'Unavailable (No EXIF GPS)');
 
       currentOcrText = 'BRAVO SUPERMARKET // 24 SAAT APTEK ZEFERAN // NIZAMI KUCESI 142 // @by.orux';
       setText(ocrConfidence, '89%');
@@ -1042,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
       suggestedLocationsList = [
         {
           place_id: 881,
-          display_name: 'Bravo Hipermarket, Heydər Əliyev prospekti, Nərimanov, Bakı, Azərbaycan',
+          display_name: 'Bravo Hypermarket, Heydar Aliyev Ave, Narimanov, Baku, Azerbaijan',
           lat: '40.4128',
           lon: '49.8732',
           type: 'shop',
@@ -1050,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
           place_id: 882,
-          display_name: 'Zəfəran Aptek, Nizami küçəsi, Nəsimi, Bakı, AZ1010, Azərbaycan',
+          display_name: 'Zeferan Pharmacy, Nizami Street, Nasimi, Baku, AZ1010, Azerbaijan',
           lat: '40.3789',
           lon: '49.8521',
           type: 'amenity',

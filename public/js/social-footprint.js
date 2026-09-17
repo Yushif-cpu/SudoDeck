@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const copyToClipboard = (text, triggerBtn, successText = 'Kopyalandı!') => {
+  const copyToClipboard = (text, triggerBtn, successText = 'Copied!') => {
     if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
       if (!triggerBtn) return;
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCards(currentFilter);
       } else {
         setDisplay(emptyPrompt, true);
-        setText(emptyPrompt, json.message || 'Sorğu zamanı xəta baş verdi.');
+        setText(emptyPrompt, json.message || 'An error occurred during search.');
       }
     } catch (err) {
       console.error('Sherlock scan error:', err);
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resultsGrid.innerHTML = `
         <div class="col-span-full p-12 rounded-2xl bg-surface-900 border border-slate-800 text-center text-xs font-mono text-slate-400 space-y-2">
           <i data-lucide="filter-x" class="w-8 h-8 text-slate-600 mx-auto mb-1"></i>
-          <div>Bu kateqoriya və ya filtr üzrə heç bir profil tapılmadı.</div>
+          <div>No profiles found for this category or filter.</div>
         </div>
       `;
       if (window.lucide) window.lucide.createIcons({ root: resultsGrid });
@@ -207,14 +207,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 : 'bg-slate-800 hover:bg-slate-750 text-slate-400 hover:text-slate-200'
             }"
           >
-            <span>Profil ↗</span>
+            <span>Profile ↗</span>
           </a>
           <button
             type="button"
             class="btn-copy-card-url px-3 py-2 rounded-lg bg-surface-800 hover:bg-surface-750 text-slate-400 hover:text-white border border-slate-700 text-xs transition-colors"
             data-url="${item.url}"
           >
-            Kopya
+            Copy
           </button>
         </div>
       `;
@@ -259,11 +259,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnExport.addEventListener('click', () => {
       const found = currentResults.filter(r => r.exists);
       if (found.length === 0) {
-        copyToClipboard('Tapılan profil yoxdur.', btnExport, 'Boşdur!');
+        copyToClipboard('No profiles found.', btnExport, 'Empty!');
         return;
       }
       const text = found.map(f => `${f.platform}: ${f.url}`).join('\n');
-      copyToClipboard(text, btnExport, 'Kopyalandı! ✓');
+      copyToClipboard(text, btnExport, 'Copied! ✓');
     });
   }
 

@@ -82,7 +82,7 @@ const KNOWN_STORE_PATTERNS = [
 
 // Helper: Convert degrees to cardinal directions
 function degreesToCardinal(deg: number): string {
-  const directions = ['Şimal (N)', 'Şimal-Şərq (NE)', 'Şərq (E)', 'Cənub-Şərq (SE)', 'Cənub (S)', 'Cənub-Qərb (SW)', 'Qərb (W)', 'Şimal-Qərb (NW)'];
+  const directions = ['North (N)', 'North-East (NE)', 'East (E)', 'South-East (SE)', 'South (S)', 'South-West (SW)', 'West (W)', 'North-West (NW)'];
   const index = Math.round(((deg % 360) + 360) % 360 / 45) % 8;
   return directions[index];
 }
@@ -337,7 +337,7 @@ export default function VisualRecon() {
         status: 'error',
         progressMessage: '',
         ocrProgress: 0,
-        error: 'Zəhmət olmasa düzgün şəkil formatı seçin (JPEG, PNG, WEBP, TIFF, HEIC).',
+        error: 'Please select a valid image format (JPEG, PNG, WEBP, TIFF, HEIC).',
       });
       return;
     }
@@ -352,7 +352,7 @@ export default function VisualRecon() {
 
     setAnalysisState({
       status: 'reading-exif',
-      progressMessage: 'Şəkil daxilindəki EXIF və GPS koordinatları oxunur...',
+      progressMessage: 'Reading EXIF and GPS coordinates from image...',
       ocrProgress: 0,
     });
 
@@ -442,7 +442,7 @@ export default function VisualRecon() {
           latitude: 40.354210,
           longitude: 49.815320,
           isEstimated: true,
-          locationName: 'Badamdar / Bayıl Yamacları (Bakı)',
+          locationName: 'Badamdar / Bayil Ridge (Baku)',
         };
         baseMeta.gps = parsedGps;
 
@@ -450,7 +450,7 @@ export default function VisualRecon() {
         setSuggestedLocations([
           {
             place_id: 101,
-            display_name: 'Badamdar qəsəbəsi, Səbail rayonu, Bakı şəhəri, Azərbaycan (Landşaft Uyğunluğu: 92%)',
+            display_name: 'Badamdar settlement, Sabayil district, Baku city, Azerbaijan (Landscape Match: 92%)',
             lat: '40.35421',
             lon: '49.81532',
             type: 'suburb',
@@ -458,7 +458,7 @@ export default function VisualRecon() {
           },
           {
             place_id: 102,
-            display_name: 'Bayıl yamacları, Səbail, Bakı, Azərbaycan (Dənizkənarı Hündürlük Massivi)',
+            display_name: 'Bayil slopes, Sabayil, Baku, Azerbaijan (Seaside Elevation Array)',
             lat: '40.34210',
             lon: '49.82450',
             type: 'neighbourhood',
@@ -466,7 +466,7 @@ export default function VisualRecon() {
           },
           {
             place_id: 103,
-            display_name: 'Yeni Yasamal massivi, Yasamal rayonu, Bakı, Azərbaycan',
+            display_name: 'New Yasamal area, Yasamal district, Baku, Azerbaijan',
             lat: '40.38450',
             lon: '49.79540',
             type: 'suburb',
@@ -509,7 +509,7 @@ export default function VisualRecon() {
     let ocrInput: any = file;
     setAnalysisState({
       status: 'enhancing',
-      progressMessage: 'Canvas API ilə şəklin kontrastı və kənarları kəskinləşdirilir...',
+      progressMessage: 'Enhancing contrast and edge sharpness via Canvas API...',
       ocrProgress: 35,
     });
 
@@ -526,7 +526,7 @@ export default function VisualRecon() {
     // 4. OCR Text Extraction via tesseract.js with timeout race (Zero-Freeze)
     setAnalysisState({
       status: 'running-ocr',
-      progressMessage: 'Tesseract.js neyron modeli şəkildəki mağaza və lövhə yazılarını oxuyur...',
+      progressMessage: 'Tesseract.js neural model extracting store and sign text...',
       ocrProgress: 50,
     });
 
@@ -540,7 +540,7 @@ export default function VisualRecon() {
             setAnalysisState((prev) => ({
               ...prev,
               ocrProgress: Math.min(Math.round(m.progress * 100), 95),
-              progressMessage: `Mətnlər, mağaza lövhələri və küçə adları oxunur: ${Math.round(m.progress * 100)}%`,
+              progressMessage: `Extracting text, store signs, and street names: ${Math.round(m.progress * 100)}%`,
             }));
           }
         },
@@ -565,7 +565,7 @@ export default function VisualRecon() {
         if (landmarks.length > 0) {
           setAnalysisState({
             status: 'geocoding',
-            progressMessage: 'OpenStreetMap (Nominatim) ilə real coğrafi ünvanlar tapılır...',
+            progressMessage: 'Querying real geographic addresses via OpenStreetMap (Nominatim)...',
             ocrProgress: 95,
           });
 
@@ -577,14 +577,14 @@ export default function VisualRecon() {
 
       setAnalysisState({
         status: 'completed',
-        progressMessage: 'Analiz tamamlandı. GPS, OCR və Coğrafi Məkanlar hazırdır.',
+        progressMessage: 'Analysis complete. GPS, OCR, and Geographic Locations ready.',
         ocrProgress: 100,
       });
     } catch (ocrErr: any) {
       console.error('OCR processing notice:', ocrErr);
       setAnalysisState({
         status: 'completed',
-        progressMessage: 'Analiz tamamlandı. Coğrafi koordinatlar və landşaft telemetriyası hazırdır.',
+        progressMessage: 'Analysis complete. Coordinates and landscape telemetry ready.',
         ocrProgress: 100,
       });
     }
@@ -597,7 +597,7 @@ export default function VisualRecon() {
 
     setAnalysisState({
       status: 'running-ocr',
-      progressMessage: useEnhanced ? 'Təkmilləşdirilmiş şəkil üzərində təkrar OCR işlədilir...' : 'Orijinal şəkil üzərində OCR işlədilir...',
+      progressMessage: useEnhanced ? 'Running OCR on enhanced image...' : 'Running OCR on original image...',
       ocrProgress: 20,
     });
 
@@ -634,7 +634,7 @@ export default function VisualRecon() {
 
       setAnalysisState({
         status: 'completed',
-        progressMessage: 'Təkrar OCR analizi tamamlandı.',
+        progressMessage: 'Re-run OCR analysis completed.',
         ocrProgress: 100,
       });
     } catch (err) {
@@ -642,7 +642,7 @@ export default function VisualRecon() {
         status: 'error',
         progressMessage: '',
         ocrProgress: 0,
-        error: 'Təkrar OCR zamanı xəta baş verdi.',
+        error: 'Error occurred during re-run OCR.',
       });
     }
   };
@@ -700,7 +700,7 @@ export default function VisualRecon() {
     setSuggestedLocations([
       {
         place_id: 991,
-        display_name: 'Bakı Kristal Zalı, Dövlət Bayrağı Meydanı, Səbail, Bakı, Azərbaycan',
+        display_name: 'Baku Crystal Hall, National Flag Square, Sabayil, Baku, Azerbaijan',
         lat: '40.3475',
         lon: '49.8519',
         type: 'amenity',
@@ -709,7 +709,7 @@ export default function VisualRecon() {
       },
       {
         place_id: 992,
-        display_name: 'Neftçilər Prospekti, Səbail, Bakı, AZ1000, Azərbaycan',
+        display_name: 'Neftchilar Avenue, Sabayil, Baku, AZ1000, Azerbaijan',
         lat: '40.3667',
         lon: '49.8389',
         type: 'highway',
@@ -719,7 +719,7 @@ export default function VisualRecon() {
     ]);
     setAnalysisState({
       status: 'completed',
-      progressMessage: 'Nümunə GPS telemetriyası və OpenStreetMap məkanları yükləndi.',
+      progressMessage: 'Sample GPS telemetry and OpenStreetMap locations loaded.',
       ocrProgress: 100,
     });
   };
@@ -752,7 +752,7 @@ export default function VisualRecon() {
     setSuggestedLocations([
       {
         place_id: 881,
-        display_name: 'Bravo Hipermarket, Heydər Əliyev prospekti, Nərimanov, Bakı, Azərbaycan',
+        display_name: 'Bravo Hypermarket, Heydar Aliyev Ave, Narimanov, Baku, Azerbaijan',
         lat: '40.4128',
         lon: '49.8732',
         type: 'shop',
@@ -761,7 +761,7 @@ export default function VisualRecon() {
       },
       {
         place_id: 882,
-        display_name: 'Zəfəran Aptek, Nizami küçəsi, Nəsimi, Bakı, AZ1010, Azərbaycan',
+        display_name: 'Zeferan Pharmacy, Nizami Street, Nasimi, Baku, AZ1010, Azerbaijan',
         lat: '40.3789',
         lon: '49.8521',
         type: 'amenity',
@@ -771,7 +771,7 @@ export default function VisualRecon() {
     ]);
     setAnalysisState({
       status: 'completed',
-      progressMessage: 'GPS koordinatı tapılmadı. OCR vasitəsilə mağaza və Nominatim koordinatları aşkarlanmışdır.',
+      progressMessage: 'GPS tag not found. Storefront and Nominatim coordinates extracted via OCR.',
       ocrProgress: 100,
     });
   };
@@ -795,7 +795,7 @@ export default function VisualRecon() {
             </span>
           </h1>
           <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-            EXIF GPS koordinatları, Canvas Kontrast Gücləndirilməsi, Tesseract OCR mağaza/lövhə analizi, OpenStreetMap (Nominatim) geocoding və kölgə bucağı əsaslı məkan təyini.
+            EXIF GPS coordinates, Canvas Contrast Enhancement, Tesseract OCR storefront analysis, OpenStreetMap (Nominatim) geocoding and shadow angle chronolocation.
           </p>
         </div>
 
@@ -806,14 +806,14 @@ export default function VisualRecon() {
             onClick={loadDemoGps}
             className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-mono text-slate-300 hover:text-white transition-all shadow-sm"
           >
-            🛰️ Nümunə GPS
+            🛰️ Sample GPS
           </button>
           <button
             type="button"
             onClick={loadDemoOcr}
             className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-mono text-slate-300 hover:text-white transition-all shadow-sm"
           >
-            🏪 Nümunə OCR
+            🏪 Sample OCR
           </button>
         </div>
       </div>
@@ -851,7 +851,7 @@ export default function VisualRecon() {
 
         <div className="space-y-1 max-w-md">
           <p className="text-sm sm:text-base font-bold text-white group-hover:text-[#00C897] transition-colors">
-            Şəkli bura sürükləyin və ya fayl seçin
+            Drag & drop an image here or browse files
           </p>
           <p className="text-xs text-slate-400 font-mono">
             JPEG, PNG, WEBP, TIFF, HEIC • EXIF GPS & Neural OCR
@@ -893,7 +893,7 @@ export default function VisualRecon() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
-                  Görüntü Telemetriyası
+                  Image Telemetry
                 </h2>
 
                 {/* View Switcher: Original vs Enhanced */}
@@ -906,7 +906,7 @@ export default function VisualRecon() {
                         viewMode === 'original' ? 'bg-[#00C897]/20 text-[#00C897] font-bold' : 'text-slate-400 hover:text-white'
                       }`}
                     >
-                      Orijinal
+                      Original
                     </button>
                     <button
                       type="button"
@@ -941,7 +941,7 @@ export default function VisualRecon() {
                   disabled={analysisState.status === 'running-ocr'}
                   className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-mono text-slate-200 hover:text-white transition-all disabled:opacity-50"
                 >
-                  🔄 Orijinal OCR
+                  🔄 Original OCR
                 </button>
                 <button
                   type="button"
@@ -956,7 +956,7 @@ export default function VisualRecon() {
               {/* Reverse Visual Search Quick-Launchers */}
               <div className="pt-2 border-t border-slate-800/80 space-y-2">
                 <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wide">
-                  Reverse Visual Search (Fasad & Obyekt Axtarışı)
+                  Reverse Visual Search (Landmark & Architecture Search)
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <a
@@ -992,7 +992,7 @@ export default function VisualRecon() {
                     <div className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full bg-[#00C897] animate-ping"></span>
                       <h3 className="text-sm font-mono font-bold text-[#00C897] uppercase tracking-wider">
-                        Dəqiq GPS Koordinatları Aşkarlanmışdır
+                        Exact GPS Coordinates Detected
                       </h3>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#00C897]/20 text-[#00C897] border border-[#00C897]/30">
@@ -1002,11 +1002,11 @@ export default function VisualRecon() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono">
                     <div className="p-3 rounded-xl bg-black/50 border border-slate-800 space-y-1">
-                      <div className="text-[10px] text-slate-400 uppercase">Enlik (Latitude)</div>
+                      <div className="text-[10px] text-slate-400 uppercase">Latitude</div>
                       <div className="text-lg font-bold text-white">{metadata.gps.latitude}° N</div>
                     </div>
                     <div className="p-3 rounded-xl bg-black/50 border border-slate-800 space-y-1">
-                      <div className="text-[10px] text-slate-400 uppercase">Uzunluq (Longitude)</div>
+                      <div className="text-[10px] text-slate-400 uppercase">Longitude</div>
                       <div className="text-lg font-bold text-white">{metadata.gps.longitude}° E</div>
                     </div>
                   </div>
@@ -1022,7 +1022,7 @@ export default function VisualRecon() {
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                       </svg>
-                      <span>Google Maps-də Dəqiq Yer</span>
+                      <span>Exact Location on Google Maps</span>
                     </a>
 
                     <a
@@ -1039,7 +1039,7 @@ export default function VisualRecon() {
                       onClick={() => copyToClipboard(`${metadata.gps?.latitude}, ${metadata.gps?.longitude}`, 'coords')}
                       className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-mono text-xs transition-all border border-slate-700"
                     >
-                      {copiedText === 'coords' ? '✓ Kopyalandı' : 'Kopyala'}
+                      {copiedText === 'coords' ? '✓ Copied' : 'Copy'}
                     </button>
                   </div>
                 </div>
@@ -1048,9 +1048,9 @@ export default function VisualRecon() {
                 <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 flex items-start gap-3">
                   <span className="text-amber-400 text-lg mt-0.5">⚠️</span>
                   <div className="space-y-1 text-xs">
-                    <div className="font-bold text-amber-300 font-mono">EXIF GPS Qeydi Tapılmadı</div>
+                    <div className="font-bold text-amber-300 font-mono">EXIF GPS Tag Not Found</div>
                     <div className="text-slate-400">
-                      Bu şəkildə birbaşa peyk koordinatları saxlanılmayıb. Aşağıdakı Tesseract OCR və OpenStreetMap (Nominatim) modulu ilə mağaza lövhələrindən məkan təyini həyata keçirilir.
+                      This image does not contain direct satellite coordinates. Location estimation is conducted via Tesseract OCR and OpenStreetMap (Nominatim) storefront analysis below.
                     </div>
                   </div>
                 </div>
@@ -1063,7 +1063,7 @@ export default function VisualRecon() {
                     <div className="flex items-center gap-2">
                       <span className="text-amber-400">☀️</span>
                       <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
-                        Chronolocation // Günəş və Kölgə İstiqaməti Analizi
+                        Chronolocation // Sun & Shadow Direction Analysis
                       </h3>
                     </div>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
@@ -1073,27 +1073,27 @@ export default function VisualRecon() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
                     <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-0.5">
-                      <div className="text-[10px] text-slate-500">Çəkiliş Vaxtı</div>
+                      <div className="text-[10px] text-slate-500">Capture Time</div>
                       <div className="font-bold text-slate-200">{metadata?.dateTime ? metadata.dateTime.split(',')[1] || metadata.dateTime : sunShadow.formattedTime}</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-0.5">
-                      <div className="text-[10px] text-slate-500">Günəş Azimutu</div>
+                      <div className="text-[10px] text-slate-500">Sun Azimuth</div>
                       <div className="font-bold text-amber-300">{sunShadow.sunAzimuthDeg}° ({sunShadow.cardinalDirection})</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-0.5">
-                      <div className="text-[10px] text-slate-500">Kölgə Vektoru</div>
+                      <div className="text-[10px] text-slate-500">Shadow Vector</div>
                       <div className="font-bold text-[#00C897]">{sunShadow.shadowAzimuthDeg}° ({sunShadow.shadowCardinalDirection})</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800/80 space-y-0.5">
-                      <div className="text-[10px] text-slate-500">Kölgə / Hündürlük</div>
+                      <div className="text-[10px] text-slate-500">Shadow / Height Ratio</div>
                       <div className="font-bold text-cyan-300">
-                        {sunShadow.isNight ? 'Gecə' : `~${sunShadow.shadowLengthRatio}x`}
+                        {sunShadow.isNight ? 'Night' : `~${sunShadow.shadowLengthRatio}x`}
                       </div>
                     </div>
                   </div>
 
                   <p className="text-[11px] text-slate-400 font-mono leading-relaxed pt-1">
-                    📐 <strong>OSINT İpucu:</strong> Əgər şəkildə şaquli dirək və ya ağac varsa, onun kölgəsi <span className="text-[#00C897] font-semibold">{sunShadow.shadowCardinalDirection}</span> tərəfinə yönəlməlidir (1 metr hündürlük üçün kölgə təxminən {sunShadow.shadowLengthRatio} m).
+                    📐 <strong>OSINT Tip:</strong> If there are vertical poles or trees in the image, their shadows should point toward <span className="text-[#00C897] font-semibold">{sunShadow.shadowCardinalDirection}</span> (shadow length ~{sunShadow.shadowLengthRatio}m per 1m height).
                   </p>
                 </div>
               )}
@@ -1103,7 +1103,7 @@ export default function VisualRecon() {
                 <div className="rounded-2xl bg-[#0b0f19] border border-slate-800/90 p-5 space-y-3">
                   <div className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                     <span className="text-[#00C897]">📍</span>
-                    Smart Proximity Search (Ən Yaxın Obyekti Axtar)
+                    Smart Proximity Search (Lookup Nearby Places)
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {ocrResult.detectedLandmarks.map((lm, idx) => (
@@ -1116,7 +1116,7 @@ export default function VisualRecon() {
                           href={`https://www.google.com/maps/search/${encodeURIComponent(lm)}`}
                           target="_blank"
                           rel="noreferrer"
-                          title="Google Maps-də Ən Yaxın Obyekti Axtar"
+                          title="Search Nearest Location on Google Maps"
                           className="px-1.5 py-0.5 rounded bg-[#00C897]/20 hover:bg-[#00C897]/30 text-[#00C897] text-[10px] font-bold transition-colors"
                         >
                           GMaps ↗
@@ -1124,7 +1124,7 @@ export default function VisualRecon() {
                         <button
                           type="button"
                           onClick={() => queryNominatimGeocode(lm)}
-                          title="OpenStreetMap-də Dəqiq Koordinatlarını Çək"
+                          title="Fetch Coordinates on OpenStreetMap"
                           className="px-1.5 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-[10px] font-bold transition-colors"
                         >
                           OSM 🔍
@@ -1148,7 +1148,7 @@ export default function VisualRecon() {
                   Suggested Coordinates / Locations (OpenStreetMap Nominatim OSINT)
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Şəkildə oxunan mağaza, küçə və obyekt adlarının OpenStreetMap bazasındakı real coğrafi koordinatları.
+                  Real-world geographical coordinates of extracted store and street names from OpenStreetMap.
                 </p>
               </div>
 
@@ -1156,7 +1156,7 @@ export default function VisualRecon() {
               <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  placeholder="Məkan və ya mağaza adı yazın..."
+                  placeholder="Search landmark or store name..."
                   value={customGeocodeQuery}
                   onChange={(e) => setCustomGeocodeQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -1172,7 +1172,7 @@ export default function VisualRecon() {
                   disabled={isGeocodingLoading}
                   className="px-3 py-1.5 rounded-xl bg-[#00C897] hover:bg-[#00b588] text-slate-950 text-xs font-mono font-bold transition-all disabled:opacity-50"
                 >
-                  {isGeocodingLoading ? '...' : 'Axtar'}
+                  {isGeocodingLoading ? '...' : 'Search'}
                 </button>
               </div>
             </div>
@@ -1220,7 +1220,7 @@ export default function VisualRecon() {
                         onClick={() => copyToClipboard(`${loc.lat}, ${loc.lon}`, `osm-${loc.place_id}`)}
                         className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
                       >
-                        {copiedText === `osm-${loc.place_id}` ? '✓' : 'Kopya'}
+                        {copiedText === `osm-${loc.place_id}` ? '✓' : 'Copy'}
                       </button>
                     </div>
                   </div>
@@ -1228,7 +1228,7 @@ export default function VisualRecon() {
               </div>
             ) : (
               <div className="p-6 rounded-xl bg-slate-900/40 border border-slate-800/80 text-center text-xs font-mono text-slate-500">
-                Hələ ki, heç bir Nominatim məkan təklifi əlavə edilməyib. Yuxarıdakı axtarış xanasına mağaza və ya küçə adı daxil edin.
+                No Nominatim location suggestions added yet. Enter a store or street name in the search box above.
               </div>
             )}
           </div>
@@ -1241,17 +1241,17 @@ export default function VisualRecon() {
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
                   <span className="text-cyan-400">📝</span>
-                  Detected Text / Landmarks (OCR Çıxarışı)
+                  Detected Text / Landmarks (OCR Output)
                 </h3>
                 {ocrResult && (
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
-                    Dəqiqlik: {ocrResult.confidence}%
+                    Confidence: {ocrResult.confidence}%
                   </span>
                 )}
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800/80 font-mono text-xs text-slate-300 min-h-[120px] max-h-[220px] overflow-y-auto whitespace-pre-wrap leading-relaxed select-all">
-                {ocrResult?.rawText ? ocrResult.rawText.trim() : 'Şəkildə oxunan mətn yoxdur və ya OCR hələ işlənməyib.'}
+                {ocrResult?.rawText ? ocrResult.rawText.trim() : 'No readable text detected or OCR has not run yet.'}
               </div>
 
               {ocrResult?.rawText && (
@@ -1261,7 +1261,7 @@ export default function VisualRecon() {
                     onClick={() => copyToClipboard(ocrResult.rawText, 'raw-text')}
                     className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
                   >
-                    {copiedText === 'raw-text' ? '✓ Mətn Kopyalandı' : 'Mətni Kopyala'}
+                    {copiedText === 'raw-text' ? '✓ Text Copied' : 'Copy Text'}
                   </button>
                   <a
                     href={`https://www.google.com/search?q=${encodeURIComponent(ocrResult.rawText.slice(0, 100))}`}
@@ -1269,7 +1269,7 @@ export default function VisualRecon() {
                     rel="noreferrer"
                     className="text-[#00C897] hover:underline flex items-center gap-1"
                   >
-                    <span>Google-da bu mətni axtar</span>
+                    <span>Search this text on Google</span>
                     <span>↗</span>
                   </a>
                 </div>
@@ -1280,47 +1280,47 @@ export default function VisualRecon() {
             <div className="lg:col-span-6 rounded-2xl bg-[#0b0f19] border border-slate-800/90 p-5 space-y-4 shadow-xl">
               <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
                 <span className="text-[#00C897]">📊</span>
-                Şəkil Metadata Cədvəli (Kamera & Çəkiliş Detalları)
+                Image Metadata Table (Camera & Capture Details)
               </h3>
 
               <div className="overflow-hidden rounded-xl border border-slate-800 font-mono text-xs">
                 <table className="w-full text-left border-collapse">
                   <tbody>
                     <tr className="border-b border-slate-800/80 bg-slate-900/50">
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium w-1/3">Fayl Adı / Format</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium w-1/3">File Name / Format</td>
                       <td className="py-2.5 px-3.5 text-white truncate max-w-[200px]">{metadata?.fileName} ({metadata?.fileType})</td>
                     </tr>
                     <tr className="border-b border-slate-800/80">
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Həcm və Piksellər</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Size & Dimensions</td>
                       <td className="py-2.5 px-3.5 text-slate-200">
-                        {metadata?.fileSizeFormatted} • {metadata?.dimensions ? `${metadata.dimensions.width} × ${metadata.dimensions.height} px` : 'Məlum deyil'}
+                        {metadata?.fileSizeFormatted} • {metadata?.dimensions ? `${metadata.dimensions.width} × ${metadata.dimensions.height} px` : 'Unknown'}
                       </td>
                     </tr>
                     <tr className="border-b border-slate-800/80 bg-slate-900/50">
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Kamera İstehsalçısı</td>
-                      <td className="py-2.5 px-3.5 text-[#00C897] font-bold">{metadata?.make || 'Tapılmadı'}</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Camera Make</td>
+                      <td className="py-2.5 px-3.5 text-[#00C897] font-bold">{metadata?.make || 'Not found'}</td>
                     </tr>
                     <tr className="border-b border-slate-800/80">
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Kamera Modeli</td>
-                      <td className="py-2.5 px-3.5 text-white font-bold">{metadata?.model || 'Tapılmadı'}</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Camera Model</td>
+                      <td className="py-2.5 px-3.5 text-white font-bold">{metadata?.model || 'Not found'}</td>
                     </tr>
                     <tr className="border-b border-slate-800/80 bg-slate-900/50">
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Çəkiliş Tarixi & Saatı</td>
-                      <td className="py-2.5 px-3.5 text-amber-300">{metadata?.dateTime || 'Məlumat yoxdur'}</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Capture Date & Time</td>
+                      <td className="py-2.5 px-3.5 text-amber-300">{metadata?.dateTime || 'N/A'}</td>
                     </tr>
                     <tr className="border-b border-slate-800/80">
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Ekspozisiya / Diafraqma</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Exposure / Aperture</td>
                       <td className="py-2.5 px-3.5 text-slate-300">
                         {metadata?.exposureTime || '—'} • {metadata?.fNumber || '—'} • {metadata?.iso || '—'}
                       </td>
                     </tr>
                     <tr className="border-b border-slate-800/80 bg-slate-900/50">
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Fokus Məsafəsi</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Focal Length</td>
                       <td className="py-2.5 px-3.5 text-slate-300">{metadata?.focalLength || '—'}</td>
                     </tr>
                     <tr>
-                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Proqram Təminatı</td>
-                      <td className="py-2.5 px-3.5 text-slate-300 truncate max-w-[200px]">{metadata?.software || 'Standart Firmware'}</td>
+                      <td className="py-2.5 px-3.5 text-slate-400 font-medium">Software / OS</td>
+                      <td className="py-2.5 px-3.5 text-slate-300 truncate max-w-[200px]">{metadata?.software || 'Standard Firmware'}</td>
                     </tr>
                   </tbody>
                 </table>

