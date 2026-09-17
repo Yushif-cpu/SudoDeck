@@ -39,6 +39,15 @@
   const COMMAND_ITEMS = [
     // Navigation items
     {
+      id: 'nav-traffic',
+      title: 'Web Traffic & Audience Intel (Similarweb)',
+      desc: 'Domain traffic volumes, global ranking, bounce rates & traffic sources cached in Supabase',
+      category: 'Threat & Recon',
+      icon: 'bar-chart-3',
+      url: '/traffic',
+      keywords: ['traffic', 'similarweb', 'audience', 'visitors', 'web', 'ranking', 'bounce', 'domain', 'visits', 'recon', 'supabase']
+    },
+    {
       id: 'nav-social-footprint',
       title: 'Social Media Footprint (Sherlock / Maigret)',
       desc: 'OSINT search across 35+ global social networks, developer platforms & forums',
@@ -691,12 +700,24 @@
                 </div>
                 <div>
                   <div class="text-xs font-bold text-white tracking-wide">Threat & Recon</div>
-                  <div class="text-[10px] font-mono text-emerald-400/80">7 intelligence modules</div>
+                  <div class="text-[10px] font-mono text-emerald-400/80">8 intelligence modules</div>
                 </div>
               </div>
               <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-200"></i>
             </button>
             <div id="mob-threat-group" class="mobile-accordion-content hidden border-t border-slate-800/80 bg-surface-900/60 p-2 space-y-1">
+              <a href="/traffic" class="mobile-menu-item group">
+                <div class="mobile-menu-icon bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
+                  <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold text-white group-hover:text-emerald-300 flex items-center gap-1.5 truncate">
+                    <span>Web Traffic & Analytics</span>
+                    <span class="text-[9px] px-1 rounded bg-emerald-500/20 text-emerald-300 font-mono">NEW</span>
+                  </div>
+                  <div class="text-[10px] text-slate-400 truncate">Similarweb & audience intelligence</div>
+                </div>
+              </a>
               <a href="/social-footprint" class="mobile-menu-item group">
                 <div class="mobile-menu-icon bg-cyan-500/20 border border-cyan-500/40 text-cyan-400">
                   <i data-lucide="user-check" class="w-4 h-4"></i>

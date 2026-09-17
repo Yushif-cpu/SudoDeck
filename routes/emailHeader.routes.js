@@ -17,6 +17,11 @@ router.post(
       throw new AppError('Please provide raw email headers in rawHeader body field.', 400, 'MISSING_HEADER_CONTENT');
     }
 
+    // Protect against ReDoS and memory bloat on pathological headers
+    if (rawHeader.length > 128 * 1024) {
+      throw new AppError('Email header exceeds maximum allowed size of 128 KB.', 400, 'PAYLOAD_TOO_LARGE');
+    }
+
     const result = parseEmailHeaders(rawHeader);
     res.json({
       success: true,
@@ -32,6 +37,10 @@ router.post(
     const raw = req.body.subject || req.body.rawSubject || req.body.text || '';
     if (typeof raw !== 'string') {
       throw new AppError('Subject must be a string.', 400, 'INVALID_INPUT');
+    }
+
+    if (raw.length > 4096) {
+      throw new AppError('Subject exceeds maximum allowed size of 4 KB.', 400, 'PAYLOAD_TOO_LARGE');
     }
 
     const result = parseRfc2047Detailed(raw);

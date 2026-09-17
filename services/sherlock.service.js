@@ -521,25 +521,34 @@ export async function runSherlockScan(username) {
     throw new Error('Valid username of at least 2 characters is required');
   }
 
-  const promises = PLATFORMS.map((plat) => checkSinglePlatform(plat, cleanUser));
-  const settled = await Promise.allSettled(promises);
+  // Controlled concurrency batching: Check in chunks of 8 to prevent socket exhaustion and IP bans
+  const BATCH_SIZE = 8;
+  const results = [];
 
-  const results = settled.map((s, idx) => {
-    if (s.status === 'fulfilled') {
-      return s.value;
-    }
-    const plat = PLATFORMS[idx];
-    return {
-      platform: plat.name,
-      category: plat.category,
-      icon: plat.icon,
-      url: plat.url.replace(/\{u\}/g, cleanUser),
-      exists: false,
-      status: 'ERROR',
-      statusCode: 500,
-      responseTimeMs: 0,
-    };
-  });
+  for (let i = 0; i < PLATFORMS.length; i += BATCH_SIZE) {
+    const chunk = PLATFORMS.slice(i, i + BATCH_SIZE);
+    const chunkSettled = await Promise.allSettled(
+      chunk.map((plat) => checkSinglePlatform(plat, cleanUser))
+    );
+
+    chunkSettled.forEach((s, idx) => {
+      if (s.status === 'fulfilled') {
+        results.push(s.value);
+      } else {
+        const plat = chunk[idx];
+        results.push({
+          platform: plat.name,
+          category: plat.category,
+          icon: plat.icon,
+          url: plat.url.replace(/\{u\}/g, cleanUser),
+          exists: false,
+          status: 'ERROR',
+          statusCode: 500,
+          responseTimeMs: 0,
+        });
+      }
+    });
+  }
 
   const foundCount = results.filter((r) => r.exists).length;
   const totalCount = results.length;

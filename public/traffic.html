@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SudoDeck — Live Cybersecurity News & Threat Wire (The Hacker News)</title>
+  <title>SudoDeck — Web Traffic & Audience Intelligence</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260914" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=20260914" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=20260914" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20260914" />
   <link rel="shortcut icon" href="/favicon.ico?v=20260914" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=20260914" />
-  <meta name="description" content="Real-time cybersecurity news, zero-day vulnerabilities, APT campaigns, and threat intelligence syndicated from The Hacker News." />
+  <meta name="description" content="Analyze website traffic volume, global ranking, audience insights, and acquisition channels via Similarweb & Supabase caching." />
 
   <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -48,10 +48,31 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom Styles -->
-  <link rel="stylesheet" href="/css/app.css?v=2.4" />
+  <link rel="stylesheet" href="/css/app.css" />
+
+  <style>
+    .terminal-window {
+      background: #090d16;
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(16, 185, 129, 0.05);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(16, 185, 129, 0.35);
+      border-radius: 999px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(16, 185, 129, 0.6);
+    }
+  </style>
 </head>
 
-<body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased flex flex-col justify-between">
+<body class="bg-surface-900 text-slate-200 font-sans min-h-screen antialiased flex flex-col">
 
   <!-- ═══════════════════════════════════════════════════════════ -->
   <!--  TOP NAV BAR                                              -->
@@ -62,7 +83,7 @@
 
         <!-- Left: Logo & Brand -->
         <div class="flex items-center gap-6">
-          <a href="/" id="brand-logo-link" class="flex items-center group">
+          <a href="/" class="flex items-center group">
             <h1 class="text-base font-bold tracking-tight text-white group-hover:text-emerald-400 transition-colors">Sudo<span class="text-emerald-400">Deck</span></h1>
           </a>
 
@@ -85,7 +106,7 @@
                 data-dropdown-menu
                 class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
               >
-                                <a href="/traffic" class="dropdown-card-item">
+                <a href="/traffic" class="dropdown-card-item active">
                   <div class="dropdown-card-icon bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
                     <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
                   </div>
@@ -173,6 +194,7 @@
             <div class="relative">
               <button
                 type="button"
+                id="siem-nav-btn"
                 data-dropdown-toggle="menu-siem"
                 class="nav-pill"
               >
@@ -246,7 +268,7 @@
             <div class="relative">
               <button
                 type="button"
-                data-dropdown-toggle="menu-attack"
+                data-dropdown-toggle="menu-tools"
                 class="nav-pill"
               >
                 <i data-lucide="crosshair" class="w-3.5 h-3.5 text-amber-400"></i>
@@ -254,7 +276,7 @@
                 <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
               </button>
               <div
-                id="menu-attack"
+                id="menu-tools"
                 data-dropdown-menu
                 class="hidden absolute left-0 mt-2 w-72 rounded-2xl animate-fade-in"
               >
@@ -288,7 +310,7 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <div class="text-xs font-bold text-white">Crypto & Hash Suite</div>
-                    <div class="text-[11px] text-slate-400 truncate">Hash, encode, decode & cipher</div>
+                    <div class="text-[11px] text-slate-400 truncate">Hash gen, JWT decode, Base64</div>
                   </div>
                 </a>
                 <a href="/gtfobins" class="dropdown-card-item">
@@ -317,6 +339,13 @@
 
         <!-- Right: Direct Links, Command Palette Launcher & System Status -->
         <div class="flex items-center gap-1.5 sm:gap-3 shrink-0 ml-auto">
+          <a
+            href="/news"
+            class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
+          >
+            <i data-lucide="newspaper" class="w-3.5 h-3.5 text-slate-400"></i>
+            <span>News</span>
+          </a>
           <a
             href="/premium"
             class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all whitespace-nowrap"
@@ -348,6 +377,7 @@
 
           <button
             type="button"
+            id="cmd-palette-btn"
             data-action="open-command-palette"
             class="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-surface-850 hover:bg-surface-800 border border-slate-700/60 hover:border-slate-600 text-slate-300 text-xs font-medium transition-all shadow-sm group cursor-pointer"
             title="Quick Action Palette (Ctrl+K)"
@@ -359,7 +389,7 @@
 
           <!-- Mobile Hamburger Toggle -->
           <button
-            id="mobile-menu-btn"
+            id="mobile-menu-toggle"
             type="button"
             class="lg:hidden p-2 rounded-xl bg-surface-800 border border-slate-700 text-slate-400 hover:text-white transition-colors"
             aria-label="Toggle navigation menu"
@@ -386,212 +416,314 @@
         </a>
         <a href="/#ip" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
           <i data-lucide="radar" class="w-4 h-4 text-emerald-400"></i>
-          <span>Threat & Recon</span>
+          <span>IP Reputation Check</span>
+        </a>
+        <a href="/traffic" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-400"></i>
+          <span>Web Traffic & Analytics</span>
+        </a>
+        <a href="/social-footprint" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="user-check" class="w-4 h-4 text-cyan-400"></i>
+          <span>Social Media Footprint</span>
+        </a>
+        <a href="/visual-recon" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="camera" class="w-4 h-4 text-emerald-400"></i>
+          <span>Visual Recon & Geolocation</span>
+        </a>
+        <a href="/payloads" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
+          <span>Security Payloads</span>
+        </a>
+        <a href="/subdomain" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="network" class="w-4 h-4 text-amber-400"></i>
+          <span>Subdomain Finder</span>
+        </a>
+        <a href="/crypto" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
+          <i data-lucide="key-round" class="w-4 h-4 text-purple-400"></i>
+          <span>Crypto & Hash Suite</span>
         </a>
         <a href="/siem" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
           <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
           <span>SIEM Utilities</span>
         </a>
-        <a href="/crypto" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="key-round" class="w-4 h-4 text-purple-400"></i>
-          <span>Crypto Suite</span>
-        </a>
-        <a href="/gtfobins" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i>
-          <span>GTFOBins Explorer</span>
-        </a>
-        <a href="/wordlist" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="book-text" class="w-4 h-4 text-emerald-400"></i>
-          <span>Wordlist Mutator</span>
-        </a>
-        <a href="/#about" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="info" class="w-4 h-4 text-slate-400"></i>
-          <span>About Platform</span>
-        </a>
-        <a href="/#contact" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-surface-800">
-          <i data-lucide="mail" class="w-4 h-4 text-slate-400"></i>
-          <span>Contact CIRT</span>
-        </a>
       </div>
-
     </div>
   </header>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <!--  MAIN CONTENT                                             -->
+  <!--  MAIN CONTENT                                              -->
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
 
     <!-- Top Breadcrumb -->
-    <div class="flex items-center gap-2 text-xs font-mono text-slate-400 mb-6">
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
       <a href="/" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-1">
         <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
         <span>Hub</span>
       </a>
       <span class="text-slate-600">/</span>
-      <span class="text-emerald-400 font-semibold uppercase tracking-wider">THREAT INTEL NEWS WIRE</span>
+      <span class="text-emerald-400 font-semibold uppercase tracking-wider">WEB TRAFFIC & AUDIENCE RECON</span>
     </div>
 
-    <!-- ── Clean Hero Banner (Without intrusive sync badges/manual buttons) ── -->
-    <div class="relative overflow-hidden rounded-3xl card p-6 sm:p-8 mb-8 border border-emerald-500/20 shadow-2xl bg-gradient-to-br from-surface-850 via-surface-900 to-surface-850">
-      <div class="absolute -right-20 -top-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="relative z-10">
-        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2">
-          Cybersecurity News & Threat Wire
-        </h2>
-        <p class="text-xs sm:text-sm text-slate-400 max-w-3xl leading-relaxed">
-          Real-time security intelligence streaming directly from The Hacker News. Synchronized continuously in the background with zero-day disclosures, malware research, and global cyber incident advisories.
-        </p>
+    <!-- Hero Title Block -->
+    <div class="border-b border-slate-800/80 pb-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-3">
+            <i data-lucide="activity" class="w-7 h-7 text-emerald-400"></i>
+            <span>Web Traffic & Audience Intelligence</span>
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1.5 max-w-3xl leading-relaxed">
+            Analyze target domain monthly visitor volume, global & category rankings, bounce rates, and acquisition channels in real-time. Checks cached telemetry in <span class="text-emerald-400 font-mono">Supabase</span> first, falling back to <span class="text-cyan-400 font-mono">Apify Similarweb Scraper</span> for fresh extraction.
+          </p>
+        </div>
       </div>
     </div>
 
-    <!-- ── Filter & Search Toolbar ─────────────────────────────── -->
-    <div class="card p-4 sm:p-5 mb-8 border-slate-700/60 shadow-xl bg-surface-850">
-      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-
-        <!-- Search Input -->
-        <div class="relative flex-1 max-w-md">
+    <!-- Search Form Card -->
+    <div class="bg-surface-850 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm mb-8">
+      <form id="traffic-form" class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+            <i data-lucide="globe" class="w-5 h-5"></i>
+          </div>
           <input
             type="text"
-            id="news-search-input"
-            placeholder="Search news headlines, CVEs, or keywords..."
-            class="input-field w-full pl-10 pr-9 py-2.5 text-xs bg-surface-900 border-slate-700 focus:border-emerald-500 rounded-xl text-slate-100 placeholder-slate-500"
+            id="target-domain-input"
+            placeholder="Enter target domain (e.g., github.com, amazon.com, bbc.com)..."
+            class="w-full pl-11 pr-4 py-3.5 bg-surface-900 border border-slate-700/80 rounded-xl text-white placeholder-slate-500 text-sm focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-mono transition-all"
+            required
           />
-          <i data-lucide="search" class="w-4 h-4 text-emerald-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <button
-            type="button"
-            id="news-search-clear"
-            class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-0.5"
-            title="Clear search"
-          >
-            <i data-lucide="x" class="w-3.5 h-3.5"></i>
-          </button>
         </div>
 
-        <!-- Category Filter Pills -->
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs">
+        <div class="flex items-center gap-2">
+          <label class="flex items-center gap-2 text-xs text-slate-400 cursor-pointer select-none bg-surface-900 px-3.5 py-3.5 border border-slate-800 rounded-xl hover:border-slate-700 transition">
+            <input
+              type="checkbox"
+              id="bypass-cache-checkbox"
+              class="w-4 h-4 rounded text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-slate-800 border-slate-700 cursor-pointer"
+            />
+            <span class="whitespace-nowrap">Bypass Cache (Force live)</span>
+          </label>
+
           <button
-            type="button"
-            data-category="all"
-            class="category-filter-pill active px-3 py-1.5 rounded-lg font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 whitespace-nowrap transition-all"
+            type="submit"
+            id="submit-btn"
+            class="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-surface-900 font-bold text-sm rounded-xl transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            All Stories
-          </button>
-          <button
-            type="button"
-            data-category="vuln"
-            class="category-filter-pill px-3 py-1.5 rounded-lg font-medium bg-surface-850 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-slate-200 whitespace-nowrap transition-all"
-          >
-            Vulnerabilities & CVE
-          </button>
-          <button
-            type="button"
-            data-category="attacks"
-            class="category-filter-pill px-3 py-1.5 rounded-lg font-medium bg-surface-850 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-slate-200 whitespace-nowrap transition-all"
-          >
-            Cyber Attacks & Breaches
-          </button>
-          <button
-            type="button"
-            data-category="malware"
-            class="category-filter-pill px-3 py-1.5 rounded-lg font-medium bg-surface-850 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-slate-200 whitespace-nowrap transition-all"
-          >
-            Malware & Ransomware
-          </button>
-          <button
-            type="button"
-            data-category="cloud"
-            class="category-filter-pill px-3 py-1.5 rounded-lg font-medium bg-surface-850 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-slate-200 whitespace-nowrap transition-all"
-          >
-            Cloud & Identity
+            <div id="btn-spinner" class="hidden">
+              <svg class="animate-spin h-4 w-4 text-surface-900" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            </div>
+            <i data-lucide="search" class="w-4 h-4"></i>
+            <span id="btn-text">Analyze Traffic</span>
           </button>
         </div>
+      </form>
 
-        <!-- Article Counter Badge -->
-        <div class="hidden xl:flex items-center gap-2 pl-3 border-l border-slate-800 shrink-0 text-xs font-mono">
-          <span class="text-slate-500">Showing:</span>
-          <span id="news-count-badge" class="px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-bold">
-            Loading...
-          </span>
-        </div>
-
+      <!-- Quick Preset Domains -->
+      <div class="mt-4 flex items-center gap-2 flex-wrap text-xs text-slate-500">
+        <span class="font-medium">Quick presets:</span>
+        <button type="button" data-preset-domain="github.com" class="px-2.5 py-1 rounded-lg bg-surface-900 hover:bg-surface-800 text-slate-400 hover:text-emerald-400 border border-slate-800 font-mono transition">github.com</button>
+        <button type="button" data-preset-domain="openai.com" class="px-2.5 py-1 rounded-lg bg-surface-900 hover:bg-surface-800 text-slate-400 hover:text-emerald-400 border border-slate-800 font-mono transition">openai.com</button>
+        <button type="button" data-preset-domain="cloudflare.com" class="px-2.5 py-1 rounded-lg bg-surface-900 hover:bg-surface-800 text-slate-400 hover:text-emerald-400 border border-slate-800 font-mono transition">cloudflare.com</button>
+        <button type="button" data-preset-domain="amazon.com" class="px-2.5 py-1 rounded-lg bg-surface-900 hover:bg-surface-800 text-slate-400 hover:text-emerald-400 border border-slate-800 font-mono transition">amazon.com</button>
+        <button type="button" data-preset-domain="hackerone.com" class="px-2.5 py-1 rounded-lg bg-surface-900 hover:bg-surface-800 text-slate-400 hover:text-emerald-400 border border-slate-800 font-mono transition">hackerone.com</button>
       </div>
     </div>
 
-    <!-- ── Feed Status & Last Synced Timestamp ─────────────────── -->
-    <div class="flex items-center justify-between text-xs text-slate-400 mb-4 px-1">
+    <!-- Error Alert Box -->
+    <div id="error-alert" class="hidden p-4 mb-8 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm flex items-start gap-3 animate-fade-in">
+      <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 text-rose-400 mt-0.5"></i>
+      <div class="flex-1">
+        <span class="font-bold">Error:</span>
+        <span id="error-message">Failed to retrieve traffic data.</span>
+      </div>
+    </div>
+
+    <!-- Status & Cache Meta Card -->
+    <div id="status-card" class="hidden mb-6 p-4 rounded-xl bg-surface-850 border border-slate-800 flex flex-wrap items-center justify-between gap-4 animate-fade-in">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold font-mono text-base">
+          <i data-lucide="globe" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="res-domain" class="text-lg font-bold text-white font-mono">example.com</span>
+          </div>
+          <p id="res-timestamp" class="text-xs text-slate-400 font-mono mt-0.5">Last updated: Loading...</p>
+        </div>
+      </div>
+
       <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span>Source: <strong class="text-slate-200">The Hacker News</strong> (RSS 2.0 Syndication)</span>
-      </div>
-      <div class="text-[11px] font-mono text-slate-500">
-        Last synced: <span id="news-last-updated" class="text-slate-400">Loading...</span>
-      </div>
-    </div>
-
-    <!-- ── Loading Skeleton ────────────────────────────────────── -->
-    <div id="news-loading-skeleton" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-      <!-- Skeleton 1 -->
-      <div class="card overflow-hidden animate-pulse border-slate-800">
-        <div class="h-44 bg-surface-800"></div>
-        <div class="p-5 space-y-3">
-          <div class="h-3 w-1/3 bg-slate-800 rounded"></div>
-          <div class="h-5 w-4/5 bg-slate-800 rounded"></div>
-          <div class="h-3 w-full bg-slate-800/60 rounded"></div>
-          <div class="h-3 w-2/3 bg-slate-800/60 rounded"></div>
-        </div>
-      </div>
-      <!-- Skeleton 2 -->
-      <div class="card overflow-hidden animate-pulse border-slate-800">
-        <div class="h-44 bg-surface-800"></div>
-        <div class="p-5 space-y-3">
-          <div class="h-3 w-1/4 bg-slate-800 rounded"></div>
-          <div class="h-5 w-3/4 bg-slate-800 rounded"></div>
-          <div class="h-3 w-full bg-slate-800/60 rounded"></div>
-          <div class="h-3 w-1/2 bg-slate-800/60 rounded"></div>
-        </div>
-      </div>
-      <!-- Skeleton 3 -->
-      <div class="card overflow-hidden animate-pulse border-slate-800">
-        <div class="h-44 bg-surface-800"></div>
-        <div class="p-5 space-y-3">
-          <div class="h-3 w-2/5 bg-slate-800 rounded"></div>
-          <div class="h-5 w-4/5 bg-slate-800 rounded"></div>
-          <div class="h-3 w-full bg-slate-800/60 rounded"></div>
-          <div class="h-3 w-3/4 bg-slate-800/60 rounded"></div>
-        </div>
+        <button
+          type="button"
+          id="copy-share-btn"
+          class="px-3 py-1.5 rounded-lg bg-surface-900 hover:bg-surface-800 text-slate-300 text-xs font-mono flex items-center gap-1.5 border border-slate-700 transition"
+        >
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+          <span>Share Link</span>
+        </button>
+        <button
+          type="button"
+          id="copy-json-btn"
+          class="px-3 py-1.5 rounded-lg bg-surface-900 hover:bg-surface-800 text-slate-300 text-xs font-mono flex items-center gap-1.5 border border-slate-700 transition"
+        >
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+          <span>Copy JSON</span>
+        </button>
       </div>
     </div>
 
-    <!-- ── Dynamic News Cards Grid ─────────────────────────────── -->
-    <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-      <!-- News cards rendered dynamically via news.js -->
+    <!-- Results Section -->
+    <div id="results-section" class="hidden space-y-6 animate-fade-in">
+
+      <!-- 4 Primary Metric Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- Card 1: Global Rank -->
+        <div class="p-5 rounded-2xl bg-surface-850 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span class="font-medium">Global Rank</span>
+            <i data-lucide="trophy" class="w-4 h-4 text-amber-400"></i>
+          </div>
+          <div id="metric-global-rank" class="text-2xl sm:text-3xl font-black text-white font-mono mt-2 tracking-tight">
+            #1
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+            <span>Similarweb Global Rank</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Estimated Monthly Visits -->
+        <div class="p-5 rounded-2xl bg-surface-850 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span class="font-medium">Monthly Visits</span>
+            <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+          </div>
+          <div id="metric-visits" class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono mt-2 tracking-tight">
+            N/A
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1">
+            Estimated monthly traffic volume
+          </div>
+        </div>
+
+        <!-- Card 3: Bounce Rate -->
+        <div class="p-5 rounded-2xl bg-surface-850 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span class="font-medium">Bounce Rate</span>
+            <i data-lucide="pie-chart" class="w-4 h-4 text-amber-400"></i>
+          </div>
+          <div id="metric-bounce-rate" class="text-2xl sm:text-3xl font-black text-amber-400 font-mono mt-2 tracking-tight">
+            N/A
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1">
+            Single-page exit rate
+          </div>
+        </div>
+
+        <!-- Card 4: Avg Visit Duration & Pages -->
+        <div class="p-5 rounded-2xl bg-surface-850 border border-slate-800 relative overflow-hidden group hover:border-slate-700 transition">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span class="font-medium">Avg. Visit Duration</span>
+            <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+          </div>
+          <div id="metric-duration" class="text-2xl sm:text-3xl font-black text-cyan-400 font-mono mt-2 tracking-tight">
+            N/A
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+            <span>Pages / Visit:</span>
+            <span id="metric-pages-per-visit" class="font-mono text-slate-300 font-bold">N/A</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Secondary Row: Category & Detailed Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left: Traffic Acquisition Channels (2 Cols) -->
+        <div class="lg:col-span-2 p-5 sm:p-6 rounded-2xl bg-surface-850 border border-slate-800 flex flex-col">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+            <h3 class="text-sm font-bold text-white font-mono flex items-center gap-2">
+              <i data-lucide="git-branch" class="w-4 h-4 text-emerald-400"></i>
+              Traffic Acquisition Channels
+            </h3>
+            <span class="text-[11px] text-slate-500 font-mono">Traffic Share</span>
+          </div>
+
+          <!-- Channel Progress List -->
+          <div id="traffic-sources-list" class="space-y-4 my-auto">
+            <!-- Dynamically populated via traffic.js -->
+          </div>
+        </div>
+
+        <!-- Right: Top Geographies & Category Rank (1 Col) -->
+        <div class="p-5 sm:p-6 rounded-2xl bg-surface-850 border border-slate-800 flex flex-col space-y-5">
+          <!-- Category Card -->
+          <div>
+            <div class="text-xs text-slate-400 font-medium">Industry / Category</div>
+            <div id="metric-category" class="text-base font-bold text-white font-mono mt-1 truncate">
+              General Internet
+            </div>
+          </div>
+
+          <div class="border-t border-slate-800 pt-4 flex-1 flex flex-col">
+            <h3 class="text-sm font-bold text-white font-mono flex items-center gap-2 mb-3">
+              <i data-lucide="map-pin" class="w-4 h-4 text-cyan-400"></i>
+              Top Countries & Geographies
+            </h3>
+            <div id="top-countries-list" class="space-y-2">
+              <!-- Dynamically populated via traffic.js -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Raw Intel Inspector Section (Collapsible) -->
+      <div class="p-5 rounded-2xl bg-surface-850 border border-slate-800">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-xs font-bold text-slate-300 font-mono flex items-center gap-2">
+            <i data-lucide="code" class="w-4 h-4 text-slate-400"></i>
+            RAW INTEL INSPECTOR (JSON)
+          </h4>
+        </div>
+        <pre id="raw-json-output" class="p-4 rounded-xl bg-surface-900 border border-slate-800 text-xs font-mono text-slate-300 max-h-80 overflow-y-auto custom-scroll leading-relaxed"></pre>
+      </div>
+
     </div>
 
-    <!-- ── Empty State ─────────────────────────────────────────── -->
-    <div id="news-empty-state" class="hidden card p-12 text-center border-slate-800 max-w-lg mx-auto mb-12">
-      <div class="w-14 h-14 rounded-2xl bg-surface-800 border border-slate-700 text-slate-400 flex items-center justify-center mx-auto mb-4">
-        <i data-lucide="search-x" class="w-7 h-7 text-slate-400"></i>
+    <!-- Educational & OSINT Recon Explanatory Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+      <div class="p-5 rounded-2xl bg-surface-850 border border-slate-800/70">
+        <h3 class="text-xs font-bold text-emerald-400 font-mono flex items-center gap-2">
+          <i data-lucide="shield-alert" class="w-4 h-4"></i>
+          Web Traffic in OSINT & Threat Hunting
+        </h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Security analysts and threat hunters leverage traffic metrics to evaluate domain legitimacy, audience exposure, and footprint credibility. Sudden visitor spikes or unindexed newly registered domains often correlate with active phishing lures, typosquatting assets, or malicious C2 infrastructure.
+        </p>
       </div>
-      <h3 class="text-base font-bold text-white mb-1.5">No Matching Stories Found</h3>
-      <p class="text-xs text-slate-400 leading-relaxed mb-5">
-        No news articles matched your search query or selected category. Try clearing your search or switching categories.
-      </p>
-      <button
-        type="button"
-        onclick="document.getElementById('news-search-clear').click(); document.querySelector('[data-category=all]').click();"
-        class="px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-semibold text-emerald-300 transition-all"
-      >
-        Reset Filters
-      </button>
+
+      <div class="p-5 rounded-2xl bg-surface-850 border border-slate-800/70">
+        <h3 class="text-xs font-bold text-cyan-400 font-mono flex items-center gap-2">
+          <i data-lucide="database" class="w-4 h-4"></i>
+          Supabase Hybrid Caching Engine
+        </h3>
+        <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+          Every query first checks the high-performance Supabase PostgreSQL store. Cached records resolve in sub-milliseconds to optimize Apify quotas. When a domain is uncached or force-refreshed, Apify Similarweb Scraper extracts real-time telemetry and stores it for subsequent queries.
+        </p>
+      </div>
     </div>
 
   </main>
 
   <!-- ═══════════════════════════════════════════════════════════ -->
-  <!--  FOOTER                                                    -->
+  <!--  FOOTER                                                   -->
   <!-- ═══════════════════════════════════════════════════════════ -->
   <footer class="border-t border-slate-800/80 bg-surface-900 py-8 text-xs text-slate-500 mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center text-center space-y-3">
@@ -617,8 +749,10 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script src="/js/shared-nav.js?v=2.4"></script>
-  <script src="/js/news.js?v=2.4"></script>
+  <!-- Shared Navigation & Command Palette -->
+  <script src="/js/shared-nav.js"></script>
+
+  <!-- Web Traffic Client Script -->
+  <script src="/js/traffic.js"></script>
 </body>
 </html>

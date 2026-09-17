@@ -38,6 +38,7 @@ import newsRoutes from './routes/news.routes.js';
 import subdomainRoutes from './routes/subdomain.routes.js';
 import payloadsRoutes from './routes/payloads.routes.js';
 import sherlockRoutes from './routes/sherlock.routes.js';
+import trafficRoutes from './routes/traffic.routes.js';
 import { fetchRecentMaliciousIPs } from './services/threatfox.service.js';
 
 // ── Path setup ──────────────────────────────────────────────────
@@ -66,12 +67,20 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
     const envOrigins = process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())
+      ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
-    if (isLocal || envOrigins.length === 0 || envOrigins.includes(origin)) {
+    // If specific ALLOWED_ORIGINS are set in .env, only allow localhost and those origins
+    if (envOrigins.length > 0) {
+      if (isLocal || envOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Cross-Origin Request Blocked by ThreatIntel CORS Policy'));
+    }
+    // Default fallback for development when no ALLOWED_ORIGINS specified
+    if (isLocal) {
       return callback(null, true);
     }
-    return callback(null, true);
+    return callback(new Error('Cross-Origin Request Blocked by ThreatIntel CORS Policy'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
@@ -126,6 +135,7 @@ app.use('/api', newsRoutes);
 app.use('/api', subdomainRoutes);
 app.use('/api/subdomain', subdomainRoutes);
 app.use('/api/payloads', payloadsRoutes);
+app.use('/api', trafficRoutes);
 
 // ── ThreatFox Live Malicious IPs Feed (Keyless & Free) ──────────
 app.get('/api/recent-malicious-ips', async (req, res) => {
@@ -191,9 +201,16 @@ function setCachedGeocode(key, data) {
 
 // ── OpenStreetMap (Nominatim) Geocoding Free Proxy ───────────────
 app.get('/api/geocode', geocodeLimiter, async (req, res) => {
-  const query = (req.query.q || '').trim();
-  if (!query) {
+  const rawQuery = (req.query.q || '').trim();
+  if (!rawQuery) {
     return res.status(400).json({ success: false, error: 'Search query (q parameter) is required.' });
+  }
+  if (rawQuery.length > 100) {
+    return res.status(400).json({ success: false, error: 'Search query exceeds maximum limit of 100 characters.' });
+  }
+  const query = rawQuery.replace(/[<>'"`;()]/g, '');
+  if (!query) {
+    return res.status(400).json({ success: false, error: 'Valid alphanumeric search query required.' });
   }
 
   const limit = Math.min(parseInt(req.query.limit, 10) || 5, 10);
@@ -245,8 +262,8 @@ app.get('/api/geocode', geocodeLimiter, async (req, res) => {
 app.get('/api/reverse-geocode', geocodeLimiter, async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lon = parseFloat(req.query.lon);
-  if (isNaN(lat) || isNaN(lon)) {
-    return res.status(400).json({ success: false, error: 'Valid lat and lon parameters are required.' });
+  if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+    return res.status(400).json({ success: false, error: 'Valid lat (-90 to 90) and lon (-180 to 180) coordinates are required.' });
   }
 
   const roundedLat = lat.toFixed(4);
@@ -395,6 +412,11 @@ app.get(['/visual-recon', '/recon', '/image-recon', '/geolocation'], (req, res) 
   sendPage(res, 'visual-recon.html');
 });
 
+// ── Dedicated Web Traffic & Similarweb Recon route ───────────
+app.get(['/traffic', '/web-traffic', '/website-traffic'], (req, res) => {
+  sendPage(res, 'traffic.html');
+});
+
 // ── Dedicated Security News Live Feed page route ───────────
 app.get('/news', (req, res) => {
   sendPage(res, 'news.html');
@@ -439,7 +461,8 @@ const server = app.listen(config.PORT, '0.0.0.0', () => {
   console.log('║    GET  /api/gtfobins            GTFOBins Catalog API   ║');
   console.log('║    GET  /api/gtfobins/:binary    Binary Functions Spec  ║');
   console.log('║    GET  /gtfobins                GTFOBins Explorer Page ║');
-  console.log('║    GET  /crypto                  Dedicated Crypto Suite ║');
+  console.log('║    POST /api/check-traffic       Website Traffic Intel  ║');
+  console.log('║    GET  /traffic                 Web Traffic Dashboard ║');
   console.log('║    GET  /api/health              Health Check           ║');
   console.log('╚══════════════════════════════════════════════════════════╝');
   console.log('');

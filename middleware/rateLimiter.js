@@ -74,3 +74,21 @@ export const contactLimiter = rateLimit({
     },
   },
 });
+
+// ── Web Traffic & Similarweb Apify Limiter (Protects paid compute units) ──
+export const trafficLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 15, // Max 15 traffic queries per 5 minutes per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: {
+      code: 'TRAFFIC_RATE_LIMIT_EXCEEDED',
+      message: 'Traffic intelligence rate limit exceeded. Please wait a few minutes before querying additional domains.',
+    },
+  },
+});
+
+
+
