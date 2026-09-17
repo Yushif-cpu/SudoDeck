@@ -26,6 +26,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentFilter = 'all';
 
   // Helpers
+  const escapeHtml = (str) => {
+    if (!str && str !== 0) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
+  const safeUrl = (url) => {
+    if (!url || typeof url !== 'string') return '#';
+    const trimmed = url.trim();
+    if (/^https?:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    return '#';
+  };
+
   const setText = (el, text) => {
     if (el) el.textContent = text;
   };
@@ -217,6 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const card = document.createElement('div');
       const isFound = item.exists;
       const brand = getBrandLogo(item);
+      const cleanUrl = safeUrl(item.url);
+      const escapedUrl = escapeHtml(item.url);
+      const escapedPlatform = escapeHtml(item.platform);
+      const escapedCategory = escapeHtml(item.category);
+      const escapedBrandSrc = escapeHtml(brand.src);
+      const escapedFallbackSrc = escapeHtml(brand.fallbackSrc);
 
       card.className = `p-4 rounded-xl border transition-all duration-200 space-y-3 ${
         isFound
@@ -233,18 +258,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 : 'bg-surface-800/90 border border-slate-700/70'
             }">
               <img 
-                src="${brand.src}" 
-                alt="${item.platform} logo" 
+                src="${escapedBrandSrc}" 
+                alt="${escapedPlatform} logo" 
                 class="w-5 h-5 object-contain select-none" 
                 loading="lazy"
-                onerror="this.onerror=null; this.src='${brand.fallbackSrc}';" 
+                onerror="this.onerror=null; this.src='${escapedFallbackSrc}';" 
               />
             </div>
             <div>
               <div class="text-xs font-bold text-white font-mono flex items-center gap-1.5">
-                <span>${item.platform}</span>
+                <span>${escapedPlatform}</span>
               </div>
-              <div class="text-[10px] text-slate-400 font-mono">${item.category}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${escapedCategory}</div>
             </div>
           </div>
           <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold ${
@@ -257,14 +282,14 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
 
         <div class="text-[11px] font-mono text-slate-400 truncate break-all bg-surface-900/60 px-2.5 py-1.5 rounded-lg border border-slate-800/60">
-          ${item.url}
+          ${escapedUrl}
         </div>
 
         <div class="flex items-center gap-2 pt-1 font-mono text-xs">
           <a
-            href="${item.url}"
+            href="${cleanUrl}"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             class="flex-1 text-center py-2 px-3 rounded-lg font-bold transition-all text-xs flex items-center justify-center gap-1.5 ${
               isFound
                 ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 shadow-sm'
@@ -276,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button
             type="button"
             class="btn-copy-card-url px-3 py-2 rounded-lg bg-surface-800 hover:bg-surface-750 text-slate-400 hover:text-white border border-slate-700 text-xs transition-colors"
-            data-url="${item.url}"
+            data-url="${escapedUrl}"
           >
             Copy
           </button>

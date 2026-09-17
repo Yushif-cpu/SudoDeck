@@ -17,7 +17,7 @@ export class ServiceError extends AppError {
 }
 
 // ── Error response builder ──────────────────────────────────────
-function buildErrorResponse(err, isDev) {
+function buildErrorResponse(err) {
   const response = {
     success: false,
     error: {
@@ -28,10 +28,6 @@ function buildErrorResponse(err, isDev) {
 
   if (err.details) {
     response.error.details = err.details;
-  }
-
-  if (isDev && err.stack) {
-    response.error.stack = err.stack;
   }
 
   return response;
@@ -114,7 +110,7 @@ export function errorHandler(err, req, res, _next) {
   }
 
   const statusCode = appError.statusCode || 500;
-  const response = buildErrorResponse(appError, isDev);
+  const response = buildErrorResponse(appError);
 
   res.status(statusCode).json(response);
 }

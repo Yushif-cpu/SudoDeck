@@ -15,7 +15,13 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 // ── Middleware ───────────────────────────────────────────────────
-import { generalLimiter, apiLimiter } from './middleware/rateLimiter.js';
+import {
+  generalLimiter,
+  apiLimiter,
+  heavyScanLimiter,
+  geocodeLimiter,
+  contactLimiter,
+} from './middleware/rateLimiter.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // ── Routes ──────────────────────────────────────────────────────
@@ -55,7 +61,22 @@ app.use(helmet({
     },
   },
 }));
-app.use(cors());
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    const envOrigins = process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim())
+      : [];
+    if (isLocal || envOrigins.length === 0 || envOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+};
+app.use(cors(corsOptions));
 app.use(compression());
 app.use(generalLimiter);
 app.use(express.json({ limit: '1mb' }));
@@ -90,6 +111,8 @@ app.use(express.static(join(__dirname, 'public'), {
 
 // ── API routes ──────────────────────────────────────────────────
 app.use('/api', apiLimiter);
+app.use(['/api/discover', '/api/subdomain/discover'], heavyScanLimiter);
+app.use('/api/sherlock', heavyScanLimiter, sherlockRoutes);
 app.use('/api', ipRoutes);
 app.use('/api', fileRoutes);
 app.use('/api', domainRoutes);
@@ -103,7 +126,6 @@ app.use('/api', newsRoutes);
 app.use('/api', subdomainRoutes);
 app.use('/api/subdomain', subdomainRoutes);
 app.use('/api/payloads', payloadsRoutes);
-app.use('/api/sherlock', sherlockRoutes);
 
 // ── ThreatFox Live Malicious IPs Feed (Keyless & Free) ──────────
 app.get('/api/recent-malicious-ips', async (req, res) => {
@@ -144,15 +166,49 @@ app.get('/api/reported-ips', async (req, res) => {
   }
 });
 
+// ── OpenStreetMap (Nominatim) In-Memory Cache (Protects upstream rate-limits) ──
+const geocodeCache = new Map();
+const MAX_GEOCODE_CACHE = 500;
+const GEOCODE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+function getCachedGeocode(key) {
+  const item = geocodeCache.get(key);
+  if (!item) return null;
+  if (Date.now() - item.time > GEOCODE_TTL_MS) {
+    geocodeCache.delete(key);
+    return null;
+  }
+  return item.data;
+}
+
+function setCachedGeocode(key, data) {
+  if (geocodeCache.size >= MAX_GEOCODE_CACHE) {
+    const firstKey = geocodeCache.keys().next().value;
+    geocodeCache.delete(firstKey);
+  }
+  geocodeCache.set(key, { data, time: Date.now() });
+}
+
 // ── OpenStreetMap (Nominatim) Geocoding Free Proxy ───────────────
-app.get('/api/geocode', async (req, res) => {
+app.get('/api/geocode', geocodeLimiter, async (req, res) => {
   const query = (req.query.q || '').trim();
   if (!query) {
     return res.status(400).json({ success: false, error: 'Search query (q parameter) is required.' });
   }
 
+  const limit = Math.min(parseInt(req.query.limit, 10) || 5, 10);
+  const cacheKey = `geo:${query.toLowerCase()}:${limit}`;
+  const cached = getCachedGeocode(cacheKey);
+  if (cached) {
+    return res.json({
+      success: true,
+      query,
+      cached: true,
+      results: cached,
+    });
+  }
+
   try {
-    const limit = Math.min(parseInt(req.query.limit, 10) || 5, 10);
     const osmResponse = await axios.get('https://nominatim.openstreetmap.org/search', {
       params: {
         q: query,
@@ -167,10 +223,13 @@ app.get('/api/geocode', async (req, res) => {
       timeout: 8000,
     });
 
+    const results = osmResponse.data || [];
+    setCachedGeocode(cacheKey, results);
+
     return res.json({
       success: true,
       query,
-      results: osmResponse.data || [],
+      results,
     });
   } catch (err) {
     console.warn('Nominatim geocode proxy notice:', err.message);
@@ -183,11 +242,23 @@ app.get('/api/geocode', async (req, res) => {
 });
 
 // ── OpenStreetMap (Nominatim) Reverse Geocoding Proxy ─────────────
-app.get('/api/reverse-geocode', async (req, res) => {
+app.get('/api/reverse-geocode', geocodeLimiter, async (req, res) => {
   const lat = parseFloat(req.query.lat);
   const lon = parseFloat(req.query.lon);
   if (isNaN(lat) || isNaN(lon)) {
     return res.status(400).json({ success: false, error: 'Valid lat and lon parameters are required.' });
+  }
+
+  const roundedLat = lat.toFixed(4);
+  const roundedLon = lon.toFixed(4);
+  const cacheKey = `rev:${roundedLat}:${roundedLon}`;
+  const cached = getCachedGeocode(cacheKey);
+  if (cached) {
+    return res.json({
+      success: true,
+      cached: true,
+      data: cached,
+    });
   }
 
   try {
@@ -205,9 +276,12 @@ app.get('/api/reverse-geocode', async (req, res) => {
       timeout: 8000,
     });
 
+    const data = osmResponse.data || {};
+    setCachedGeocode(cacheKey, data);
+
     return res.json({
       success: true,
-      data: osmResponse.data || {},
+      data,
     });
   } catch (err) {
     console.warn('Nominatim reverse geocode notice:', err.message);
@@ -230,7 +304,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // ── Contact / Inquiry submission endpoint ───────────────────────
-app.post('/api/contact', (req, res) => {
+app.post('/api/contact', contactLimiter, (req, res) => {
   const { name, email, category, priority, subject, message } = req.body || {};
   if (!name || !email || !message) {
     return res.status(400).json({
@@ -239,8 +313,21 @@ app.post('/api/contact', (req, res) => {
     });
   }
 
+  const cleanEmail = String(email).trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(cleanEmail) || cleanEmail.length > 254) {
+    return res.status(400).json({
+      success: false,
+      error: 'Please provide a valid email address.',
+    });
+  }
+
+  const cleanName = String(name).trim().replace(/[<>]/g, '').slice(0, 100);
+  const cleanSubject = String(subject || 'General Inquiry').trim().replace(/[<>]/g, '').slice(0, 200);
+  const cleanMessage = String(message).trim().replace(/[<>]/g, '').slice(0, 5000);
+
   const ticketId = `SD-${Math.random().toString(36).substring(2, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
-  console.log(`[CIRT Contact] Received dispatch ${ticketId} from ${email} (${priority || 'P3'}: ${subject || 'No subject'})`);
+  console.log(`[CIRT Contact] Received dispatch ${ticketId} from ${cleanEmail} (${priority || 'P3'}: ${cleanSubject})`);
 
   return res.json({
     success: true,

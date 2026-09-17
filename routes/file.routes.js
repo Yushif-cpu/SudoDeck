@@ -7,10 +7,10 @@ import { asyncHandler, AppError } from '../middleware/errorHandler.js';
 
 const router = Router();
 
-// Multer config — memory storage with 32MB limit
+// Multer config — memory storage with 16MB limit (prevents OOM on concurrent uploads)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 32 * 1024 * 1024 }, // 32MB
+  limits: { fileSize: 16 * 1024 * 1024 }, // 16MB
 });
 
 // ── File upload + hash analysis ─────────────────────────────────
@@ -27,11 +27,15 @@ router.post(
 
     const result = await checkFileHash(sha256);
 
+    const safeOriginalName = (req.file.originalname || 'unknown')
+      .replace(/[^\w.\- ()]/g, '_')
+      .slice(0, 150);
+
     res.json({
       success: true,
       type: 'file',
       uploadedFile: {
-        originalName: req.file.originalname,
+        originalName: safeOriginalName,
         size: req.file.size,
         mimeType: req.file.mimetype,
       },

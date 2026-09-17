@@ -17,6 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el) el.innerHTML = html;
   };
 
+  const escapeHtml = (str) => {
+    if (!str && str !== 0) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  };
+
   const setDisplay = (el, isVisible) => {
     if (!el) return;
     if (isVisible) {
@@ -481,25 +491,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     suggestedLocationsList.forEach((loc) => {
       const card = document.createElement('div');
+      const safeDisplayName = escapeHtml(loc.display_name);
+      const safeType = escapeHtml(loc.type || loc.category || 'landmark');
+      const latNum = parseFloat(loc.lat);
+      const lonNum = parseFloat(loc.lon);
+      const safeLat = isNaN(latNum) ? '0.0' : latNum.toFixed(5);
+      const safeLon = isNaN(lonNum) ? '0.0' : lonNum.toFixed(5);
+
       card.className = 'p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 space-y-3 transition-colors';
       card.innerHTML = `
         <div class="space-y-1">
-          <div class="text-xs font-bold text-white line-clamp-2">${loc.display_name}</div>
+          <div class="text-xs font-bold text-white line-clamp-2">${safeDisplayName}</div>
           <div class="flex items-center gap-2 text-[10px] font-mono text-slate-400">
             <span class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[#00C897]">
-              ${loc.type || loc.category || 'landmark'}
+              ${safeType}
             </span>
-            <span>Lat: ${parseFloat(loc.lat).toFixed(5)}, Lon: ${parseFloat(loc.lon).toFixed(5)}</span>
+            <span>Lat: ${safeLat}, Lon: ${safeLon}</span>
           </div>
         </div>
         <div class="flex items-center gap-2 pt-1 font-mono text-xs">
           <button type="button" class="btn-preview-map flex-1 text-center py-1.5 rounded-lg bg-[#00C897]/15 hover:bg-[#00C897]/25 text-[#00C897] font-bold transition-colors">
             View on Map 🗺️
           </button>
-          <a href="https://www.google.com/maps?q=${loc.lat},${loc.lon}" target="_blank" rel="noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
+          <a href="https://www.google.com/maps?q=${encodeURIComponent(loc.lat)},${encodeURIComponent(loc.lon)}" target="_blank" rel="noopener noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors">
             GMaps ↗
           </a>
-          <button type="button" class="btn-copy-loc px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" data-coords="${loc.lat}, ${loc.lon}">
+          <button type="button" class="btn-copy-loc px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" data-coords="${escapeHtml(loc.lat)}, ${escapeHtml(loc.lon)}">
             Copy
           </button>
         </div>
@@ -673,13 +690,14 @@ document.addEventListener('DOMContentLoaded', () => {
         proximityTags.innerHTML = '';
         landmarks.forEach((lm) => {
           const item = document.createElement('div');
+          const safeLm = escapeHtml(lm);
           item.className = 'flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-mono';
           item.innerHTML = `
-            <span class="text-white font-semibold">${lm}</span>
-            <a href="https://www.google.com/maps/search/${encodeURIComponent(lm)}" target="_blank" rel="noreferrer" class="px-1.5 py-0.5 rounded bg-[#00C897]/20 hover:bg-[#00C897]/30 text-[#00C897] text-[10px] font-bold transition-colors">
+            <span class="text-white font-semibold">${safeLm}</span>
+            <a href="https://www.google.com/maps/search/${encodeURIComponent(lm)}" target="_blank" rel="noopener noreferrer" class="px-1.5 py-0.5 rounded bg-[#00C897]/20 hover:bg-[#00C897]/30 text-[#00C897] text-[10px] font-bold transition-colors">
               GMaps ↗
             </a>
-            <button type="button" class="btn-osm-direct px-1.5 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-[10px] font-bold transition-colors" data-lm="${lm}">
+            <button type="button" class="btn-osm-direct px-1.5 py-0.5 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 text-[10px] font-bold transition-colors" data-lm="${safeLm}">
               OSM 🔍
             </button>
           `;

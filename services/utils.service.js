@@ -266,6 +266,23 @@ const HOSTNAME_SAFE_REGEX = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-z
 const IPV4_REGEX = /^(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)$/;
 const IPV6_REGEX = /^[0-9a-fA-F:]+$/;
 
+function isPrivateOrRestrictedIP(ipStr) {
+  if (!IPV4_REGEX.test(ipStr)) return false;
+  const parts = ipStr.split('.').map(Number);
+  const oct1 = parts[0];
+  const oct2 = parts[1];
+
+  if (oct1 === 127) return true; // Loopback
+  if (oct1 === 10) return true; // RFC 1918 Private
+  if (oct1 === 172 && oct2 >= 16 && oct2 <= 31) return true; // RFC 1918 Private
+  if (oct1 === 192 && oct2 === 168) return true; // RFC 1918 Private
+  if (oct1 === 169 && oct2 === 254) return true; // Link-local / Cloud metadata (AWS/GCP)
+  if (oct1 === 0) return true; // 0.0.0.0/8
+  if (oct1 >= 224) return true; // Multicast / Reserved
+
+  return false;
+}
+
 export async function pingHost(targetHost, count = 4) {
   if (!targetHost || typeof targetHost !== 'string') {
     throw new AppError('Host or IP is required for ping.', 400, 'INVALID_HOST');
@@ -275,6 +292,24 @@ export async function pingHost(targetHost, count = 4) {
 
   if (!IPV4_REGEX.test(cleanHost) && !HOSTNAME_SAFE_REGEX.test(cleanHost) && !IPV6_REGEX.test(cleanHost)) {
     throw new AppError('Invalid target host. Only valid domain names or IP addresses allowed.', 400, 'SECURITY_VALIDATION_ERROR');
+  }
+
+  // Security Check: Block private IP ranges, loopback, and cloud metadata targets
+  if (cleanHost === 'localhost' || cleanHost === '::1' || cleanHost === '0.0.0.0' || isPrivateOrRestrictedIP(cleanHost)) {
+    throw new AppError('Pinging private, internal, or loopback network addresses is restricted for security.', 403, 'RESTRICTED_TARGET');
+  }
+
+  // If target is a hostname, verify resolved IP does not point to internal/private targets
+  if (HOSTNAME_SAFE_REGEX.test(cleanHost) && !IPV4_REGEX.test(cleanHost)) {
+    try {
+      const resolved = await dns.lookup(cleanHost);
+      if (resolved && isPrivateOrRestrictedIP(resolved.address)) {
+        throw new AppError('Target resolves to a private or restricted internal network address.', 403, 'RESTRICTED_TARGET');
+      }
+    } catch (dnsErr) {
+      if (dnsErr instanceof AppError) throw dnsErr;
+      // If DNS resolution fails, ping will handle host unreachable error
+    }
   }
 
   const isWin = os.platform() === 'win32';
