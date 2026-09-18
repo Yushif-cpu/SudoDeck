@@ -68,33 +68,20 @@ app.use(helmet({
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow non-browser agents (cURL, Postman, automated monitors, internal health checks)
-    if (!origin) return callback(null, true);
+    // Requests without Origin are not cross-origin browser requests.
+    if (!origin) return callback(null, false);
 
-    const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+    const isLocal = process.env.NODE_ENV !== 'production' && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
     const envOrigins = process.env.ALLOWED_ORIGINS
       ? process.env.ALLOWED_ORIGINS.split(',').map((s) => s.trim()).filter(Boolean)
       : [];
 
-    // If wildcard or explicit whitelist is defined
-    if (envOrigins.includes('*')) {
-      return callback(null, true);
-    }
-
-    if (envOrigins.length > 0) {
-      if (isLocal || envOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error('Cross-Origin Request Blocked by ThreatIntel CORS Policy'));
-    }
-
-    // Default for cloud & container deployments (Coolify, Render, VPS, local):
-    // Allow the request origin so that frontend API calls from the assigned domain succeed
-    return callback(null, true);
+    if (isLocal || envOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-  credentials: true,
+  credentials: false,
 };
 app.use(cors(corsOptions));
 app.use(compression());

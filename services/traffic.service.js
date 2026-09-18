@@ -5,6 +5,7 @@
 import axios from 'axios';
 import config from '../config/env.js';
 import { supabase } from './supabase.service.js';
+import { reserveTrafficCall } from './traffic-budget.js';
 
 /**
  * Clean & normalize domain name
@@ -153,6 +154,12 @@ export async function getDomainTraffic(domain, forceFresh = false) {
     throw new Error('APIFY_API_TOKEN mühit dəyişənlərində (.env) təyin edilməyib.');
   }
 
+  if (!reserveTrafficCall(cleanDomain, forceFresh)) {
+    const error = new Error('Traffic refresh limit reached. Try again later.');
+    error.statusCode = 429;
+    throw error;
+  }
+
   // Primary: curious_coder~similarweb-scraper, fallback: tri_angle~similarweb-scraper
   const candidateActors = [
     'curious_coder~similarweb-scraper',
@@ -164,7 +171,7 @@ export async function getDomainTraffic(domain, forceFresh = false) {
 
   for (const actor of candidateActors) {
     try {
-      const apifyEndpoint = `https://api.apify.com/v2/acts/${actor}/run-sync-get-dataset-items?token=${encodeURIComponent(apifyToken)}`;
+      const apifyEndpoint = `https://api.apify.com/v2/acts/${actor}/run-sync-get-dataset-items`;
       const apifyRes = await axios.post(
         apifyEndpoint,
         {
@@ -175,6 +182,7 @@ export async function getDomainTraffic(domain, forceFresh = false) {
           headers: {
             'Content-Type': 'application/json',
             'User-Agent': 'SudoDeck-ThreatIntel/2.0',
+            Authorization: `Bearer ${apifyToken}`,
           },
           timeout: 90000, // 90s timeout
         }

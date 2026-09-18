@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="flex items-center justify-between text-xs">
           <span class="font-medium text-slate-300 flex items-center gap-2">
             <span class="w-2 h-2 rounded-full ${conf.color}"></span>
-            ${conf.label}
+            ${escapeHtml(conf.label)}
           </span>
           <span class="font-mono font-bold ${conf.text}">${sharePercent.toFixed(1)}%</span>
         </div>
@@ -342,9 +342,9 @@ document.addEventListener('DOMContentLoaded', () => {
       row.innerHTML = `
         <div class="flex items-center gap-2.5 min-w-0">
           <span class="px-1.5 py-0.5 rounded bg-surface-800 border border-slate-700 font-mono font-bold text-slate-300 text-[10px]">
-            ${String(code).toUpperCase()}
+            ${escapeHtml(String(code).toUpperCase())}
           </span>
-          <span class="font-medium text-white truncate">${name}</span>
+          <span class="font-medium text-white truncate">${escapeHtml(name)}</span>
         </div>
         <span class="font-mono font-bold text-emerald-400 shrink-0">${share.toFixed(1)}%</span>
       `;
@@ -356,6 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function cleanDomainString(input) {
     if (!input) return '';
     return input.trim().toLowerCase().replace(/^[a-zA-Z]+:\/\//, '').split('/')[0].split('?')[0].split('#')[0].split(':')[0];
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    })[char]);
   }
 
   function setLoading(state) {

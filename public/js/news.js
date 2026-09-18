@@ -181,7 +181,8 @@
       .map((item) => {
         const relTime = getRelativeTimeString(item.isoDate || item.pubDate);
         const fallbackImg = `https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80`;
-        const imgSrc = item.thumbnail || fallbackImg;
+        const imgSrc = safeHttpUrl(item.thumbnail) || fallbackImg;
+        const articleUrl = safeHttpUrl(item.link) || '#';
 
         // Tags
         let tagsHtml = '';
@@ -235,7 +236,7 @@
                 </div>
 
                 <h3 class="text-base font-bold text-white group-hover:text-emerald-300 transition-colors leading-snug line-clamp-2 mb-2.5">
-                  <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="hover:underline focus:outline-none">
+                  <a href="${escapeHtml(articleUrl)}" target="_blank" rel="noopener noreferrer" class="hover:underline focus:outline-none">
                     ${escapeHtml(item.title)}
                   </a>
                 </h3>
@@ -254,7 +255,7 @@
               </div>
 
               <a
-                href="${escapeHtml(item.link)}"
+                href="${escapeHtml(articleUrl)}"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:text-emerald-200 text-xs font-semibold transition-all group/link"
@@ -318,6 +319,16 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  function safeHttpUrl(value) {
+    if (typeof value !== 'string') return '';
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' || url.protocol === 'http:' ? url.href : '';
+    } catch {
+      return '';
+    }
   }
 
   // Event Listeners

@@ -1,11 +1,11 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { reserveTrafficCall } from '../../../services/traffic-budget.js';
 
 // Environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
 const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
   process.env.SUPABASE_KEY ||
   '';
@@ -82,14 +82,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const apifyUrl = `https://api.apify.com/v2/acts/curious_coder~similarweb-scraper/run-sync-get-dataset-items?token=${encodeURIComponent(
-      apifyToken
-    )}`;
+    if (!reserveTrafficCall(domain, forceFresh)) {
+      return NextResponse.json({ success: false, error: 'Traffic refresh limit reached. Try again later.' }, { status: 429 });
+    }
+
+    const apifyUrl = 'https://api.apify.com/v2/acts/curious_coder~similarweb-scraper/run-sync-get-dataset-items';
 
     const apifyResponse = await fetch(apifyUrl, {
       method: 'POST',
+      signal: AbortSignal.timeout(90000),
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${apifyToken}`,
       },
       body: JSON.stringify({
         domains: [domain],
@@ -98,13 +102,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!apifyResponse.ok) {
-      const errorText = await apifyResponse.text();
       return NextResponse.json(
         {
           success: false,
-          error: `Apify API error (${apifyResponse.status}): ${errorText}`,
+          error: 'Traffic provider is temporarily unavailable.',
         },
-        { status: apifyResponse.status }
+        { status: 502 }
       );
     }
 
@@ -169,7 +172,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Internal server error occurred.',
+        error: 'Internal server error occurred.',
       },
       { status: 500 }
     );

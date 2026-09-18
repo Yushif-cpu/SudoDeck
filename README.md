@@ -126,11 +126,22 @@ ABUSEIPDB_API_KEY=your_abuseipdb_key_here
 NVD_API_KEY=your_nvd_api_key_here
 MACVENDORS_API_TOKEN=your_macvendors_token_here
 APIFY_API_TOKEN=your_apify_token_here
+ALLOWED_ORIGINS=https://your-frontend.example
 
 # Supabase (Optional — for cloud traffic cache & persistence)
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 ```
+
+Public traffic lookups use the Supabase cache when available. New paid Apify calls
+are limited to 20 per hour per server process, with a 10-minute cooldown per
+domain and request type. The original Bypass Cache control remains available.
+Multi-instance deployments need a shared rate-limit store and an upstream spend cap.
+The Next traffic route uses the publishable Supabase key. Enable RLS and grant
+only the `domain_traffic` operations it needs, or leave caching disabled.
+Rotate any vendor token that was shared outside the private server environment.
+The original frontend markup and event handlers are preserved. Untrusted traffic
+data is escaped before HTML rendering, and news links use validated HTTP URLs.
 
 ### 4. Start the Application
 ```bash
